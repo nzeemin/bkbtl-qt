@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/iconFloppy.png</file>
+        <file>images/iconFloppySlot.png</file>
+        <file>images/iconReset.png</file>
+        <file>images/iconRun.png</file>
+        <file>images/keyboard.png</file>
+    </qresource>
+</RCC>
