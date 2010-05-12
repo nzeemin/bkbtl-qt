@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>662</width>
+    <height>571</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>662</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionFileScreenshot"/>
+    <addaction name="separator"/>
+    <addaction name="actionFileExit"/>
+   </widget>
+   <widget class="QMenu" name="menuEmulator">
+    <property name="title">
+     <string>Emulator</string>
+    </property>
+    <addaction name="actionEmulatorRun"/>
+    <addaction name="actionEmulatorReset"/>
+   </widget>
+   <widget class="QMenu" name="menuDrives">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="title">
+     <string>Drives</string>
+    </property>
+    <addaction name="actionDrivesFloppy0"/>
+    <addaction name="actionDrivesFloppy1"/>
+    <addaction name="actionDrivesFloppy2"/>
+    <addaction name="actionDrivesFloppy3"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelpAboutQt"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEmulator"/>
+   <addaction name="menuDrives"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QToolBar" name="mainToolBar">
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="allowedAreas">
+    <set>Qt::TopToolBarArea</set>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>16</width>
+     <height>16</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextBesideIcon</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionEmulatorRun"/>
+   <addaction name="actionEmulatorReset"/>
+   <addaction name="separator"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionFileExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionEmulatorRun">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconRun.png</normaloff>:/images/iconRun.png</iconset>
+   </property>
+   <property name="text">
+    <string>Run</string>
+   </property>
+  </action>
+  <action name="actionEmulatorReset">
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconReset.png</normaloff>:/images/iconReset.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionHelpAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionDrivesFloppy0">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconFloppySlot.png</normaloff>
+     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Floppy MZ0:</string>
+   </property>
+   <property name="iconText">
+    <string>0</string>
+   </property>
+  </action>
+  <action name="actionDrivesFloppy1">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconFloppySlot.png</normaloff>
+     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Floppy MZ1:</string>
+   </property>
+   <property name="iconText">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionDrivesFloppy2">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconFloppySlot.png</normaloff>
+     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Floppy MZ2:</string>
+   </property>
+   <property name="iconText">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="actionDrivesFloppy3">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconFloppySlot.png</normaloff>
+     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Floppy MZ3:</string>
+   </property>
+   <property name="iconText">
+    <string>3</string>
+   </property>
+  </action>
+  <action name="actionDrivesCartridge1">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/iconCartridgeSlot.png</normaloff>
+     <normalon>:/images/iconCartridge.png</normalon>:/images/iconCartridgeSlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cartridge 1</string>
+   </property>
+   <property name="iconText">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionDrivesHard1">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/iconHddSlot.png</normaloff>:/images/iconHddSlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Hard Drive 1</string>
+   </property>
+   <property name="iconText">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionDrivesCartridge2">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/iconCartridgeSlot.png</normaloff>
+     <normalon>:/images/iconCartridge.png</normalon>:/images/iconCartridgeSlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Cartridge 2</string>
+   </property>
+   <property name="iconText">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="actionDrivesHard2">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>:/images/iconHddSlot.png</normaloff>:/images/iconHddSlot.png</iconset>
+   </property>
+   <property name="text">
+    <string>Hard Drive 2</string>
+   </property>
+   <property name="iconText">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="actionFileScreenshot">
+   <property name="text">
+    <string>Screenshot</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources>
+  <include location="QtBkBtl.qrc"/>
+ </resources>
+ <connections/>
+</ui>
