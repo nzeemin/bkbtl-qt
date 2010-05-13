@@ -45,23 +45,23 @@ const DWORD ScreenView_ColorPalette[4] = {
 };
 
 const DWORD ScreenView_ColorPalettes[16][4] = {
-    //                                     Palette#     01           10          11
-    0x000000, 0x0000FF, 0x00FF00, 0xFF0000,  // 00    синий   |   зеленый  |  красный
-    0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000,  // 01   желтый   |  сиреневый |  красный
-    0x000000, 0x00FFFF, 0x0000FF, 0xFF00FF,  // 02   голубой  |    синий   | сиреневый
-    0x000000, 0x00FF00, 0x00FFFF, 0xFFFF00,  // 03   зеленый  |   голубой  |  желтый
-    0x000000, 0xFF00FF, 0x00FFFF, 0xFFFFFF,  // 04  сиреневый |   голубой  |   белый
-    0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF,  // 05    белый   |    белый   |   белый
-    0x000000, 0x7F0000, 0x7F0000, 0xFF0000,  // 06  темн-красн| красн-корич|  красный
-    0x000000, 0x00FF7F, 0x00FF7F, 0xFFFF00,  // 07  салатовый | светл-зелен|  желтый
-    0x000000, 0xFF00FF, 0x7F00FF, 0x7F007F,  // 08  фиолетовый| фиол-синий | сиреневый
-    0x000000, 0x00FF7F, 0x7F00FF, 0x7F0000,  // 09 светл-зелен| фиол-синий |красн-корич
-    0x000000, 0x00FF7F, 0x7F007F, 0x7F0000,  // 10  салатовый | фиолетовый |темн-красный
-    0x000000, 0x00FFFF, 0xFFFF00, 0xFF0000,  // 11   голубой  |   желтый   |  красный
-    0x000000, 0xFF0000, 0x00FF00, 0x00FFFF,  // 12   красный  |   зеленый  |  голубой
-    0x000000, 0x00FFFF, 0xFFFF00, 0xFFFFFF,  // 13   голубой  |   желтый   |   белый
-    0x000000, 0xFFFF00, 0x00FF00, 0xFFFFFF,  // 14   желтый   |   зеленый  |   белый
-    0x000000, 0x00FFFF, 0x00FF00, 0xFFFFFF,  // 15   голубой  |   зеленый  |   белый
+    //                                         Palette#     01           10          11
+    { 0x000000, 0x0000FF, 0x00FF00, 0xFF0000 },  // 00    синий   |   зеленый  |  красный
+    { 0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000 },  // 01   желтый   |  сиреневый |  красный
+    { 0x000000, 0x00FFFF, 0x0000FF, 0xFF00FF },  // 02   голубой  |    синий   | сиреневый
+    { 0x000000, 0x00FF00, 0x00FFFF, 0xFFFF00 },  // 03   зеленый  |   голубой  |  желтый
+    { 0x000000, 0xFF00FF, 0x00FFFF, 0xFFFFFF },  // 04  сиреневый |   голубой  |   белый
+    { 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },  // 05    белый   |    белый   |   белый
+    { 0x000000, 0x7F0000, 0x7F0000, 0xFF0000 },  // 06  темн-красн| красн-корич|  красный
+    { 0x000000, 0x00FF7F, 0x00FF7F, 0xFFFF00 },  // 07  салатовый | светл-зелен|  желтый
+    { 0x000000, 0xFF00FF, 0x7F00FF, 0x7F007F },  // 08  фиолетовый| фиол-синий | сиреневый
+    { 0x000000, 0x00FF7F, 0x7F00FF, 0x7F0000 },  // 09 светл-зелен| фиол-синий |красн-корич
+    { 0x000000, 0x00FF7F, 0x7F007F, 0x7F0000 },  // 10  салатовый | фиолетовый |темн-красный
+    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFF0000 },  // 11   голубой  |   желтый   |  красный
+    { 0x000000, 0xFF0000, 0x00FF00, 0x00FFFF },  // 12   красный  |   зеленый  |  голубой
+    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFFFFFF },  // 13   голубой  |   желтый   |   белый
+    { 0x000000, 0xFFFF00, 0x00FF00, 0xFFFFFF },  // 14   желтый   |   зеленый  |   белый
+    { 0x000000, 0x00FFFF, 0x00FF00, 0xFFFFFF },  // 15   голубой  |   зеленый  |   белый
 };
 
 
@@ -380,10 +380,10 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, ScreenViewMode screenMode)
 
     // Get palette
     DWORD* pPalette;
-    //if ((g_nEmulatorConfiguration & BK_COPT_BK0011) == 0)
+    if ((g_nEmulatorConfiguration & BK_COPT_BK0011) == 0)
         pPalette = (DWORD*)ScreenView_ColorPalette;
-    //else
-    //    pPalette = (DWORD*)ScreenView_ColorPalettes[g_pBoard->GetPalette()];
+    else
+        pPalette = (DWORD*)ScreenView_ColorPalettes[g_pBoard->GetPalette()];
 
     const BYTE* pVideoBuffer = g_pBoard->GetVideoBuffer();
     ASSERT(pVideoBuffer != NULL);

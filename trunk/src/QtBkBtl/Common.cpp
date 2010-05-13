@@ -11,6 +11,12 @@ void AlertWarning(LPCTSTR sMessage)
     QMessageBox::warning(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok);
 }
 
+BOOL AlertOkCancel(LPCTSTR sMessage)
+{
+    int result = QMessageBox::question(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok, QMessageBox::Cancel);
+    return (result == QMessageBox::Ok);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // DebugPrint and DebugLog

@@ -2,6 +2,8 @@
 #define QSCREEN_H
 
 #include <QWidget>
+#include "main.h"
+
 
 class QScreen : public QWidget
 {
@@ -12,6 +14,8 @@ public:
 
 public:
     void saveScreenshot(QString strFileName);
+    ScreenViewMode mode() const { return m_mode; }
+    void setMode(ScreenViewMode mode);
 
 protected:
     void paintEvent(QPaintEvent *event);
@@ -22,6 +26,7 @@ private:
     QImage* m_image;
     int m_nImageTop;
     int m_nImageLeft;
+    ScreenViewMode m_mode;
 
 private:
     unsigned char TranslateQtKeyToBkKey(int qtkey);

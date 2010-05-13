@@ -10,6 +10,7 @@ QScreen::QScreen(QWidget *parent) :
     setFocusPolicy(Qt::StrongFocus);
 
     m_image = new QImage(BK_SCREEN_WIDTH, BK_SCREEN_HEIGHT, QImage::Format_RGB32);
+    m_mode = BlackWhiteScreen;
 }
 
 QScreen::~QScreen()
@@ -22,9 +23,15 @@ void QScreen::saveScreenshot(QString strFileName)
     m_image->save(strFileName, _T("PNG"), -1);
 }
 
+void QScreen::setMode(ScreenViewMode mode)
+{
+    m_mode = mode;
+    this->repaint();
+}
+
 void QScreen::paintEvent(QPaintEvent *event)
 {
-    Emulator_PrepareScreenRGB32(m_image->bits(), BlackWhiteScreen);
+    Emulator_PrepareScreenRGB32(m_image->bits(), m_mode);
 
     // Center image
     m_nImageLeft = (this->width() - BK_SCREEN_WIDTH) / 2;
