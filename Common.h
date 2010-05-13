@@ -93,6 +93,7 @@ BOOL AssertFailedLine(LPCSTR lpszFileName, int nLine);
 
 
 void AlertWarning(LPCTSTR sMessage);
+BOOL AlertOkCancel(LPCTSTR sMessage);
 
 
 //////////////////////////////////////////////////////////////////////

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu May 13 00:58:32 2010
+** Created: Thu May 13 21:36:22 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -40,12 +40,19 @@ public:
     QAction *actionDrivesCartridge2;
     QAction *actionDrivesHard2;
     QAction *actionFileScreenshot;
+    QAction *actionConfBK10Basic;
+    QAction *actionConfBK10Focal;
+    QAction *actionConfBK10Fdd;
+    QAction *actionConfBK11;
+    QAction *actionConfBK11Fdd;
+    QAction *actionEmulatorColorScreen;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *menuEmulator;
     QMenu *menuDrives;
     QMenu *menuHelp;
+    QMenu *menuConfiguration;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -111,6 +118,24 @@ public:
         actionDrivesHard2->setIcon(icon4);
         actionFileScreenshot = new QAction(MainWindow);
         actionFileScreenshot->setObjectName(QString::fromUtf8("actionFileScreenshot"));
+        actionConfBK10Basic = new QAction(MainWindow);
+        actionConfBK10Basic->setObjectName(QString::fromUtf8("actionConfBK10Basic"));
+        actionConfBK10Basic->setCheckable(true);
+        actionConfBK10Focal = new QAction(MainWindow);
+        actionConfBK10Focal->setObjectName(QString::fromUtf8("actionConfBK10Focal"));
+        actionConfBK10Focal->setCheckable(true);
+        actionConfBK10Fdd = new QAction(MainWindow);
+        actionConfBK10Fdd->setObjectName(QString::fromUtf8("actionConfBK10Fdd"));
+        actionConfBK10Fdd->setCheckable(true);
+        actionConfBK11 = new QAction(MainWindow);
+        actionConfBK11->setObjectName(QString::fromUtf8("actionConfBK11"));
+        actionConfBK11->setCheckable(true);
+        actionConfBK11Fdd = new QAction(MainWindow);
+        actionConfBK11Fdd->setObjectName(QString::fromUtf8("actionConfBK11Fdd"));
+        actionConfBK11Fdd->setCheckable(true);
+        actionEmulatorColorScreen = new QAction(MainWindow);
+        actionEmulatorColorScreen->setObjectName(QString::fromUtf8("actionEmulatorColorScreen"));
+        actionEmulatorColorScreen->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -126,6 +151,8 @@ public:
         menuDrives->setEnabled(false);
         menuHelp = new QMenu(menuBar);
         menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
+        menuConfiguration = new QMenu(menuBar);
+        menuConfiguration->setObjectName(QString::fromUtf8("menuConfiguration"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -141,6 +168,7 @@ public:
 
         menuBar->addAction(menuFile->menuAction());
         menuBar->addAction(menuEmulator->menuAction());
+        menuBar->addAction(menuConfiguration->menuAction());
         menuBar->addAction(menuDrives->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionFileScreenshot);
@@ -148,11 +176,18 @@ public:
         menuFile->addAction(actionFileExit);
         menuEmulator->addAction(actionEmulatorRun);
         menuEmulator->addAction(actionEmulatorReset);
+        menuEmulator->addSeparator();
+        menuEmulator->addAction(actionEmulatorColorScreen);
         menuDrives->addAction(actionDrivesFloppy0);
         menuDrives->addAction(actionDrivesFloppy1);
         menuDrives->addAction(actionDrivesFloppy2);
         menuDrives->addAction(actionDrivesFloppy3);
         menuHelp->addAction(actionHelpAboutQt);
+        menuConfiguration->addAction(actionConfBK10Basic);
+        menuConfiguration->addAction(actionConfBK10Focal);
+        menuConfiguration->addAction(actionConfBK10Fdd);
+        menuConfiguration->addAction(actionConfBK11);
+        menuConfiguration->addAction(actionConfBK11Fdd);
         mainToolBar->addAction(actionEmulatorRun);
         mainToolBar->addAction(actionEmulatorReset);
         mainToolBar->addSeparator();
@@ -186,10 +221,17 @@ public:
         actionDrivesHard2->setText(QApplication::translate("MainWindow", "Hard Drive 2", 0, QApplication::UnicodeUTF8));
         actionDrivesHard2->setIconText(QApplication::translate("MainWindow", "2", 0, QApplication::UnicodeUTF8));
         actionFileScreenshot->setText(QApplication::translate("MainWindow", "Screenshot", 0, QApplication::UnicodeUTF8));
+        actionConfBK10Basic->setText(QApplication::translate("MainWindow", "BK 0010.01 BASIC", 0, QApplication::UnicodeUTF8));
+        actionConfBK10Focal->setText(QApplication::translate("MainWindow", "BK 0010.01 FOCAL", 0, QApplication::UnicodeUTF8));
+        actionConfBK10Fdd->setText(QApplication::translate("MainWindow", "BK 0010.01 FDD", 0, QApplication::UnicodeUTF8));
+        actionConfBK11->setText(QApplication::translate("MainWindow", "BK 0011M", 0, QApplication::UnicodeUTF8));
+        actionConfBK11Fdd->setText(QApplication::translate("MainWindow", "BK 0011M FDD", 0, QApplication::UnicodeUTF8));
+        actionEmulatorColorScreen->setText(QApplication::translate("MainWindow", "Color Screen", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEmulator->setTitle(QApplication::translate("MainWindow", "Emulator", 0, QApplication::UnicodeUTF8));
         menuDrives->setTitle(QApplication::translate("MainWindow", "Drives", 0, QApplication::UnicodeUTF8));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0, QApplication::UnicodeUTF8));
+        menuConfiguration->setTitle(QApplication::translate("MainWindow", "Configuration", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

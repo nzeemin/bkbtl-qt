@@ -23,6 +23,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
     QObject::connect(ui->actionEmulatorReset, SIGNAL(triggered()), this, SLOT(emulatorReset()));
+    QObject::connect(ui->actionEmulatorColorScreen, SIGNAL(triggered()), this, SLOT(emulatorColorScreen()));
+    QObject::connect(ui->actionConfBK10Basic, SIGNAL(triggered()), this, SLOT(configurationBK0010Basic()));
+    QObject::connect(ui->actionConfBK10Focal, SIGNAL(triggered()), this, SLOT(configurationBK0010Focal()));
+    QObject::connect(ui->actionConfBK10Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0010Fdd()));
+    QObject::connect(ui->actionConfBK11, SIGNAL(triggered()), this, SLOT(configurationBK0011()));
+    QObject::connect(ui->actionConfBK11Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0011Fdd()));
     //QObject::connect(ui->actionDrivesFloppy0, SIGNAL(triggered()), this, SLOT(emulatorFloppy0()));
     //QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), this, SLOT(emulatorFloppy1()));
     //QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), this, SLOT(emulatorFloppy2()));
@@ -62,6 +68,12 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::UpdateMenu()
 {
+    ui->actionConfBK10Basic->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_BASIC);
+    ui->actionConfBK10Focal->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FOCAL);
+    ui->actionConfBK10Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FDD);
+    ui->actionConfBK11->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011);
+    ui->actionConfBK11Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011_FDD);
+
     ui->actionDrivesFloppy0->setIcon(QIcon(
             g_pBoard->IsFloppyImageAttached(0) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
     ui->actionDrivesFloppy1->setIcon(QIcon(
@@ -120,6 +132,36 @@ void MainWindow::emulatorReset()
     Emulator_Reset();
 
     m_screen->repaint();
+}
+
+void MainWindow::emulatorColorScreen()
+{
+    ScreenViewMode newMode = (m_screen->mode() == ColorScreen) ? BlackWhiteScreen : ColorScreen;
+    m_screen->setMode(newMode);
+}
+
+void MainWindow::configurationBK0010Basic() { setConfiguration(BK_CONF_BK0010_BASIC); }
+void MainWindow::configurationBK0010Focal() { setConfiguration(BK_CONF_BK0010_FOCAL); }
+void MainWindow::configurationBK0010Fdd()   { setConfiguration(BK_CONF_BK0010_FDD); }
+void MainWindow::configurationBK0011()      { setConfiguration(BK_CONF_BK0011); }
+void MainWindow::configurationBK0011Fdd()   { setConfiguration(BK_CONF_BK0011_FDD); }
+void MainWindow::setConfiguration(int configuration)
+{
+    // Check if configuration changed
+    if (g_nEmulatorConfiguration == configuration)
+        return;
+
+    // Ask user -- we have to reset machine to change configuration
+    if (!AlertOkCancel(_T("Reset required after configuration change.\nAre you agree?")))
+        return;
+
+    // Change configuration
+    Emulator_InitConfiguration((BKConfiguration)configuration);
+
+    //Settings_SetConfiguration(configuration);
+
+    UpdateMenu();
+    //MainWindow_UpdateAllViews();
 }
 
 void MainWindow::emulatorFloppy0() { emulatorFloppy(0); }

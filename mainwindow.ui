@@ -37,6 +37,8 @@
     </property>
     <addaction name="actionEmulatorRun"/>
     <addaction name="actionEmulatorReset"/>
+    <addaction name="separator"/>
+    <addaction name="actionEmulatorColorScreen"/>
    </widget>
    <widget class="QMenu" name="menuDrives">
     <property name="enabled">
@@ -56,8 +58,19 @@
     </property>
     <addaction name="actionHelpAboutQt"/>
    </widget>
+   <widget class="QMenu" name="menuConfiguration">
+    <property name="title">
+     <string>Configuration</string>
+    </property>
+    <addaction name="actionConfBK10Basic"/>
+    <addaction name="actionConfBK10Focal"/>
+    <addaction name="actionConfBK10Fdd"/>
+    <addaction name="actionConfBK11"/>
+    <addaction name="actionConfBK11Fdd"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEmulator"/>
+   <addaction name="menuConfiguration"/>
    <addaction name="menuDrives"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -251,6 +264,54 @@
   <action name="actionFileScreenshot">
    <property name="text">
     <string>Screenshot</string>
+   </property>
+  </action>
+  <action name="actionConfBK10Basic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>BK 0010.01 BASIC</string>
+   </property>
+  </action>
+  <action name="actionConfBK10Focal">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>BK 0010.01 FOCAL</string>
+   </property>
+  </action>
+  <action name="actionConfBK10Fdd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>BK 0010.01 FDD</string>
+   </property>
+  </action>
+  <action name="actionConfBK11">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>BK 0011M</string>
+   </property>
+  </action>
+  <action name="actionConfBK11Fdd">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>BK 0011M FDD</string>
+   </property>
+  </action>
+  <action name="actionEmulatorColorScreen">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Color Screen</string>
    </property>
   </action>
  </widget>

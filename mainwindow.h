@@ -25,6 +25,12 @@ public slots:
     void emulatorFrame();
     void emulatorRun();
     void emulatorReset();
+    void emulatorColorScreen();
+    void configurationBK0010Basic();
+    void configurationBK0010Focal();
+    void configurationBK0010Fdd();
+    void configurationBK0011();
+    void configurationBK0011Fdd();
     void emulatorFloppy0();
     void emulatorFloppy1();
     void emulatorFloppy2();
@@ -38,6 +44,7 @@ private:
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
 
+    void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
 };
 
