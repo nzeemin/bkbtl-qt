@@ -6,7 +6,7 @@
 QScreen::QScreen(QWidget *parent) :
     QWidget(parent)
 {
-    setMinimumSize(BK_SCREEN_WIDTH, BK_SCREEN_HEIGHT);
+    setMinimumSize(BK_SCREEN_WIDTH + 8, BK_SCREEN_HEIGHT + 8);
     setFocusPolicy(Qt::StrongFocus);
 
     m_image = new QImage(BK_SCREEN_WIDTH, BK_SCREEN_HEIGHT, QImage::Format_RGB32);
@@ -34,11 +34,24 @@ void QScreen::paintEvent(QPaintEvent *event)
     Emulator_PrepareScreenRGB32(m_image->bits(), m_mode);
 
     // Center image
-    m_nImageLeft = (this->width() - BK_SCREEN_WIDTH) / 2;
-    m_nImageTop = (this->height() - BK_SCREEN_HEIGHT) / 2;
+    int cxBitmap = m_image->width();
+    int cyBitmap = m_image->height();
+    m_nImageLeft = (this->width() - cxBitmap) / 2;
+    m_nImageTop = (this->height() - cyBitmap) / 2;
 
     QPainter painter(this);
     painter.drawImage(m_nImageLeft, m_nImageTop, *m_image);
+
+    if (m_nImageLeft > 0)
+    {
+        painter.fillRect(0, 0, m_nImageLeft, this->height(), QColor(115,115,115));
+        painter.fillRect(m_nImageLeft + cxBitmap, 0, m_nImageLeft + 1, this->height(), QColor(115,115,115));
+    }
+    if (m_nImageTop > 0)
+    {
+        painter.fillRect(0, 0, this->width(), m_nImageTop, QColor(115,115,115));
+        painter.fillRect(0, m_nImageTop + cyBitmap, this->width(), m_nImageTop + 1, QColor(115,115,115));
+    }
 }
 
 void QScreen::keyPressEvent(QKeyEvent *event)

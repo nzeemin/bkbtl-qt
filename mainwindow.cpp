@@ -19,6 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle(_T("BK Back to Life"));
 
     // Assign signals
+    QObject::connect(ui->actionFileLoadBin, SIGNAL(triggered()), this, SLOT(fileLoadBin()));
     QObject::connect(ui->actionFileScreenshot, SIGNAL(triggered()), this, SLOT(fileScreenshot()));
     QObject::connect(ui->actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
@@ -39,11 +40,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_screen = new QScreen();
     m_keyboard = new QKeyboardView();
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(4);
-    layout->setSpacing(4);
+    layout->setMargin(0);
+    layout->setSpacing(0);
     layout->addWidget(m_screen);
     layout->addWidget(m_keyboard);
     ui->centralWidget->setLayout(layout);
+
     this->adjustSize();
     this->setFocusProxy(m_screen);
 }
@@ -68,6 +70,9 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::UpdateMenu()
 {
+    ui->actionEmulatorColorScreen->setIcon(QIcon(
+            m_screen->mode() == ColorScreen ? _T(":/images/iconScreenColor.png") : _T(":/images/iconScreenBW.png") ));
+
     ui->actionConfBK10Basic->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_BASIC);
     ui->actionConfBK10Focal->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FOCAL);
     ui->actionConfBK10Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FDD);
@@ -82,6 +87,11 @@ void MainWindow::UpdateMenu()
             g_pBoard->IsFloppyImageAttached(2) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
     ui->actionDrivesFloppy3->setIcon(QIcon(
             g_pBoard->IsFloppyImageAttached(3) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+}
+
+void MainWindow::fileLoadBin()
+{
+    //TODO
 }
 
 void MainWindow::fileScreenshot()
@@ -138,6 +148,8 @@ void MainWindow::emulatorColorScreen()
 {
     ScreenViewMode newMode = (m_screen->mode() == ColorScreen) ? BlackWhiteScreen : ColorScreen;
     m_screen->setMode(newMode);
+
+    UpdateMenu();
 }
 
 void MainWindow::configurationBK0010Basic() { setConfiguration(BK_CONF_BK0010_BASIC); }

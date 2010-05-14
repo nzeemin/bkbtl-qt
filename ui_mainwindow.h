@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Thu May 13 21:36:22 2010
+** Created: Fri May 14 20:58:38 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -46,6 +46,7 @@ public:
     QAction *actionConfBK11;
     QAction *actionConfBK11Fdd;
     QAction *actionEmulatorColorScreen;
+    QAction *actionFileLoadBin;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -135,7 +136,8 @@ public:
         actionConfBK11Fdd->setCheckable(true);
         actionEmulatorColorScreen = new QAction(MainWindow);
         actionEmulatorColorScreen->setObjectName(QString::fromUtf8("actionEmulatorColorScreen"));
-        actionEmulatorColorScreen->setCheckable(true);
+        actionFileLoadBin = new QAction(MainWindow);
+        actionFileLoadBin->setObjectName(QString::fromUtf8("actionFileLoadBin"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -171,6 +173,8 @@ public:
         menuBar->addAction(menuConfiguration->menuAction());
         menuBar->addAction(menuDrives->menuAction());
         menuBar->addAction(menuHelp->menuAction());
+        menuFile->addAction(actionFileLoadBin);
+        menuFile->addSeparator();
         menuFile->addAction(actionFileScreenshot);
         menuFile->addSeparator();
         menuFile->addAction(actionFileExit);
@@ -190,6 +194,8 @@ public:
         menuConfiguration->addAction(actionConfBK11Fdd);
         mainToolBar->addAction(actionEmulatorRun);
         mainToolBar->addAction(actionEmulatorReset);
+        mainToolBar->addSeparator();
+        mainToolBar->addAction(actionEmulatorColorScreen);
         mainToolBar->addSeparator();
 
         retranslateUi(MainWindow);
@@ -227,6 +233,8 @@ public:
         actionConfBK11->setText(QApplication::translate("MainWindow", "BK 0011M", 0, QApplication::UnicodeUTF8));
         actionConfBK11Fdd->setText(QApplication::translate("MainWindow", "BK 0011M FDD", 0, QApplication::UnicodeUTF8));
         actionEmulatorColorScreen->setText(QApplication::translate("MainWindow", "Color Screen", 0, QApplication::UnicodeUTF8));
+        actionEmulatorColorScreen->setIconText(QApplication::translate("MainWindow", "Color", 0, QApplication::UnicodeUTF8));
+        actionFileLoadBin->setText(QApplication::translate("MainWindow", "Load BIN", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEmulator->setTitle(QApplication::translate("MainWindow", "Emulator", 0, QApplication::UnicodeUTF8));
         menuDrives->setTitle(QApplication::translate("MainWindow", "Drives", 0, QApplication::UnicodeUTF8));

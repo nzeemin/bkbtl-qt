@@ -27,6 +27,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionFileLoadBin"/>
+    <addaction name="separator"/>
     <addaction name="actionFileScreenshot"/>
     <addaction name="separator"/>
     <addaction name="actionFileExit"/>
@@ -101,6 +103,8 @@
    </attribute>
    <addaction name="actionEmulatorRun"/>
    <addaction name="actionEmulatorReset"/>
+   <addaction name="separator"/>
+   <addaction name="actionEmulatorColorScreen"/>
    <addaction name="separator"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -307,11 +311,16 @@
    </property>
   </action>
   <action name="actionEmulatorColorScreen">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Color Screen</string>
+   </property>
+   <property name="iconText">
+    <string>Color</string>
+   </property>
+  </action>
+  <action name="actionFileLoadBin">
+   <property name="text">
+    <string>Load BIN</string>
    </property>
   </action>
  </widget>

@@ -5,5 +5,7 @@
         <file>images/iconReset.png</file>
         <file>images/iconRun.png</file>
         <file>images/keyboard.png</file>
+        <file>images/iconScreenBW.png</file>
+        <file>images/iconScreenColor.png</file>
     </qresource>
 </RCC>
