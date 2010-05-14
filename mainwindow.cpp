@@ -91,7 +91,72 @@ void MainWindow::UpdateMenu()
 
 void MainWindow::fileLoadBin()
 {
-    //TODO
+    // Open file dialog
+    QFileDialog dlg;
+    dlg.setNameFilter(_T("BK binary images (*.bin)"));
+    if (dlg.exec() == QDialog::Rejected)
+        return;
+
+    QString strFileName = dlg.selectedFiles().at(0);
+    LPCTSTR sFileName = qPrintable(strFileName);
+
+    // Load BIN header
+    FILE* fpBin = ::_tfopen(sFileName, _T("rb"));
+    if (fpBin == NULL)
+    {
+        AlertWarning(_T("Failed to open file."));
+        return;
+    }
+    unsigned char bufHeader[4];
+    size_t dwBytesRead = ::fread(bufHeader, 1, 4, fpBin);
+    if (dwBytesRead != 4)
+    {
+        ::fclose(fpBin);
+        AlertWarning(_T("Failed to read file."));
+        return;
+    }
+
+    // Calculate baseAddress / dataSize
+    WORD baseAddress = *((WORD*)bufHeader);
+    WORD dataSize = *(((WORD*)bufHeader) + 1);
+
+    // Ask user
+    TCHAR bufMessage[100];
+    _sntprintf(bufMessage, 100,
+        _T("Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?"),
+        baseAddress, dataSize);
+    if (!AlertOkCancel(bufMessage))
+    {
+        ::fclose(fpBin);
+        return;
+    }
+
+    // Load file data
+    DWORD bytesToRead = dataSize;
+    WORD memoryBytes = (dataSize + 1) & 0xfffe;
+    void* pBuffer = ::malloc(memoryBytes);
+    dwBytesRead = ::fread(pBuffer, 1, bytesToRead, fpBin);
+    if (dwBytesRead != bytesToRead)
+    {
+        ::fclose(fpBin);
+        AlertWarning(_T("Failed to read file."));
+        return;
+    }
+
+    ::fclose(fpBin);
+
+    // Copy data to BK memory
+    WORD address = baseAddress;
+    WORD* pData = (WORD*)pBuffer;
+    while (address < baseAddress + memoryBytes)
+    {
+        WORD value = *pData++;
+        g_pBoard->SetRAMWord(address, value);
+        address += 2;
+    }
+
+    ::free(pBuffer);
+
 }
 
 void MainWindow::fileScreenshot()
