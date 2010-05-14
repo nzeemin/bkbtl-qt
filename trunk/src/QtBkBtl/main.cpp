@@ -3,6 +3,7 @@
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
 #include <QSettings>
+#include <QDesktopWidget>
 #include "main.h"
 #include "mainwindow.h"
 #include "Emulator.h"
@@ -26,6 +27,14 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     g_MainWindow = &w;
+
+    // Center main window on the screen
+    int xMainLeft = (g_Application->desktop()->width() - w.width()) / 2;
+    if (xMainLeft < 0) xMainLeft = 0;
+    int yMainTop = (g_Application->desktop()->height() - w.height()) / 2;
+    if (yMainTop < 0) yMainTop = 0;
+    w.move(xMainLeft, yMainTop);
+
     w.show();
 
     if (!Emulator_Init()) return 255;
