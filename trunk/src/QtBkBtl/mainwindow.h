@@ -20,6 +20,7 @@ public:
     void UpdateMenu();
 
 public slots:
+    void fileLoadBin();
     void fileScreenshot();
     void helpAboutQt();
     void emulatorFrame();
