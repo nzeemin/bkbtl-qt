@@ -432,11 +432,12 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, ScreenViewMode screenMode)
     }
 }
 
-void Emulator_KeyEvent(BYTE keyscan, BOOL pressed)
+void Emulator_KeyEvent(BYTE keyscan, BOOL pressed, BOOL ctrl)
 {
     if (m_EmulatorKeyQueueCount == KEYEVENT_QUEUE_SIZE) return;  // Full queue
 
-    WORD keyevent = MAKEWORD(keyscan, pressed ? 128 : 0);
+    unsigned char keyflags = (pressed ? 128 : 0) | (ctrl ? 64 : 0);
+    WORD keyevent = MAKEWORD(keyscan, keyflags);
 
     m_EmulatorKeyQueue[m_EmulatorKeyQueueTop] = keyevent;
     m_EmulatorKeyQueueTop++;

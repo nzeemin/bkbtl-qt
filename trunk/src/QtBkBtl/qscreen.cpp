@@ -59,19 +59,19 @@ void QScreen::keyPressEvent(QKeyEvent *event)
     if (! g_okEmulatorRunning) return;
     if (event->isAutoRepeat()) return;
 
-    unsigned char bkscan = TranslateQtKeyToBkKey(event->key());
+    unsigned char bkscan = TranslateQtKeyToBkKey(event->key(), event->modifiers() & Qt::ShiftModifier);
     if (bkscan == 0) return;
 
-    Emulator_KeyEvent(bkscan, TRUE);
+    Emulator_KeyEvent(bkscan, TRUE, event->modifiers() & Qt::ControlModifier);
     event->accept();
 }
 
 void QScreen::keyReleaseEvent(QKeyEvent *event)
 {
-    unsigned char bkscan = TranslateQtKeyToBkKey(event->key());
+    unsigned char bkscan = TranslateQtKeyToBkKey(event->key(), event->modifiers() & Qt::ShiftModifier);
     if (bkscan == 0) return;
 
-    Emulator_KeyEvent(bkscan, FALSE);
+    Emulator_KeyEvent(bkscan, FALSE, event->modifiers() & Qt::ControlModifier);
     event->accept();
 }
 
@@ -115,7 +115,7 @@ const unsigned char arrPcscan2BkscanRus[256] = {  // ÐÓÑ
 };
 
 
-unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey)
+unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
 {
     switch (qtkey)
     {
@@ -130,21 +130,34 @@ unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey)
     case Qt::Key_Space:     return 040;
     case Qt::Key_Backspace: return 030;
     //case Qt::Key_Control:   return 0;
-    //case Qt::Key_F1:        return 0;
-    //case Qt::Key_F2:        return 0;
-    //case Qt::Key_F3:        return 0;
-    //case Qt::Key_F4:        return 0;
-    //case Qt::Key_F5:        return 0;
-    //case Qt::Key_F7:        return 0;
-    //case Qt::Key_F8:        return 0;
+    case Qt::Key_F1:        return 0201;    // ÏÎÂÒ
+    case Qt::Key_F2:        return 003;     // ÊÒ
+    case Qt::Key_F3:        return 0231;    // =|=>
+    case Qt::Key_F4:        return 026;     // |<==
+    case Qt::Key_F5:        return 027;     // |==>
+    case Qt::Key_F6:        return 0202;    // ÈÍÄ ÑÓ
+    case Qt::Key_F7:        return 0204;    // ÁËÎÊ ÐÅÄ
+    case Qt::Key_F8:        return 0220;    // ØÀÃ
+    //case Qt::Key_F9:        return 0;   // ÑÁÐ
+    //case Qt::Key_F10:       return 0;
+    //case Qt::Key_F11:       return 0;
+    //case Qt::Key_F12:       return 0;
     }
 
     if (qtkey >= 32 && qtkey <= 255)
     {
-        unsigned short bkregister = g_pBoard->GetKeyboardRegister();
         // Âûáèðàåì òàáëèöó ìàïïèíãà â çàâèñèìîñòè îò ôëàãà ÐÓÑ/ËÀÒ â ÁÊ
+        unsigned short bkregister = g_pBoard->GetKeyboardRegister();
         const unsigned char * pTable = ((bkregister & KEYB_LAT) == 0) ? arrPcscan2BkscanRus : arrPcscan2BkscanLat;
-        return pTable[qtkey];
+        unsigned char bkscan = pTable[qtkey];
+        if (bkscan == 0) return 0;
+
+        if (okShift && bkscan >= 0100 && bkscan <= 0137)
+            bkscan += 040;
+        else if (okShift && bkscan >= 0060 && bkscan <= 0077)
+            bkscan -= 020;
+
+        return bkscan;
     }
 
     return 0;
