@@ -2,6 +2,9 @@
 
 #include "stdafx.h"
 #include <QMessageBox>
+#include <QFont>
+#include <QPainter>
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -55,6 +58,26 @@ void DebugLogFormat(LPCTSTR pszFormat, ...)
 //////////////////////////////////////////////////////////////////////
 
 
+static QFont* g_MonospacedFont = NULL;
+
+QFont Common_GetMonospacedFont()
+{
+    if (g_MonospacedFont != NULL)
+        return *g_MonospacedFont;
+
+    g_MonospacedFont = new QFont(_T("Lucida Console"), 9, QFont::Normal, false);
+    g_MonospacedFont->setFixedPitch(true);
+
+    return *g_MonospacedFont;
+}
+
+void Common_Cleanup()
+{
+    if (g_MonospacedFont != NULL)
+        delete g_MonospacedFont;
+}
+
+
 // Print octal 16-bit value to buffer
 // buffer size at least 7 characters
 void PrintOctalValue(TCHAR* buffer, WORD value)
@@ -65,6 +88,30 @@ void PrintOctalValue(TCHAR* buffer, WORD value)
         value = (value >> 3);
     }
     buffer[6] = 0;
+}
+// Print binary 16-bit value to buffer
+// buffer size at least 17 characters
+void PrintBinaryValue(TCHAR* buffer, WORD value)
+{
+    for (int b = 0; b < 16; b++) {
+        int bit = (value >> b) & 1;
+        buffer[15 - b] = bit ? _T('1') : _T('0');
+    }
+    buffer[16] = 0;
+}
+
+void DrawOctalValue(QPainter &painter, int x, int y, WORD value)
+{
+    TCHAR buffer[7];
+    PrintOctalValue(buffer, value);
+    painter.drawText(x, y, buffer);
+}
+
+void DrawBinaryValue(QPainter &painter, int x, int y, WORD value)
+{
+    TCHAR buffer[17];
+    PrintBinaryValue(buffer, value);
+    painter.drawText(x, y, buffer);
 }
 
 

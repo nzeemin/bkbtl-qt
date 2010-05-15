@@ -43,7 +43,7 @@ void Emulator_ProcessKeyEvent();
 
 // Update cached values after Run or Step
 void Emulator_OnUpdate();
-WORD Emulator_GetChangeRamStatus(int addrtype, WORD address);
+WORD Emulator_GetChangeRamStatus(WORD address);
 
 //void Emulator_SaveImage(LPCTSTR sFilePath);
 //void Emulator_LoadImage(LPCTSTR sFilePath);

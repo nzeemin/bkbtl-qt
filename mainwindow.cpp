@@ -8,6 +8,7 @@
 #include "ui_mainwindow.h"
 #include "qscreen.h"
 #include "qkeyboardview.h"
+#include "qdebugview.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -39,11 +40,13 @@ MainWindow::MainWindow(QWidget *parent) :
     // Screen and keyboard
     m_screen = new QScreen();
     m_keyboard = new QKeyboardView();
+    m_debug = new QDebugView();
     QVBoxLayout *layout = new QVBoxLayout;
     layout->setMargin(0);
     layout->setSpacing(0);
     layout->addWidget(m_screen);
     layout->addWidget(m_keyboard);
+    layout->addWidget(m_debug);
     ui->centralWidget->setLayout(layout);
 
     this->adjustSize();

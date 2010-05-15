@@ -21,6 +21,7 @@ private:
 
 private:
     unsigned char GetKeyByPoint(int x, int y, BOOL okShift);
+    void showKeyboardMapping(QPainter& painter);
 };
 
 #endif // QKEYBOARDVIEW_H

@@ -14,12 +14,12 @@ const unsigned short m_arrKeyboardKeys[] = {
 /*   x1,y1    w,h      code  AR2code  */
       3,  3, 51,34,    BK_KEY_REPEAT,  // ÏÎÂÒ
      56,  3, 51,34,    0003,  // ÊÒ
-    109,  3, 51,34,    0000,  // Arrow right    =|=>|
+    109,  3, 51,34,    0231,  // Arrow right    =|=>|
     162,  3, 51,34,    0026,  // Arrow left     |<===
     215,  3, 51,34,    0027,  // Arrow right    |===>
-    268,  3, 51,34,    0000,  // ÈÍÄ ÑÓ
-    321,  3, 51,34,    0000,  // ÁËÎÊ ÐÅÄ
-    374,  3, 50,34,    0000,  // STEP
+    268,  3, 51,34,    0202,  // ÈÍÄ ÑÓ
+    321,  3, 51,34,    0204,  // ÁËÎÊ ÐÅÄ
+    374,  3, 50,34,    0220,  // STEP
     426,  3, 51,34,    0014,  // ÑÁÐ
     478,  3, 70,34,    BK_KEY_STOP,  // STOP
 
@@ -126,17 +126,31 @@ void QKeyboardView::paintEvent(QPaintEvent *)
         painter.fillRect(0, m_nImageTop + cyBitmap, this->width(), m_nImageTop + 1, QColor(115,115,115));
     }
 
-    //// Show key mappings
-    //for (int i = 0; i < m_nKeyboardKeysCount; i++)
-    //{
-    //    QRect rcKey;
-    //    rcKey.setLeft(m_nImageLeft + m_arrKeyboardKeys[i * 5]);
-    //    rcKey.setTop(m_nImageTop + m_arrKeyboardKeys[i * 5 + 1]);
-    //    rcKey.setRight(rcKey.left() + m_arrKeyboardKeys[i * 5 + 2]);
-    //    rcKey.setBottom(rcKey.top() + m_arrKeyboardKeys[i * 5 + 3]);
+    //showKeyboardMapping(painter);
+}
 
-    //    painter.drawRect(rcKey);
-    //}
+void QKeyboardView::showKeyboardMapping(QPainter& painter)
+{
+    painter.setPen(QPen(QColor::fromRgb(255, 32, 32)));
+    for (int i = 0; i < m_nKeyboardKeysCount; i++)
+    {
+        QRect rcKey;
+        rcKey.setLeft(m_nImageLeft + m_arrKeyboardKeys[i * 5]);
+        rcKey.setTop(m_nImageTop + m_arrKeyboardKeys[i * 5 + 1]);
+        rcKey.setRight(rcKey.left() + m_arrKeyboardKeys[i * 5 + 2]);
+        rcKey.setBottom(rcKey.top() + m_arrKeyboardKeys[i * 5 + 3]);
+
+        //painter.drawRect(rcKey);
+
+        unsigned short scan = m_arrKeyboardKeys[i * 5 + 4];
+        if (scan != 0)
+        {
+            rcKey.adjust(0, 0, -2, -2);
+            TCHAR buffer[10];
+            _sntprintf(buffer, 10, _T("%03o"), scan);
+            painter.drawText(rcKey, Qt::AlignBottom | Qt::AlignRight, buffer);
+        }
+    }
 }
 
 void QKeyboardView::mousePressEvent(QMouseEvent *event)

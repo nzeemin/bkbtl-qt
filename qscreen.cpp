@@ -82,7 +82,7 @@ const unsigned char arrPcscan2BkscanLat[256] = {  // ËÀÒ
 /*2*/    0040, 0000, 0000, 0016, 0017, 0010, 0032, 0031, 0033, 0000, 0000, 0000, 0000, 0023, 0000, 0000,
 /*3*/    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0000, 0000, 0000, 0000, 0000, 0000,
 /*4*/    0000, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0112, 0113, 0114, 0115, 0116, 0117,
-/*5*/    0120, 0121, 0122, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0000, 0000, 0000, 0000, 0000,
+/*5*/    0120, 0121, 0122, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0133, 0000, 0135, 0000, 0000,
 /*6*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
 /*7*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
 /*8*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
@@ -101,7 +101,7 @@ const unsigned char arrPcscan2BkscanRus[256] = {  // ĞÓÑ
 /*2*/    0040, 0000, 0000, 0016, 0017, 0010, 0032, 0031, 0033, 0000, 0000, 0000, 0000, 0023, 0000, 0000,
 /*3*/    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0000, 0000, 0000, 0000, 0000, 0000,
 /*4*/    0000, 0106, 0111, 0123, 0127, 0125, 0101, 0120, 0122, 0133, 0117, 0114, 0104, 0120, 0124, 0135,
-/*5*/    0132, 0112, 0113, 0131, 0105, 0107, 0115, 0103, 0136, 0116, 0121, 0000, 0000, 0000, 0000, 0000,
+/*5*/    0132, 0112, 0113, 0131, 0105, 0107, 0115, 0103, 0136, 0116, 0121, 0110, 0000, 0137, 0000, 0000,
 /*6*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
 /*7*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
 /*8*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
@@ -119,29 +119,25 @@ unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
 {
     switch (qtkey)
     {
-    case Qt::Key_Down:      return 033;
-    case Qt::Key_Up:        return 032;
-    case Qt::Key_Left:      return 010;
-    case Qt::Key_Right:     return 031;
-    case Qt::Key_Enter:     return 012;
-    case Qt::Key_Return:    return 012;
-    case Qt::Key_Tab:       return 015;
-    //case Qt::Key_Shift:     return 0;
-    case Qt::Key_Space:     return 040;
-    case Qt::Key_Backspace: return 030;
-    //case Qt::Key_Control:   return 0;
+    case Qt::Key_Down:      return 0033;
+    case Qt::Key_Up:        return 0032;
+    case Qt::Key_Left:      return 0010;
+    case Qt::Key_Right:     return 0031;
+    case Qt::Key_Enter:     return 0012;
+    case Qt::Key_Return:    return 0012;
+    case Qt::Key_Tab:       return 0015;
+    case Qt::Key_Space:     return 0040;
+    case Qt::Key_Backspace: return 0030;
+    case Qt::Key_Home:      return 0023;    // ÂÑ
     case Qt::Key_F1:        return 0201;    // ÏÎÂÒ
-    case Qt::Key_F2:        return 003;     // ÊÒ
+    case Qt::Key_F2:        return 0003;    // ÊÒ
     case Qt::Key_F3:        return 0231;    // =|=>
-    case Qt::Key_F4:        return 026;     // |<==
-    case Qt::Key_F5:        return 027;     // |==>
+    case Qt::Key_F4:        return 0026;    // |<==
+    case Qt::Key_F5:        return 0027;    // |==>
     case Qt::Key_F6:        return 0202;    // ÈÍÄ ÑÓ
     case Qt::Key_F7:        return 0204;    // ÁËÎÊ ĞÅÄ
     case Qt::Key_F8:        return 0220;    // ØÀÃ
-    //case Qt::Key_F9:        return 0;   // ÑÁĞ
-    //case Qt::Key_F10:       return 0;
-    //case Qt::Key_F11:       return 0;
-    //case Qt::Key_F12:       return 0;
+    case Qt::Key_F9:        return 0014;    // ÑÁĞ
     }
 
     if (qtkey >= 32 && qtkey <= 255)
