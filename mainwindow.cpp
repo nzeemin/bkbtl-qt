@@ -9,6 +9,8 @@
 #include "qscreen.h"
 #include "qkeyboardview.h"
 #include "qdebugview.h"
+#include "qdisasmview.h"
+#include "qmemoryview.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -41,6 +43,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_screen = new QScreen();
     m_keyboard = new QKeyboardView();
     m_debug = new QDebugView();
+    m_disasm = new QDisasmView();
+    m_memory = new QMemoryView();
+
     QGridLayout *gridlayout = new QGridLayout();
     gridlayout->setMargin(0);
     gridlayout->setSpacing(4);
@@ -52,6 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
     gridlayout->addLayout(vboxlayoutL, 0, 0, 1, 1);
     QVBoxLayout *vboxlayoutR = new QVBoxLayout;
     vboxlayoutR->addWidget(m_debug);
+    vboxlayoutR->addWidget(m_disasm);
+    vboxlayoutR->addWidget(m_memory);
     gridlayout->addLayout(vboxlayoutR, 0, 1, 1, 1);
     ui->centralWidget->setLayout(gridlayout);
 
@@ -102,10 +109,18 @@ void MainWindow::UpdateAllViews()
 {
     if (m_debug != NULL)
         m_debug->updateData();
+    if (m_disasm != NULL)
+        m_disasm->updateData();
+    if (m_memory != NULL)
+        m_memory->updateData();
 
     m_screen->repaint();
     if (m_debug != NULL)
         m_debug->repaint();
+    if (m_disasm != NULL)
+        m_disasm->repaint();
+    if (m_memory != NULL)
+        m_memory->repaint();
 }
 
 void MainWindow::fileLoadBin()

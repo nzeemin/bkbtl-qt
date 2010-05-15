@@ -6,6 +6,8 @@
 class QScreen;
 class QKeyboardView;
 class QDebugView;
+class QDisasmView;
+class QMemoryView;
 
 namespace Ui {
     class MainWindow;
@@ -47,6 +49,8 @@ private:
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
     QDebugView *m_debug;
+    QDisasmView *m_disasm;
+    QMemoryView * m_memory;
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
