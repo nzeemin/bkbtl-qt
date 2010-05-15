@@ -13,7 +13,7 @@ void RestoreSettings();
 
 
 QApplication *g_Application;
-QMainWindow *g_MainWindow;
+MainWindow *g_MainWindow;
 QSettings *g_Settings;
 
 
@@ -44,6 +44,7 @@ int main(int argc, char *argv[])
 
     RestoreSettings();
     w.UpdateMenu();
+    w.UpdateAllViews();
 
     QTimer timerFrame;
     QObject::connect(&timerFrame, SIGNAL(timeout()), &w, SLOT(emulatorFrame()), Qt::AutoConnection);
@@ -64,13 +65,18 @@ QApplication* Global_getApplication()
 {
     return g_Application;
 }
-QMainWindow* Global_getMainWindow()
+MainWindow* Global_getMainWindow()
 {
     return g_MainWindow;
 }
 QSettings* Global_getSettings()
 {
     return g_Settings;
+}
+
+void Global_UpdateAllViews()
+{
+    Global_getMainWindow()->UpdateAllViews();
 }
 
 void RestoreSettings()

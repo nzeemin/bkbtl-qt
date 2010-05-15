@@ -19,6 +19,7 @@ public:
 
 public:
     void UpdateMenu();
+    void UpdateAllViews();
 
 public slots:
     void fileLoadBin();

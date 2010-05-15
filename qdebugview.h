@@ -12,6 +12,8 @@ class QDebugView : public QWidget
 public:
     QDebugView(QWidget *parent = 0);
 
+    void updateData();
+
 protected:
     void paintEvent(QPaintEvent *event);
 
