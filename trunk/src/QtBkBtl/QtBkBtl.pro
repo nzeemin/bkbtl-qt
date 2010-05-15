@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     emubase/Board.cpp \
     Emulator.cpp \
     qscreen.cpp \
-    qkeyboardview.cpp
+    qkeyboardview.cpp \
+    qdebugview.cpp
 HEADERS += mainwindow.h \
     util/WavPcmFile.h \
     stdafx.h \
@@ -26,6 +27,7 @@ HEADERS += mainwindow.h \
     main.h \
     Emulator.h \
     qscreen.h \
-    qkeyboardview.h
+    qkeyboardview.h \
+    qdebugview.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc

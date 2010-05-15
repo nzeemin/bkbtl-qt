@@ -35,12 +35,12 @@ int main(int argc, char *argv[])
     if (yMainTop < 0) yMainTop = 0;
     w.move(xMainLeft, yMainTop);
 
-    w.show();
-
     if (!Emulator_Init()) return 255;
     //if (!Emulator_InitConfiguration((BKConfiguration)Settings_GetConfiguration()))
-    if (!Emulator_InitConfiguration(BK_CONF_BK0010_BASIC))
+    if (!Emulator_InitConfiguration(BK_CONF_BK0010_FOCAL))
         return 255;
+
+    w.show();
 
     RestoreSettings();
     w.UpdateMenu();
@@ -54,6 +54,8 @@ int main(int argc, char *argv[])
     Emulator_Done();
 
     settings.sync();
+
+    Common_Cleanup();
 
     return result;
 }

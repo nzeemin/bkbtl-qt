@@ -5,6 +5,7 @@
 
 class QScreen;
 class QKeyboardView;
+class QDebugView;
 
 namespace Ui {
     class MainWindow;
@@ -44,6 +45,7 @@ private:
     Ui::MainWindow *ui;
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
+    QDebugView *m_debug;
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
