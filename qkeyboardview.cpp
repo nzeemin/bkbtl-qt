@@ -141,21 +141,21 @@ void QKeyboardView::paintEvent(QPaintEvent *)
 
 void QKeyboardView::mousePressEvent(QMouseEvent *event)
 {
-    unsigned char keyscan = GetKeyByPoint(event->x(), event->y());
+    unsigned char keyscan = GetKeyByPoint(event->x(), event->y(), event->modifiers() & Qt::ShiftModifier);
     if (keyscan == 0) return;
 
-    Emulator_KeyEvent(keyscan, TRUE);
+    Emulator_KeyEvent(keyscan, TRUE, event->modifiers() & Qt::ControlModifier);
 }
 
 void QKeyboardView::mouseReleaseEvent(QMouseEvent *event)
 {
-    unsigned char keyscan = GetKeyByPoint(event->x(), event->y());
+    unsigned char keyscan = GetKeyByPoint(event->x(), event->y(), event->modifiers() & Qt::ShiftModifier);
     if (keyscan == 0) return;
 
-    Emulator_KeyEvent(keyscan, FALSE);
+    Emulator_KeyEvent(keyscan, FALSE, event->modifiers() & Qt::ControlModifier);
 }
 
-unsigned char QKeyboardView::GetKeyByPoint(int x, int y)
+unsigned char QKeyboardView::GetKeyByPoint(int x, int y, BOOL okShift)
 {
     for (int i = 0; i < m_nKeyboardKeysCount; i++)
     {
@@ -167,7 +167,15 @@ unsigned char QKeyboardView::GetKeyByPoint(int x, int y)
 
         if (x >= rcKey.left() && x < rcKey.right() && y >= rcKey.top() && y < rcKey.bottom())
         {
-            return (unsigned char) m_arrKeyboardKeys[i * 5 + 4];
+            unsigned char bkscan = (unsigned char) m_arrKeyboardKeys[i * 5 + 4];
+            if (bkscan == 0) return 0;
+
+            if (okShift && bkscan >= 0100 && bkscan <= 0137)
+                bkscan += 040;
+            else if (okShift && bkscan >= 0060 && bkscan <= 0077)
+                bkscan -= 020;
+
+            return bkscan;
         }
     }
 

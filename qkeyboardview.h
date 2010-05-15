@@ -2,6 +2,7 @@
 #define QKEYBOARDVIEW_H
 
 #include <QWidget>
+#include "Common.h"
 
 class QKeyboardView : public QWidget
 {
@@ -19,7 +20,7 @@ private:
     int m_nImageLeft;
 
 private:
-    unsigned char GetKeyByPoint(int x, int y);
+    unsigned char GetKeyByPoint(int x, int y, BOOL okShift);
 };
 
 #endif // QKEYBOARDVIEW_H

@@ -37,7 +37,7 @@ int Emulator_SystemFrame();
 
 void Emulator_PrepareScreenRGB32(void* pBits, ScreenViewMode screenMode);
 
-void Emulator_KeyEvent(BYTE keyPressed, BOOL pressed);
+void Emulator_KeyEvent(BYTE keyPressed, BOOL pressed, BOOL ctrl);
 WORD Emulator_GetKeyEventFromQueue();
 void Emulator_ProcessKeyEvent();
 

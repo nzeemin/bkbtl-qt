@@ -29,7 +29,7 @@ private:
     ScreenViewMode m_mode;
 
 private:
-    unsigned char TranslateQtKeyToBkKey(int qtkey);
+    unsigned char TranslateQtKeyToBkKey(int qtkey, BOOL okShift);
 };
 
 #endif // QSCREEN_H
