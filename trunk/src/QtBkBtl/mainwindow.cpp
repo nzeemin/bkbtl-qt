@@ -41,13 +41,19 @@ MainWindow::MainWindow(QWidget *parent) :
     m_screen = new QScreen();
     m_keyboard = new QKeyboardView();
     m_debug = new QDebugView();
-    QVBoxLayout *layout = new QVBoxLayout;
-    layout->setMargin(0);
-    layout->setSpacing(0);
-    layout->addWidget(m_screen);
-    layout->addWidget(m_keyboard);
-    layout->addWidget(m_debug);
-    ui->centralWidget->setLayout(layout);
+    QGridLayout *gridlayout = new QGridLayout();
+    gridlayout->setMargin(0);
+    gridlayout->setSpacing(4);
+    QVBoxLayout *vboxlayoutL = new QVBoxLayout;
+    vboxlayoutL->setMargin(0);
+    vboxlayoutL->setSpacing(0);
+    vboxlayoutL->addWidget(m_screen);
+    vboxlayoutL->addWidget(m_keyboard);
+    gridlayout->addLayout(vboxlayoutL, 0, 0, 1, 1);
+    QVBoxLayout *vboxlayoutR = new QVBoxLayout;
+    vboxlayoutR->addWidget(m_debug);
+    gridlayout->addLayout(vboxlayoutR, 0, 1, 1, 1);
+    ui->centralWidget->setLayout(gridlayout);
 
     this->adjustSize();
     this->setFocusProxy(m_screen);
@@ -90,6 +96,16 @@ void MainWindow::UpdateMenu()
             g_pBoard->IsFloppyImageAttached(2) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
     ui->actionDrivesFloppy3->setIcon(QIcon(
             g_pBoard->IsFloppyImageAttached(3) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+}
+
+void MainWindow::UpdateAllViews()
+{
+    if (m_debug != NULL)
+        m_debug->updateData();
+
+    m_screen->repaint();
+    if (m_debug != NULL)
+        m_debug->repaint();
 }
 
 void MainWindow::fileLoadBin()

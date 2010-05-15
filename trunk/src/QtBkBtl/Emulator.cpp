@@ -276,7 +276,7 @@ void Emulator_Stop()
     // Reset FPS indicator
     //MainWindow_SetStatusbarText(StatusbarPartFPS, _T(""));
 
-    //MainWindow_UpdateAllViews();
+    Global_UpdateAllViews();
 }
 
 void Emulator_Reset()
@@ -288,14 +288,13 @@ void Emulator_Reset()
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
 
-    //MainWindow_UpdateAllViews();
+    Global_UpdateAllViews();
 }
 
 int Emulator_SystemFrame()
 {
     g_pBoard->SetCPUBreakpoint(m_wEmulatorCPUBreakpoint);
 
-    //ScreenView_ScanKeyboard();
     Emulator_ProcessKeyEvent();
     
 	if (!g_pBoard->SystemFrame())
