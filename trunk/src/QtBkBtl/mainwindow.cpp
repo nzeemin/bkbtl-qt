@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QVBoxLayout>
+#include <QDockWidget>
 #include "main.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -48,22 +49,27 @@ MainWindow::MainWindow(QWidget *parent) :
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
 
-    QGridLayout *gridlayout = new QGridLayout();
-    gridlayout->setMargin(0);
-    gridlayout->setSpacing(4);
     QVBoxLayout *vboxlayoutL = new QVBoxLayout;
     vboxlayoutL->setMargin(0);
     vboxlayoutL->setSpacing(0);
     vboxlayoutL->addWidget(m_screen);
     vboxlayoutL->addWidget(m_keyboard);
     vboxlayoutL->addWidget(m_console);
-    gridlayout->addLayout(vboxlayoutL, 0, 0, 1, 1);
-    QVBoxLayout *vboxlayoutR = new QVBoxLayout;
-    vboxlayoutR->addWidget(m_debug);
-    vboxlayoutR->addWidget(m_disasm);
-    vboxlayoutR->addWidget(m_memory);
-    gridlayout->addLayout(vboxlayoutR, 0, 1, 1, 1);
-    ui->centralWidget->setLayout(gridlayout);
+    ui->centralWidget->setLayout(vboxlayoutL);
+
+    QDockWidget* dockDebug = new QDockWidget(_T("Debug"));
+    dockDebug->setWidget(m_debug);
+    QDockWidget* dockDisasm = new QDockWidget(_T("Disassemble"));
+    dockDisasm->setWidget(m_disasm);
+    QDockWidget* dockMemory = new QDockWidget(_T("Memory"));
+    dockMemory->setWidget(m_memory);
+    //QDockWidget* dockConsole = new QDockWidget(_T("Debug Console"));
+    //dockConsole->setWidget(m_console);
+
+    this->addDockWidget(Qt::RightDockWidgetArea, dockDebug, Qt::Vertical);
+    this->addDockWidget(Qt::RightDockWidgetArea, dockDisasm, Qt::Vertical);
+    this->addDockWidget(Qt::RightDockWidgetArea, dockMemory, Qt::Vertical);
+    //this->addDockWidget(Qt::BottomDockWidgetArea, dockConsole);
 
     this->adjustSize();
     this->setFocusProxy(m_screen);
@@ -73,6 +79,11 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete m_screen;
+    delete m_keyboard;
+    delete m_console;
+    delete m_debug;
+    delete m_disasm;
+    delete m_memory;
 }
 
 void MainWindow::changeEvent(QEvent *e)
