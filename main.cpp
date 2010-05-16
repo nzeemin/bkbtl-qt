@@ -78,6 +78,10 @@ void Global_UpdateAllViews()
 {
     Global_getMainWindow()->UpdateAllViews();
 }
+void Global_UpdateMenu()
+{
+    Global_getMainWindow()->UpdateMenu();
+}
 
 void RestoreSettings()
 {

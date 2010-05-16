@@ -45,6 +45,8 @@ public slots:
     void debugDebugView();
     void debugDisasmView();
     void debugMemoryView();
+    void debugStepInto();
+    void debugStepOver();
 
 protected:
     void changeEvent(QEvent *e);

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sun May 16 18:26:14 2010
+** Created: Sun May 16 21:56:29 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -51,6 +51,8 @@ public:
     QAction *actionDebugDisasmView;
     QAction *actionDebugMemoryView;
     QAction *actionDebugConsoleView;
+    QAction *actionDebugStepInto;
+    QAction *actionDebugStepOver;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -155,6 +157,10 @@ public:
         actionDebugConsoleView = new QAction(MainWindow);
         actionDebugConsoleView->setObjectName(QString::fromUtf8("actionDebugConsoleView"));
         actionDebugConsoleView->setCheckable(true);
+        actionDebugStepInto = new QAction(MainWindow);
+        actionDebugStepInto->setObjectName(QString::fromUtf8("actionDebugStepInto"));
+        actionDebugStepOver = new QAction(MainWindow);
+        actionDebugStepOver->setObjectName(QString::fromUtf8("actionDebugStepOver"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -217,6 +223,9 @@ public:
         menuDebug->addAction(actionDebugDebugView);
         menuDebug->addAction(actionDebugDisasmView);
         menuDebug->addAction(actionDebugMemoryView);
+        menuDebug->addSeparator();
+        menuDebug->addAction(actionDebugStepInto);
+        menuDebug->addAction(actionDebugStepOver);
         mainToolBar->addAction(actionEmulatorRun);
         mainToolBar->addAction(actionEmulatorReset);
         mainToolBar->addSeparator();
@@ -264,6 +273,10 @@ public:
         actionDebugDisasmView->setText(QApplication::translate("MainWindow", "Disasm View", 0, QApplication::UnicodeUTF8));
         actionDebugMemoryView->setText(QApplication::translate("MainWindow", "Memory View", 0, QApplication::UnicodeUTF8));
         actionDebugConsoleView->setText(QApplication::translate("MainWindow", "Debug Views", 0, QApplication::UnicodeUTF8));
+        actionDebugStepInto->setText(QApplication::translate("MainWindow", "Step Into", 0, QApplication::UnicodeUTF8));
+        actionDebugStepInto->setShortcut(QApplication::translate("MainWindow", "F11", 0, QApplication::UnicodeUTF8));
+        actionDebugStepOver->setText(QApplication::translate("MainWindow", "Step Over", 0, QApplication::UnicodeUTF8));
+        actionDebugStepOver->setShortcut(QApplication::translate("MainWindow", "F10", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEmulator->setTitle(QApplication::translate("MainWindow", "Emulator", 0, QApplication::UnicodeUTF8));
         menuDrives->setTitle(QApplication::translate("MainWindow", "Drives", 0, QApplication::UnicodeUTF8));
