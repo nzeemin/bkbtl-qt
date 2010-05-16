@@ -138,7 +138,7 @@ unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
     case Qt::Key_F6:        return 0202;    // ÈÍÄ ÑÓ
     case Qt::Key_F7:        return 0204;    // ÁËÎÊ ĞÅÄ
     case Qt::Key_F8:        return 0220;    // ØÀÃ
-    case Qt::Key_F9:        return 0014;    // ÑÁĞ
+    case Qt::Key_Delete:    return 0014;    // ÑÁĞ
     }
 
     if (qtkey >= 32 && qtkey <= 255)

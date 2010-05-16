@@ -68,7 +68,7 @@ void QConsoleView::printHelp()
     this->print(_T("Console command list:\r\n")
             _T("  c          Clear console log\r\n")
 //            _T("  dXXXXXX    Disassemble from address XXXXXX\r\n")
-//            _T("  g          Go; free run\r\n")
+            _T("  g          Go; free run\r\n")
 //            _T("  gXXXXXX    Go; run processor until breakpoint at address XXXXXX\r\n")
 //            _T("  m          Memory dump at current address\r\n")
 //            _T("  mXXXXXX    Memory dump at address XXXXXX\r\n")
@@ -145,6 +145,7 @@ void QConsoleView::execConsoleCommand()
 void QConsoleView::execConsoleCommand(const QString &command)
 {
     if (command.isNull() || command.isEmpty()) return;  // Nothing to do
+    if (g_okEmulatorRunning) return;
 
     // Echo command to the log
     this->print(command);
@@ -181,6 +182,24 @@ void QConsoleView::execConsoleCommand(const QString &command)
         Emulator_Start();
 
         okUpdateMenu = TRUE;
+    }
+    else if (command == _T("g"))  // Go
+    {
+        Emulator_Start();
+        okUpdateAllViews = TRUE;
+    }
+    else if (command.startsWith(_T("g")))  // Go
+    {
+        WORD value;
+        if (! ParseOctalValue(command.mid(1), &value))
+            this->print(MESSAGE_WRONG_VALUE);
+        else
+        {
+            Emulator_SetCPUBreakpoint(value);
+            Emulator_Start();
+
+            okUpdateMenu = TRUE;
+        }
     }
     else
     {

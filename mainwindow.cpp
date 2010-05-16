@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
+#include <QSettings>
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include "main.h"
@@ -66,12 +67,16 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->centralWidget->setMaximumWidth(maxwid);
 
     m_dockDebug = new QDockWidget(_T("Processor"));
+    m_dockDebug->setObjectName(_T("dockDebug"));
     m_dockDebug->setWidget(m_debug);
     m_dockDisasm = new QDockWidget(_T("Disassemble"));
+    m_dockDisasm->setObjectName(_T("dockDisasm"));
     m_dockDisasm->setWidget(m_disasm);
     m_dockMemory = new QDockWidget(_T("Memory"));
+    m_dockMemory->setObjectName(_T("dockMemory"));
     m_dockMemory->setWidget(m_memory);
     m_dockConsole = new QDockWidget(_T("Debug Console"));
+    m_dockConsole->setObjectName(_T("dockConsole"));
     m_dockConsole->setWidget(m_console);
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
@@ -80,8 +85,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockDisasm, Qt::Vertical);
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockMemory, Qt::Vertical);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole);
-
-    this->adjustSize();
 
     this->setFocusProxy(m_screen);
 }
@@ -111,6 +114,28 @@ void MainWindow::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void MainWindow::closeEvent(QCloseEvent *)
+{
+    Global_getSettings()->setValue("MainWindow/Geometry", saveGeometry());
+    Global_getSettings()->setValue("MainWindow/WindowState", saveState());
+
+    Global_getSettings()->setValue("MainWindow/ConsoleView", m_dockConsole->isVisible());
+    Global_getSettings()->setValue("MainWindow/DebugView", m_dockDebug->isVisible());
+    Global_getSettings()->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
+    Global_getSettings()->setValue("MainWindow/MemoryView", m_dockMemory->isVisible());
+}
+
+void MainWindow::restoreSettings()
+{
+    restoreGeometry(Global_getSettings()->value("MainWindow/Geometry").toByteArray());
+    restoreState(Global_getSettings()->value("MainWindow/WindowState").toByteArray());
+
+    m_dockConsole->setVisible(Global_getSettings()->value("MainWindow/ConsoleView", false).toBool());
+    m_dockDebug->setVisible(Global_getSettings()->value("MainWindow/DebugView", false).toBool());
+    m_dockDisasm->setVisible(Global_getSettings()->value("MainWindow/DisasmView", false).toBool());
+    m_dockMemory->setVisible(Global_getSettings()->value("MainWindow/MemoryView", false).toBool());
 }
 
 void MainWindow::UpdateMenu()

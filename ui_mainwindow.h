@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sun May 16 21:56:29 2010
+** Created: Sun May 16 22:38:01 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -242,6 +242,7 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         actionFileExit->setText(QApplication::translate("MainWindow", "Exit", 0, QApplication::UnicodeUTF8));
         actionEmulatorRun->setText(QApplication::translate("MainWindow", "Run", 0, QApplication::UnicodeUTF8));
+        actionEmulatorRun->setShortcut(QApplication::translate("MainWindow", "F9", 0, QApplication::UnicodeUTF8));
         actionEmulatorReset->setText(QApplication::translate("MainWindow", "Reset", 0, QApplication::UnicodeUTF8));
         actionHelpAboutQt->setText(QApplication::translate("MainWindow", "About Qt", 0, QApplication::UnicodeUTF8));
         actionDrivesFloppy0->setText(QApplication::translate("MainWindow", "Floppy MZ0:", 0, QApplication::UnicodeUTF8));

@@ -114,5 +114,44 @@ void DrawBinaryValue(QPainter &painter, int x, int y, WORD value)
     painter.drawText(x, y, buffer);
 }
 
+// Parse octal value from text
+BOOL ParseOctalValue(LPCTSTR text, WORD* pValue)
+{
+    WORD value = 0;
+    TCHAR* pChar = (TCHAR*) text;
+    for (int p = 0; ; p++) {
+        if (p > 6) return FALSE;
+        TCHAR ch = *pChar;  pChar++;
+        if (ch == 0) break;
+        if (ch < _T('0') || ch > _T('7')) return FALSE;
+        value = (value << 3);
+        int digit = ch - _T('0');
+        value += digit;
+    }
+    *pValue = value;
+    return TRUE;
+}
+
+// Parse octal value from text
+BOOL ParseOctalValue(const QString &text, WORD* pValue)
+{
+    WORD value = 0;
+    for (int p = 0; p < text.length(); p++) {
+        if (p > 6) return FALSE;
+#ifdef	_UNICODE
+        TCHAR ch = text.at(p).unicode();
+#else
+        TCHAR ch = text.at(p).toAscii();
+#endif
+        if (ch == 0) break;
+        if (ch < _T('0') || ch > _T('7')) return FALSE;
+        value = (value << 3);
+        int digit = ch - _T('0');
+        value += digit;
+    }
+    *pValue = value;
+    return TRUE;
+}
+
 
 //////////////////////////////////////////////////////////////////////
