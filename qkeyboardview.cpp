@@ -99,7 +99,7 @@ QKeyboardView::QKeyboardView(QWidget *parent) :
         QWidget(parent)
 {
     setMinimumSize(551 + 8, 216 + 8);
-    setMaximumHeight(216 + 20);
+    setMaximumSize(551 + 60, 216 + 20);
 }
 
 void QKeyboardView::paintEvent(QPaintEvent *)

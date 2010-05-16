@@ -7,7 +7,7 @@ QScreen::QScreen(QWidget *parent) :
     QWidget(parent)
 {
     setMinimumSize(BK_SCREEN_WIDTH + 8, BK_SCREEN_HEIGHT + 8);
-    setMaximumHeight(BK_SCREEN_HEIGHT + 20);
+    setMaximumSize(BK_SCREEN_WIDTH + 100, BK_SCREEN_HEIGHT + 20);
     setFocusPolicy(Qt::StrongFocus);
 
     m_image = new QImage(BK_SCREEN_WIDTH, BK_SCREEN_HEIGHT, QImage::Format_RGB32);
