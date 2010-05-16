@@ -11,7 +11,12 @@
 QDebugView::QDebugView(QWidget *parent) :
         QWidget(parent)
 {
-    setMinimumSize(420, 172);
+    QFont font = Common_GetMonospacedFont();
+    QFontMetrics fontmetrics(font);
+    int cxChar = fontmetrics.averageCharWidth();
+    int cyLine = fontmetrics.height();
+    this->setMinimumSize(cxChar * 55, cyLine * 14 + cyLine / 2);
+    this->setMaximumHeight(cyLine * 14 + cyLine / 2);
 }
 
 void QDebugView::updateData()

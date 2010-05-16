@@ -11,7 +11,11 @@ QMemoryView::QMemoryView()
     m_cyLineMemory = 0;
     m_nPageSize = 0;
 
-    setMinimumSize(420, 200);
+    QFont font = Common_GetMonospacedFont();
+    QFontMetrics fontmetrics(font);
+    int cxChar = fontmetrics.averageCharWidth();
+    int cyLine = fontmetrics.height();
+    this->setMinimumSize(cxChar * 68, cyLine * 11 + cyLine / 2);
 }
 
 void QMemoryView::updateData()

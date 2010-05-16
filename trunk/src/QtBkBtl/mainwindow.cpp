@@ -8,6 +8,7 @@
 #include "ui_mainwindow.h"
 #include "qscreen.h"
 #include "qkeyboardview.h"
+#include "qconsoleview.h"
 #include "qdebugview.h"
 #include "qdisasmview.h"
 #include "qmemoryview.h"
@@ -42,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Screen and keyboard
     m_screen = new QScreen();
     m_keyboard = new QKeyboardView();
+    m_console = new QConsoleView();
     m_debug = new QDebugView();
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
@@ -54,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     vboxlayoutL->setSpacing(0);
     vboxlayoutL->addWidget(m_screen);
     vboxlayoutL->addWidget(m_keyboard);
+    vboxlayoutL->addWidget(m_console);
     gridlayout->addLayout(vboxlayoutL, 0, 0, 1, 1);
     QVBoxLayout *vboxlayoutR = new QVBoxLayout;
     vboxlayoutR->addWidget(m_debug);
