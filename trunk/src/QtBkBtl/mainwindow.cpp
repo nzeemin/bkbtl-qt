@@ -43,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
     QObject::connect(ui->actionDebugMemoryView, SIGNAL(triggered()), this, SLOT(debugMemoryView()));
+    QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
+    QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 
     // Screen and keyboard
@@ -113,6 +115,8 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::UpdateMenu()
 {
+    ui->actionEmulatorRun->setChecked(g_okEmulatorRunning);
+
     ui->actionEmulatorColorScreen->setIcon(QIcon(
             m_screen->mode() == ColorScreen ? _T(":/images/iconScreenColor.png") : _T(":/images/iconScreenBW.png") ));
 
@@ -247,12 +251,14 @@ void MainWindow::helpAboutQt()
 
 void MainWindow::emulatorFrame()
 {
-    if (g_okEmulatorRunning)
+    if (!g_okEmulatorRunning)
+        return;
+
+    if (Emulator_IsBreakpoint())
+        Emulator_Stop();
+    else if (Emulator_SystemFrame())
     {
-        if (Emulator_SystemFrame())
-        {
-            m_screen->repaint();
-        }
+        m_screen->repaint();
     }
 }
 
@@ -371,4 +377,15 @@ void MainWindow::debugMemoryView()
 {
     m_dockMemory->setVisible(!m_dockMemory->isVisible());
     UpdateMenu();
+}
+
+void MainWindow::debugStepInto()
+{
+    if (!g_okEmulatorRunning)
+        m_console->execConsoleCommand(_T("s"));
+}
+void MainWindow::debugStepOver()
+{
+    if (!g_okEmulatorRunning)
+        m_console->execConsoleCommand(_T("so"));
 }

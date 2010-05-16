@@ -293,6 +293,19 @@ void Emulator_Reset()
     Global_UpdateAllViews();
 }
 
+void Emulator_SetCPUBreakpoint(WORD address)
+{
+    m_wEmulatorCPUBreakpoint = address;
+}
+
+BOOL Emulator_IsBreakpoint()
+{
+    WORD wCPUAddr = g_pBoard->GetCPU()->GetPC();
+    if (wCPUAddr == m_wEmulatorCPUBreakpoint)
+        return TRUE;
+    return FALSE;
+}
+
 int Emulator_SystemFrame()
 {
     g_pBoard->SetCPUBreakpoint(m_wEmulatorCPUBreakpoint);

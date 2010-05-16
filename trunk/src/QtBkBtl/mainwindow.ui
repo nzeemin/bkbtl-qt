@@ -79,6 +79,9 @@
     <addaction name="actionDebugDebugView"/>
     <addaction name="actionDebugDisasmView"/>
     <addaction name="actionDebugMemoryView"/>
+    <addaction name="separator"/>
+    <addaction name="actionDebugStepInto"/>
+    <addaction name="actionDebugStepOver"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEmulator"/>
@@ -364,6 +367,22 @@
    </property>
    <property name="text">
     <string>Debug Views</string>
+   </property>
+  </action>
+  <action name="actionDebugStepInto">
+   <property name="text">
+    <string>Step Into</string>
+   </property>
+   <property name="shortcut">
+    <string>F11</string>
+   </property>
+  </action>
+  <action name="actionDebugStepOver">
+   <property name="text">
+    <string>Step Over</string>
+   </property>
+   <property name="shortcut">
+    <string>F10</string>
    </property>
   </action>
  </widget>

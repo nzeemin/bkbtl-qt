@@ -16,6 +16,7 @@ QApplication* Global_getApplication();
 MainWindow* Global_getMainWindow();
 QSettings* Global_getSettings();
 void Global_UpdateAllViews();
+void Global_UpdateMenu();
 
 enum ScreenViewMode {
     ColorScreen = 1,
