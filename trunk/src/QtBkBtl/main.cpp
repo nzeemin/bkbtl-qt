@@ -28,17 +28,12 @@ int main(int argc, char *argv[])
     MainWindow w;
     g_MainWindow = &w;
 
-    // Center main window on the screen
-    int xMainLeft = (g_Application->desktop()->width() - w.width()) / 2;
-    if (xMainLeft < 0) xMainLeft = 0;
-    int yMainTop = (g_Application->desktop()->height() - w.height()) / 2;
-    if (yMainTop < 0) yMainTop = 0;
-    w.move(xMainLeft, yMainTop);
-
     if (!Emulator_Init()) return 255;
     //if (!Emulator_InitConfiguration((BKConfiguration)Settings_GetConfiguration()))
     if (!Emulator_InitConfiguration(BK_CONF_BK0010_FOCAL))
         return 255;
+
+    w.restoreSettings();
 
     w.show();
 

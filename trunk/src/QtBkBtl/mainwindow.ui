@@ -138,6 +138,9 @@
    <property name="text">
     <string>Run</string>
    </property>
+   <property name="shortcut">
+    <string>F9</string>
+   </property>
   </action>
   <action name="actionEmulatorReset">
    <property name="icon">

@@ -23,6 +23,7 @@ public:
 public:
     void UpdateMenu();
     void UpdateAllViews();
+    void restoreSettings();
 
 public slots:
     void fileLoadBin();
@@ -49,7 +50,8 @@ public slots:
     void debugStepOver();
 
 protected:
-    void changeEvent(QEvent *e);
+    void changeEvent(QEvent *);
+    void closeEvent(QCloseEvent *);
 
 private:
     Ui::MainWindow *ui;
