@@ -9,7 +9,11 @@ QDisasmView::QDisasmView()
     m_wDisasmBaseAddr = 0;
     m_wDisasmNextBaseAddr = 0;
 
-    setMinimumSize(520, 240);
+    QFont font = Common_GetMonospacedFont();
+    QFontMetrics fontmetrics(font);
+    int cxChar = fontmetrics.averageCharWidth();
+    int cyLine = fontmetrics.height();
+    this->setMinimumSize(cxChar * 55, cyLine * 14 + cyLine / 2);
 }
 
 void QDisasmView::updateData()
@@ -29,18 +33,18 @@ void QDisasmView::paintEvent(QPaintEvent *event)
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
     QFontMetrics fontmetrics(font);
-    int cxChar = fontmetrics.averageCharWidth();
-    int cyLine = fontmetrics.height();
+//    int cxChar = fontmetrics.averageCharWidth();
+//    int cyLine = fontmetrics.height();
 
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
     ASSERT(pDisasmPU != NULL);
 
     // Draw disasseble for the current processor
     WORD prevPC = g_wEmulatorPrevCpuPC;
-    DrawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC, 0, 1 * cyLine);
+    DrawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC);
 }
 
-void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned short base, unsigned short previous, int x, int y)
+void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned short base, unsigned short previous)
 {
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
@@ -51,7 +55,7 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
     WORD current = base;
 
     // Читаем из памяти процессора в буфер
-    const int nWindowSize = 30;
+    const int nWindowSize = this->height() / cyLine;
     WORD memory[nWindowSize + 2];
     for (int idx = 0; idx < nWindowSize; idx++) {
         int addrtype;
@@ -66,6 +70,7 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
 
     int length = 0;
     WORD wNextBaseAddr = 0;
+    int y = cyLine;
     for (int index = 0; index < nWindowSize; index++)  // Рисуем строки
     {
 //        if (m_okDisasmSubtitles)  // Subtitles - комментарий к блоку
@@ -83,28 +88,28 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
 //            }
 //        }
 
-        DrawOctalValue(painter, x + 5 * cxChar, y, address);  // Address
+        DrawOctalValue(painter, 5 * cxChar, y, address);  // Address
         // Value at the address
         WORD value = memory[index];
         painter.setPen(Qt::gray);
-        DrawOctalValue(painter, x + 13 * cxChar, y, value);
+        DrawOctalValue(painter, 13 * cxChar, y, value);
         painter.setPen(colorText);
 
         // Current position
         if (address == current)
-            painter.drawText(x + 1 * cxChar, y, _T("  >"));
+            painter.drawText(1 * cxChar, y, _T("  >"));
         if (address == proccurrent)
         {
-//            BOOL okPCchanged = DebugView_IsRegisterChanged(7);
-//            if (okPCchanged) painter.setPen(Qt::red);
-            painter.drawText(x + 1 * cxChar, y, _T("PC"));
+            BOOL okPCchanged = proccurrent != previous;
+            if (okPCchanged) painter.setPen(Qt::red);
+            painter.drawText(1 * cxChar, y, _T("PC"));
             painter.setPen(colorText);
-            painter.drawText(x + 3 * cxChar, y, _T(">>"));
+            painter.drawText(3 * cxChar, y, _T(">>"));
         }
         else if (address == previous)
         {
             painter.setPen(Qt::blue);
-            painter.drawText(x + 1 * cxChar, y, _T("  >"));
+            painter.drawText(1 * cxChar, y, _T("  >"));
         }
 
         BOOL okData = FALSE;
@@ -118,7 +123,7 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
 //                LPCTSTR strSubtitle = pSubItem->comment;
 //
 //                ::SetTextColor(hdc, COLOR_SUBTITLE);
-//                TextOut(hdc, x + 52 * cxChar, y, strSubtitle, (int) wcslen(strSubtitle));
+//                TextOut(hdc, 52 * cxChar, y, strSubtitle, (int) wcslen(strSubtitle));
 //                ::SetTextColor(hdc, colorText);
 //
 //                // Строку с субтитром мы можем использовать как опорную для дизассемблера
@@ -143,8 +148,8 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
             }
             if (index + length <= nWindowSize)
             {
-                painter.drawText(x + 21 * cxChar, y, strInstr);
-                painter.drawText(x + 29 * cxChar, y, strArg);
+                painter.drawText(21 * cxChar, y, strInstr);
+                painter.drawText(29 * cxChar, y, strArg);
             }
             painter.setPen(colorText);
             if (wNextBaseAddr == 0)

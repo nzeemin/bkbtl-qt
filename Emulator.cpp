@@ -100,7 +100,6 @@ BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD bytesToRead)
     return TRUE;
 }
 
-
 BOOL Emulator_Init()
 {
     ASSERT(g_pBoard == NULL);
@@ -126,6 +125,8 @@ BOOL Emulator_Init()
 
     //g_pBoard->SetTeletypeCallback(Emulator_TeletypeCallback);
 
+    Emulator_OnUpdate();
+
     g_okEmulatorInitialized = TRUE;
     return TRUE;
 }
@@ -148,7 +149,6 @@ void Emulator_Done()
 
     g_okEmulatorInitialized = FALSE;
 }
-
 
 BOOL Emulator_InitConfiguration(BKConfiguration configuration)
 {
@@ -276,6 +276,7 @@ void Emulator_Stop()
     // Reset FPS indicator
     //MainWindow_SetStatusbarText(StatusbarPartFPS, _T(""));
 
+    Emulator_OnUpdate();
     Global_UpdateAllViews();
 }
 
@@ -288,6 +289,7 @@ void Emulator_Reset()
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
 
+    Emulator_OnUpdate();
     Global_UpdateAllViews();
 }
 

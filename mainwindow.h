@@ -5,6 +5,7 @@
 
 class QScreen;
 class QKeyboardView;
+class QConsoleView;
 class QDebugView;
 class QDisasmView;
 class QMemoryView;
@@ -48,6 +49,7 @@ private:
     Ui::MainWindow *ui;
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
+    QConsoleView *m_console;
     QDebugView *m_debug;
     QDisasmView *m_disasm;
     QMemoryView * m_memory;
