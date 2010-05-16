@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sat May 15 22:45:44 2010
+** Created: Sun May 16 18:26:14 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -47,6 +47,10 @@ public:
     QAction *actionConfBK11Fdd;
     QAction *actionEmulatorColorScreen;
     QAction *actionFileLoadBin;
+    QAction *actionDebugDebugView;
+    QAction *actionDebugDisasmView;
+    QAction *actionDebugMemoryView;
+    QAction *actionDebugConsoleView;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -54,6 +58,7 @@ public:
     QMenu *menuDrives;
     QMenu *menuHelp;
     QMenu *menuConfiguration;
+    QMenu *menuDebug;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -138,6 +143,18 @@ public:
         actionEmulatorColorScreen->setObjectName(QString::fromUtf8("actionEmulatorColorScreen"));
         actionFileLoadBin = new QAction(MainWindow);
         actionFileLoadBin->setObjectName(QString::fromUtf8("actionFileLoadBin"));
+        actionDebugDebugView = new QAction(MainWindow);
+        actionDebugDebugView->setObjectName(QString::fromUtf8("actionDebugDebugView"));
+        actionDebugDebugView->setCheckable(true);
+        actionDebugDisasmView = new QAction(MainWindow);
+        actionDebugDisasmView->setObjectName(QString::fromUtf8("actionDebugDisasmView"));
+        actionDebugDisasmView->setCheckable(true);
+        actionDebugMemoryView = new QAction(MainWindow);
+        actionDebugMemoryView->setObjectName(QString::fromUtf8("actionDebugMemoryView"));
+        actionDebugMemoryView->setCheckable(true);
+        actionDebugConsoleView = new QAction(MainWindow);
+        actionDebugConsoleView->setObjectName(QString::fromUtf8("actionDebugConsoleView"));
+        actionDebugConsoleView->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -155,6 +172,8 @@ public:
         menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
         menuConfiguration = new QMenu(menuBar);
         menuConfiguration->setObjectName(QString::fromUtf8("menuConfiguration"));
+        menuDebug = new QMenu(menuBar);
+        menuDebug->setObjectName(QString::fromUtf8("menuDebug"));
         MainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -172,6 +191,7 @@ public:
         menuBar->addAction(menuEmulator->menuAction());
         menuBar->addAction(menuConfiguration->menuAction());
         menuBar->addAction(menuDrives->menuAction());
+        menuBar->addAction(menuDebug->menuAction());
         menuBar->addAction(menuHelp->menuAction());
         menuFile->addAction(actionFileLoadBin);
         menuFile->addSeparator();
@@ -192,6 +212,11 @@ public:
         menuConfiguration->addAction(actionConfBK10Fdd);
         menuConfiguration->addAction(actionConfBK11);
         menuConfiguration->addAction(actionConfBK11Fdd);
+        menuDebug->addAction(actionDebugConsoleView);
+        menuDebug->addSeparator();
+        menuDebug->addAction(actionDebugDebugView);
+        menuDebug->addAction(actionDebugDisasmView);
+        menuDebug->addAction(actionDebugMemoryView);
         mainToolBar->addAction(actionEmulatorRun);
         mainToolBar->addAction(actionEmulatorReset);
         mainToolBar->addSeparator();
@@ -235,11 +260,16 @@ public:
         actionEmulatorColorScreen->setText(QApplication::translate("MainWindow", "Color Screen", 0, QApplication::UnicodeUTF8));
         actionEmulatorColorScreen->setIconText(QApplication::translate("MainWindow", "Color", 0, QApplication::UnicodeUTF8));
         actionFileLoadBin->setText(QApplication::translate("MainWindow", "Load BIN", 0, QApplication::UnicodeUTF8));
+        actionDebugDebugView->setText(QApplication::translate("MainWindow", "Processor View", 0, QApplication::UnicodeUTF8));
+        actionDebugDisasmView->setText(QApplication::translate("MainWindow", "Disasm View", 0, QApplication::UnicodeUTF8));
+        actionDebugMemoryView->setText(QApplication::translate("MainWindow", "Memory View", 0, QApplication::UnicodeUTF8));
+        actionDebugConsoleView->setText(QApplication::translate("MainWindow", "Debug Views", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEmulator->setTitle(QApplication::translate("MainWindow", "Emulator", 0, QApplication::UnicodeUTF8));
         menuDrives->setTitle(QApplication::translate("MainWindow", "Drives", 0, QApplication::UnicodeUTF8));
         menuHelp->setTitle(QApplication::translate("MainWindow", "Help", 0, QApplication::UnicodeUTF8));
         menuConfiguration->setTitle(QApplication::translate("MainWindow", "Configuration", 0, QApplication::UnicodeUTF8));
+        menuDebug->setTitle(QApplication::translate("MainWindow", "Debug", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

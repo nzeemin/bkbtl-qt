@@ -39,6 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), this, SLOT(emulatorFloppy1()));
     //QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), this, SLOT(emulatorFloppy2()));
     //QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), this, SLOT(emulatorFloppy3()));
+    QObject::connect(ui->actionDebugConsoleView, SIGNAL(triggered()), this, SLOT(debugConsoleView()));
+    QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
+    QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
+    QObject::connect(ui->actionDebugMemoryView, SIGNAL(triggered()), this, SLOT(debugMemoryView()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 
     // Screen and keyboard
@@ -49,29 +53,34 @@ MainWindow::MainWindow(QWidget *parent) :
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
 
-    QVBoxLayout *vboxlayoutL = new QVBoxLayout;
-    vboxlayoutL->setMargin(0);
-    vboxlayoutL->setSpacing(0);
-    vboxlayoutL->addWidget(m_screen);
-    vboxlayoutL->addWidget(m_keyboard);
-    vboxlayoutL->addWidget(m_console);
-    ui->centralWidget->setLayout(vboxlayoutL);
+    QVBoxLayout *vboxlayout = new QVBoxLayout;
+    vboxlayout->setMargin(0);
+    vboxlayout->setSpacing(0);
+    vboxlayout->addWidget(m_screen);
+    vboxlayout->addWidget(m_keyboard);
+    ui->centralWidget->setLayout(vboxlayout);
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+    int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
+    ui->centralWidget->setMaximumWidth(maxwid);
 
-    QDockWidget* dockDebug = new QDockWidget(_T("Debug"));
-    dockDebug->setWidget(m_debug);
-    QDockWidget* dockDisasm = new QDockWidget(_T("Disassemble"));
-    dockDisasm->setWidget(m_disasm);
-    QDockWidget* dockMemory = new QDockWidget(_T("Memory"));
-    dockMemory->setWidget(m_memory);
-    //QDockWidget* dockConsole = new QDockWidget(_T("Debug Console"));
-    //dockConsole->setWidget(m_console);
+    m_dockDebug = new QDockWidget(_T("Processor"));
+    m_dockDebug->setWidget(m_debug);
+    m_dockDisasm = new QDockWidget(_T("Disassemble"));
+    m_dockDisasm->setWidget(m_disasm);
+    m_dockMemory = new QDockWidget(_T("Memory"));
+    m_dockMemory->setWidget(m_memory);
+    m_dockConsole = new QDockWidget(_T("Debug Console"));
+    m_dockConsole->setWidget(m_console);
 
-    this->addDockWidget(Qt::RightDockWidgetArea, dockDebug, Qt::Vertical);
-    this->addDockWidget(Qt::RightDockWidgetArea, dockDisasm, Qt::Vertical);
-    this->addDockWidget(Qt::RightDockWidgetArea, dockMemory, Qt::Vertical);
-    //this->addDockWidget(Qt::BottomDockWidgetArea, dockConsole);
+    this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+    this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
+    this->addDockWidget(Qt::RightDockWidgetArea, m_dockDebug, Qt::Vertical);
+    this->addDockWidget(Qt::RightDockWidgetArea, m_dockDisasm, Qt::Vertical);
+    this->addDockWidget(Qt::RightDockWidgetArea, m_dockMemory, Qt::Vertical);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole);
 
     this->adjustSize();
+
     this->setFocusProxy(m_screen);
 }
 
@@ -84,6 +93,10 @@ MainWindow::~MainWindow()
     delete m_debug;
     delete m_disasm;
     delete m_memory;
+    delete m_dockConsole;
+    delete m_dockDebug;
+    delete m_dockDisasm;
+    delete m_dockMemory;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -117,6 +130,11 @@ void MainWindow::UpdateMenu()
             g_pBoard->IsFloppyImageAttached(2) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
     ui->actionDrivesFloppy3->setIcon(QIcon(
             g_pBoard->IsFloppyImageAttached(3) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+
+    ui->actionDebugConsoleView->setChecked(m_console->isVisible());
+    ui->actionDebugDebugView->setChecked(m_dockDebug->isVisible());
+    ui->actionDebugDisasmView->setChecked(m_dockDisasm->isVisible());
+    ui->actionDebugMemoryView->setChecked(m_dockMemory->isVisible());
 }
 
 void MainWindow::UpdateAllViews()
@@ -135,6 +153,8 @@ void MainWindow::UpdateAllViews()
         m_disasm->repaint();
     if (m_memory != NULL)
         m_memory->repaint();
+
+    UpdateMenu();
 }
 
 void MainWindow::fileLoadBin()
@@ -320,4 +340,35 @@ void MainWindow::emulatorFloppy(int slot)
     //}
 
     //UpdateMenu();
+}
+
+void MainWindow::debugConsoleView()
+{
+    BOOL okShow = !m_dockConsole->isVisible();
+    m_dockConsole->setVisible(okShow);
+    m_dockDebug->setVisible(okShow);
+    m_dockDisasm->setVisible(okShow);
+    m_dockMemory->setVisible(okShow);
+
+    if (!okShow)
+    {
+        this->adjustSize();
+    }
+
+    UpdateMenu();
+}
+void MainWindow::debugDebugView()
+{
+    m_dockDebug->setVisible(!m_dockDebug->isVisible());
+    UpdateMenu();
+}
+void MainWindow::debugDisasmView()
+{
+    m_dockDisasm->setVisible(!m_dockDisasm->isVisible());
+    UpdateMenu();
+}
+void MainWindow::debugMemoryView()
+{
+    m_dockMemory->setVisible(!m_dockMemory->isVisible());
+    UpdateMenu();
 }

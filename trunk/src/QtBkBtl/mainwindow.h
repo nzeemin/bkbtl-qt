@@ -41,6 +41,10 @@ public slots:
     void emulatorFloppy1();
     void emulatorFloppy2();
     void emulatorFloppy3();
+    void debugConsoleView();
+    void debugDebugView();
+    void debugDisasmView();
+    void debugMemoryView();
 
 protected:
     void changeEvent(QEvent *e);
@@ -50,9 +54,13 @@ private:
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
     QConsoleView *m_console;
+    QDockWidget* m_dockConsole;
     QDebugView *m_debug;
+    QDockWidget* m_dockDebug;
     QDisasmView *m_disasm;
+    QDockWidget* m_dockDisasm;
     QMemoryView * m_memory;
+    QDockWidget* m_dockMemory;
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);

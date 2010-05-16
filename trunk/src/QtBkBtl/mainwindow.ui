@@ -70,10 +70,21 @@
     <addaction name="actionConfBK11"/>
     <addaction name="actionConfBK11Fdd"/>
    </widget>
+   <widget class="QMenu" name="menuDebug">
+    <property name="title">
+     <string>Debug</string>
+    </property>
+    <addaction name="actionDebugConsoleView"/>
+    <addaction name="separator"/>
+    <addaction name="actionDebugDebugView"/>
+    <addaction name="actionDebugDisasmView"/>
+    <addaction name="actionDebugMemoryView"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuConfiguration"/>
    <addaction name="menuDrives"/>
+   <addaction name="menuDebug"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -321,6 +332,38 @@
   <action name="actionFileLoadBin">
    <property name="text">
     <string>Load BIN</string>
+   </property>
+  </action>
+  <action name="actionDebugDebugView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Processor View</string>
+   </property>
+  </action>
+  <action name="actionDebugDisasmView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Disasm View</string>
+   </property>
+  </action>
+  <action name="actionDebugMemoryView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Memory View</string>
+   </property>
+  </action>
+  <action name="actionDebugConsoleView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Debug Views</string>
    </property>
   </action>
  </widget>
