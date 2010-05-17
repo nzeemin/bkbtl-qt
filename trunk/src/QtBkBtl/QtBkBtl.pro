@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     qdebugview.cpp \
     qdisasmview.cpp \
     qmemoryview.cpp \
-    qconsoleview.cpp
+    qconsoleview.cpp \
+    qteletypeview.cpp
 HEADERS += mainwindow.h \
     util/WavPcmFile.h \
     stdafx.h \
@@ -34,6 +35,7 @@ HEADERS += mainwindow.h \
     qdebugview.h \
     qdisasmview.h \
     qmemoryview.h \
-    qconsoleview.h
+    qconsoleview.h \
+    qteletypeview.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc

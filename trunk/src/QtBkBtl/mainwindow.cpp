@@ -14,6 +14,7 @@
 #include "qdebugview.h"
 #include "qdisasmview.h"
 #include "qmemoryview.h"
+#include "qteletypeview.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -44,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
     QObject::connect(ui->actionDebugMemoryView, SIGNAL(triggered()), this, SLOT(debugMemoryView()));
+    QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
@@ -55,6 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_debug = new QDebugView();
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
+    m_teletype = new QTeletypeView();
 
     QVBoxLayout *vboxlayout = new QVBoxLayout;
     vboxlayout->setMargin(0);
@@ -78,6 +81,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dockConsole = new QDockWidget(_T("Debug Console"));
     m_dockConsole->setObjectName(_T("dockConsole"));
     m_dockConsole->setWidget(m_console);
+    m_dockTeletype = new QDockWidget(_T("Teletype"));
+    m_dockTeletype->setObjectName(_T("dockTeletype"));
+    m_dockTeletype->setWidget(m_teletype);
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
     this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
@@ -85,6 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockDisasm, Qt::Vertical);
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockMemory, Qt::Vertical);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockTeletype);
 
     this->setFocusProxy(m_screen);
 }
@@ -98,10 +105,12 @@ MainWindow::~MainWindow()
     delete m_debug;
     delete m_disasm;
     delete m_memory;
+    delete m_teletype;
     delete m_dockConsole;
     delete m_dockDebug;
     delete m_dockDisasm;
     delete m_dockMemory;
+    delete m_dockTeletype;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -125,6 +134,7 @@ void MainWindow::closeEvent(QCloseEvent *)
     Global_getSettings()->setValue("MainWindow/DebugView", m_dockDebug->isVisible());
     Global_getSettings()->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
     Global_getSettings()->setValue("MainWindow/MemoryView", m_dockMemory->isVisible());
+    Global_getSettings()->setValue("MainWindow/TeletypeView", m_dockTeletype->isVisible());
 }
 
 void MainWindow::restoreSettings()
@@ -136,6 +146,7 @@ void MainWindow::restoreSettings()
     m_dockDebug->setVisible(Global_getSettings()->value("MainWindow/DebugView", false).toBool());
     m_dockDisasm->setVisible(Global_getSettings()->value("MainWindow/DisasmView", false).toBool());
     m_dockMemory->setVisible(Global_getSettings()->value("MainWindow/MemoryView", false).toBool());
+    m_dockTeletype->setVisible(Global_getSettings()->value("MainWindow/TeletypeView", false).toBool());
 }
 
 void MainWindow::UpdateMenu()
@@ -164,6 +175,7 @@ void MainWindow::UpdateMenu()
     ui->actionDebugDebugView->setChecked(m_dockDebug->isVisible());
     ui->actionDebugDisasmView->setChecked(m_dockDisasm->isVisible());
     ui->actionDebugMemoryView->setChecked(m_dockMemory->isVisible());
+    ui->actionDebugTeletypeView->setChecked(m_dockTeletype->isVisible());
 }
 
 void MainWindow::UpdateAllViews()
@@ -405,6 +417,11 @@ void MainWindow::debugMemoryView()
     m_dockMemory->setVisible(!m_dockMemory->isVisible());
     UpdateMenu();
 }
+void MainWindow::debugTeletypeView()
+{
+    m_dockTeletype->setVisible(!m_dockTeletype->isVisible());
+    UpdateMenu();
+}
 
 void MainWindow::debugStepInto()
 {
@@ -415,4 +432,12 @@ void MainWindow::debugStepOver()
 {
     if (!g_okEmulatorRunning)
         m_console->execConsoleCommand(_T("so"));
+}
+
+void MainWindow::printToTeletype(const QString & message)
+{
+    if (m_teletype != NULL)
+    {
+        m_teletype->print(message);
+    }
 }

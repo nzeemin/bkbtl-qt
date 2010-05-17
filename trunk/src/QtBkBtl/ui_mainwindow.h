@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Sun May 16 22:38:01 2010
+** Created: Mon May 17 21:37:15 2010
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -53,6 +53,7 @@ public:
     QAction *actionDebugConsoleView;
     QAction *actionDebugStepInto;
     QAction *actionDebugStepOver;
+    QAction *actionDebugTeletypeView;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
@@ -161,6 +162,9 @@ public:
         actionDebugStepInto->setObjectName(QString::fromUtf8("actionDebugStepInto"));
         actionDebugStepOver = new QAction(MainWindow);
         actionDebugStepOver->setObjectName(QString::fromUtf8("actionDebugStepOver"));
+        actionDebugTeletypeView = new QAction(MainWindow);
+        actionDebugTeletypeView->setObjectName(QString::fromUtf8("actionDebugTeletypeView"));
+        actionDebugTeletypeView->setCheckable(true);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -223,6 +227,7 @@ public:
         menuDebug->addAction(actionDebugDebugView);
         menuDebug->addAction(actionDebugDisasmView);
         menuDebug->addAction(actionDebugMemoryView);
+        menuDebug->addAction(actionDebugTeletypeView);
         menuDebug->addSeparator();
         menuDebug->addAction(actionDebugStepInto);
         menuDebug->addAction(actionDebugStepOver);
@@ -278,6 +283,7 @@ public:
         actionDebugStepInto->setShortcut(QApplication::translate("MainWindow", "F11", 0, QApplication::UnicodeUTF8));
         actionDebugStepOver->setText(QApplication::translate("MainWindow", "Step Over", 0, QApplication::UnicodeUTF8));
         actionDebugStepOver->setShortcut(QApplication::translate("MainWindow", "F10", 0, QApplication::UnicodeUTF8));
+        actionDebugTeletypeView->setText(QApplication::translate("MainWindow", "Teletype View", 0, QApplication::UnicodeUTF8));
         menuFile->setTitle(QApplication::translate("MainWindow", "File", 0, QApplication::UnicodeUTF8));
         menuEmulator->setTitle(QApplication::translate("MainWindow", "Emulator", 0, QApplication::UnicodeUTF8));
         menuDrives->setTitle(QApplication::translate("MainWindow", "Drives", 0, QApplication::UnicodeUTF8));

@@ -9,6 +9,7 @@ class QConsoleView;
 class QDebugView;
 class QDisasmView;
 class QMemoryView;
+class QTeletypeView;
 
 namespace Ui {
     class MainWindow;
@@ -24,6 +25,7 @@ public:
     void UpdateMenu();
     void UpdateAllViews();
     void restoreSettings();
+    void printToTeletype(const QString&);
 
 public slots:
     void fileLoadBin();
@@ -46,6 +48,7 @@ public slots:
     void debugDebugView();
     void debugDisasmView();
     void debugMemoryView();
+    void debugTeletypeView();
     void debugStepInto();
     void debugStepOver();
 
@@ -55,6 +58,7 @@ protected:
 
 private:
     Ui::MainWindow *ui;
+
     QScreen *m_screen;
     QKeyboardView *m_keyboard;
     QConsoleView *m_console;
@@ -65,6 +69,8 @@ private:
     QDockWidget* m_dockDisasm;
     QMemoryView * m_memory;
     QDockWidget* m_dockMemory;
+    QTeletypeView * m_teletype;
+    QDockWidget* m_dockTeletype;
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
