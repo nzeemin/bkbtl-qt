@@ -168,6 +168,8 @@ void MainWindow::UpdateMenu()
 
 void MainWindow::UpdateAllViews()
 {
+    Emulator_OnUpdate();
+
     if (m_debug != NULL)
         m_debug->updateData();
     if (m_disasm != NULL)

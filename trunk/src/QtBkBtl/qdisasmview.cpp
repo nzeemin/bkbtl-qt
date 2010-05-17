@@ -32,9 +32,6 @@ void QDisasmView::paintEvent(QPaintEvent *event)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
-//    int cxChar = fontmetrics.averageCharWidth();
-//    int cyLine = fontmetrics.height();
 
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
     ASSERT(pDisasmPU != NULL);
@@ -65,7 +62,7 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
 
     WORD address = current - 10;
     WORD disasmfrom = current;
-    if (previous >= address && previous < current)
+    if ((previous >= address) && previous < current)
         disasmfrom = previous;
 
     int length = 0;
