@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include "main.h"
+#include "mainwindow.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 //#include "SoundGen.h"
@@ -35,6 +36,8 @@ WORD m_EmulatorKeyQueue[KEYEVENT_QUEUE_SIZE];
 int m_EmulatorKeyQueueTop = 0;
 int m_EmulatorKeyQueueBottom = 0;
 int m_EmulatorKeyQueueCount = 0;
+
+void CALLBACK Emulator_TeletypeCallback(BYTE symbol);
 
 
 //////////////////////////////////////////////////////////////////////
@@ -123,7 +126,7 @@ BOOL Emulator_Init()
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
 
-    //g_pBoard->SetTeletypeCallback(Emulator_TeletypeCallback);
+    g_pBoard->SetTeletypeCallback(Emulator_TeletypeCallback);
 
     Emulator_OnUpdate();
 
@@ -481,6 +484,21 @@ void Emulator_ProcessKeyEvent()
         BOOL ctrl = ((keyevent & 0x4000) != 0);
         BYTE bkscan = LOBYTE(keyevent);
         g_pBoard->KeyboardEvent(bkscan, pressed, ctrl);
+    }
+}
+
+
+void CALLBACK Emulator_TeletypeCallback(BYTE symbol)
+{
+    if (symbol >= 32 || symbol == 13 || symbol == 10)
+    {
+        Global_getMainWindow()->printToTeletype(QString((TCHAR)symbol));
+    }
+    else
+    {
+        TCHAR buffer[32];
+        _sntprintf(buffer, 32, _T("<%02x>"), symbol);
+        Global_getMainWindow()->printToTeletype(buffer);
     }
 }
 

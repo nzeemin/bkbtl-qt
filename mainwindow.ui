@@ -79,6 +79,7 @@
     <addaction name="actionDebugDebugView"/>
     <addaction name="actionDebugDisasmView"/>
     <addaction name="actionDebugMemoryView"/>
+    <addaction name="actionDebugTeletypeView"/>
     <addaction name="separator"/>
     <addaction name="actionDebugStepInto"/>
     <addaction name="actionDebugStepOver"/>
@@ -386,6 +387,14 @@
    </property>
    <property name="shortcut">
     <string>F10</string>
+   </property>
+  </action>
+  <action name="actionDebugTeletypeView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Teletype View</string>
    </property>
   </action>
  </widget>

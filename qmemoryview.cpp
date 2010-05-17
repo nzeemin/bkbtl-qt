@@ -47,7 +47,7 @@ void QMemoryView::resizeEvent(QResizeEvent *)
 void QMemoryView::scrollValueChanged()
 {
     int value = m_scrollbar->value();
-    m_wBaseAddress = (unsigned short)value;
+    m_wBaseAddress = (unsigned short)value & ~15;
     this->repaint();
 }
 
