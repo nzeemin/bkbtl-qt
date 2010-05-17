@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <QtGui>
 #include <QPainter>
+#include <QScrollBar>
 #include "qmemoryview.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
@@ -15,11 +16,39 @@ QMemoryView::QMemoryView()
     QFontMetrics fontmetrics(font);
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
+
+    m_cyLine = cyLine;
+
+    this->setFont(font);
     this->setMinimumSize(cxChar * 68, cyLine * 11 + cyLine / 2);
+
+    m_scrollbar = new QScrollBar(Qt::Vertical, this);
+    m_scrollbar->setRange(0, 65536 - 16);
+    m_scrollbar->setSingleStep(16);
+    QObject::connect(m_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scrollValueChanged()));
+}
+
+QMemoryView::~QMemoryView()
+{
+    delete m_scrollbar;
 }
 
 void QMemoryView::updateData()
 {
+}
+
+void QMemoryView::resizeEvent(QResizeEvent *)
+{
+    int cxScroll = this->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
+    m_scrollbar->setGeometry(this->width() - cxScroll, 0, cxScroll, this->height());
+    m_scrollbar->setPageStep((this->height() / m_cyLine - 2) * 16);
+}
+
+void QMemoryView::scrollValueChanged()
+{
+    int value = m_scrollbar->value();
+    m_wBaseAddress = (unsigned short)value;
+    this->repaint();
 }
 
 void QMemoryView::paintEvent(QPaintEvent *event)
