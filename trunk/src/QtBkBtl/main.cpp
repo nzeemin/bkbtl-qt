@@ -28,9 +28,9 @@ int main(int argc, char *argv[])
     MainWindow w;
     g_MainWindow = &w;
 
-    if (!Emulator_Init()) return 255;
-    //if (!Emulator_InitConfiguration((BKConfiguration)Settings_GetConfiguration()))
-    if (!Emulator_InitConfiguration(BK_CONF_BK0010_FOCAL))
+    if (!Emulator_Init())
+        return 255;
+    if (!Emulator_InitConfiguration((BKConfiguration)Global_getSettings()->value("Configuration", BK_CONF_BK0010_BASIC).toInt()))
         return 255;
 
     w.restoreSettings();
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
     Emulator_Done();
 
+    Global_getSettings()->setValue("Configuration", (int)g_nEmulatorConfiguration);
     settings.sync();
 
     Common_Cleanup();
