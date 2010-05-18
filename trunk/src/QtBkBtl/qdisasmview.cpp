@@ -13,7 +13,7 @@ QDisasmView::QDisasmView()
     QFontMetrics fontmetrics(font);
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
-    this->setMinimumSize(cxChar * 55, cyLine * 14 + cyLine / 2);
+    this->setMinimumSize(cxChar * 55, cyLine * 10 + cyLine / 2);
 }
 
 void QDisasmView::updateData()
