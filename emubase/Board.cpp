@@ -1,7 +1,7 @@
 // Board.cpp
 //
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "Emubase.h"
 #include "Board.h"
 
@@ -419,7 +419,7 @@ void CMotherboard::KeyboardEvent(BYTE scancode, BOOL okPressed, BOOL okAr2)
     {
         //TODO: Check if joystick enabled
 
-        WORD mask;
+        WORD mask = 0;
         switch (scancode)
         {
         case BK_KEY_JOYSTICK_BUTTON1: mask = 0x01; break;

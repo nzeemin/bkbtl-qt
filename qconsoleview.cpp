@@ -13,7 +13,7 @@ const LPCTSTR MESSAGE_WRONG_VALUE = _T("  Wrong value.\r\n");
 
 QConsoleView::QConsoleView()
 {
-    setMinimumSize(320, 180);
+    setMinimumSize(320, 120);
 
     m_log = new QTextEdit();
     m_edit = new QLineEdit();

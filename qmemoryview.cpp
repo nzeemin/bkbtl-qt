@@ -20,7 +20,7 @@ QMemoryView::QMemoryView()
     m_cyLine = cyLine;
 
     this->setFont(font);
-    this->setMinimumSize(cxChar * 68, cyLine * 11 + cyLine / 2);
+    this->setMinimumSize(cxChar * 68, cyLine * 9 + cyLine / 2);
 
     m_scrollbar = new QScrollBar(Qt::Vertical, this);
     m_scrollbar->setRange(0, 65536 - 16);
