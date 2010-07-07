@@ -1,3 +1,5 @@
+#ifndef COMMON_H
+#define COMMON_H
 // Common.h
 
 #pragma once
@@ -133,3 +135,4 @@ BOOL ParseOctalValue(const QString &text, WORD* pValue);
 
 
 //////////////////////////////////////////////////////////////////////
+#endif // COMMON_H

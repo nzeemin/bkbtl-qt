@@ -36,6 +36,7 @@ HEADERS += mainwindow.h \
     qdisasmview.h \
     qmemoryview.h \
     qconsoleview.h \
-    qteletypeview.h
+    qteletypeview.h \
+    qdebugview.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
