@@ -48,11 +48,16 @@ void QConsoleView::clear()
 
 void QConsoleView::print(const QString &message)
 {
-    // Put selection to the end of text
     m_log->moveCursor(QTextCursor::End);
-    // Insert the message
     m_log->insertPlainText(message);
-    //TODO: Scroll to caret
+    m_log->moveCursor(QTextCursor::End);
+}
+void QConsoleView::printLine(const QString &message)
+{
+    m_log->moveCursor(QTextCursor::End);
+    m_log->insertPlainText(message);
+    m_log->insertPlainText(_T("\r\n"));
+    m_log->moveCursor(QTextCursor::End);
 }
 
 void QConsoleView::printConsolePrompt()
@@ -67,15 +72,15 @@ void QConsoleView::printHelp()
 {
     this->print(_T("Console command list:\r\n")
             _T("  c          Clear console log\r\n")
-//            _T("  dXXXXXX    Disassemble from address XXXXXX\r\n")
+            _T("  dXXXXXX    Disassemble from address XXXXXX\r\n")
             _T("  g          Go; free run\r\n")
-//            _T("  gXXXXXX    Go; run processor until breakpoint at address XXXXXX\r\n")
-//            _T("  m          Memory dump at current address\r\n")
-//            _T("  mXXXXXX    Memory dump at address XXXXXX\r\n")
-//            _T("  mrN        Memory dump at address from register N; N=0..7\r\n")
-//            _T("  r          Show register values\r\n")
-//            _T("  rN         Show value of register N; N=0..7,ps\r\n")
-//            _T("  rN XXXXXX  Set register N to value XXXXXX; N=0..7,ps\r\n")
+            _T("  gXXXXXX    Go; run processor until breakpoint at address XXXXXX\r\n")
+            _T("  m          Memory dump at current address\r\n")
+            _T("  mXXXXXX    Memory dump at address XXXXXX\r\n")
+            _T("  mrN        Memory dump at address from register N; N=0..7\r\n")
+            _T("  r          Show register values\r\n")
+            _T("  rN         Show value of register N; N=0..7,ps\r\n")
+            _T("  rN XXXXXX  Set register N to value XXXXXX; N=0..7,ps\r\n")
             _T("  s          Step Into; executes one instruction\r\n")
             _T("  so         Step Over; executes and stops after the current instruction\r\n")
 //            _T("  u          Save memory dump to file memdumpXPU.bin\r\n")
@@ -135,6 +140,70 @@ int QConsoleView::printDisassemble(WORD address, BOOL okOneInstr, BOOL okShort)
     return lastLength;
 }
 
+void QConsoleView::printRegister(LPCTSTR strName, WORD value)
+{
+    TCHAR buffer[31];
+    TCHAR* p = buffer;
+    *p++ = _T(' ');
+    *p++ = _T(' ');
+    _tcscpy(p, strName);  p += 2;
+    *p++ = _T(' ');
+    PrintOctalValue(p, value);  p += 6;
+    *p++ = _T(' ');
+    PrintBinaryValue(p, value);  p += 16;
+    *p++ = _T('\r');
+    *p++ = _T('\n');
+    *p++ = 0;
+    this->print(buffer);
+}
+
+void QConsoleView::printMemoryDump(WORD address, int lines)
+{
+    CProcessor* pProc = g_pBoard->GetCPU();
+
+    address &= ~1;  // Line up to even address
+
+    BOOL okHaltMode = pProc->IsHaltMode();
+
+    for (int line = 0; line < lines; line++)
+    {
+        WORD dump[8];
+        for (int i = 0; i < 8; i++)
+            dump[i] = g_pBoard->GetWord(address + i*2, okHaltMode);
+
+        TCHAR buffer[2+6+2 + 7*8 + 1 + 16 + 1 + 2];
+        TCHAR* pBuf = buffer;
+        *pBuf = _T(' ');  pBuf++;
+        *pBuf = _T(' ');  pBuf++;
+        PrintOctalValue(pBuf, address);  pBuf += 6;
+        *pBuf = _T(' ');  pBuf++;
+        *pBuf = _T(' ');  pBuf++;
+        for (int i = 0; i < 8; i++) {
+            PrintOctalValue(pBuf, dump[i]);  pBuf += 6;
+            *pBuf = _T(' ');  pBuf++;
+        }
+        *pBuf = _T(' ');  pBuf++;
+//        for (int i = 0; i < 8; i++) {
+//            WORD word = dump[i];
+//            BYTE ch1 = LOBYTE(word);
+//            TCHAR wch1 = Translate_BK_Unicode(ch1);
+//            if (ch1 < 32) wch1 = _T('·');
+//            *pBuf = wch1;  pBuf++;
+//            BYTE ch2 = HIBYTE(word);
+//            TCHAR wch2 = Translate_BK_Unicode(ch2);
+//            if (ch2 < 32) wch2 = _T('·');
+//            *pBuf = wch2;  pBuf++;
+//        }
+        *pBuf++ = _T('\r');
+        *pBuf++ = _T('\n');
+        *pBuf = 0;
+
+        this->print(buffer);
+
+        address += 16;
+    }
+}
+
 void QConsoleView::execConsoleCommand()
 {
     QString command = m_edit->text();
@@ -148,8 +217,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
     if (g_okEmulatorRunning) return;
 
     // Echo command to the log
-    this->print(command);
-    this->print(_T("\r\n"));
+    this->printLine(command);
 
     BOOL okUpdateAllViews = FALSE;  // Flag - need to update all debug views
     BOOL okUpdateMenu = FALSE;  // Flag - need to update main menu
@@ -163,6 +231,66 @@ void QConsoleView::execConsoleCommand(const QString &command)
     else if (command == _T("c"))  // Clear log
     {
         this->clear();
+    }
+    else if (command.startsWith(_T("r")))  // Register operations
+    {
+        if (command.length() == 1)  // Print all registers
+        {
+            for (int r = 0; r < 8; r++)
+            {
+                LPCTSTR name = REGISTER_NAME[r];
+                WORD value = pProc->GetReg(r);
+                this->printRegister(name, value);
+            }
+        }
+        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "r0".."r7"
+        {
+            int r = command[1].toAscii() - '0';
+            LPCTSTR name = REGISTER_NAME[r];
+            if (command.length() == 2)  // "rN" - show register N
+            {
+                WORD value = pProc->GetReg(r);
+                this->printRegister(name, value);
+            }
+            else if (command[2].toAscii() == '=' || command[2].toAscii() == ' ')  // "rN=XXXXXX" - set register N to value XXXXXX
+            {
+                WORD value;
+                if (! ParseOctalValue(command.mid(3), &value))
+                    this->print(MESSAGE_WRONG_VALUE);
+                else
+                {
+                    pProc->SetReg(r, value);
+                    this->printRegister(name, value);
+                    okUpdateAllViews = TRUE;
+                }
+            }
+            else
+                this->print(MESSAGE_UNKNOWN_COMMAND);
+        }
+        else if (command.length() >= 2 && command[1].toAscii() == 'p' && command[2].toAscii() == 's')  // "rps"
+        {
+            if (command.length() == 2)  // "rps" - show PSW
+            {
+                WORD value = pProc->GetPSW();
+                this->printRegister(_T("PS"), value);
+            }
+            else if (command[3].toAscii() == '=' || command[3].toAscii() == ' ')  // "rps=XXXXXX" - set PSW to value XXXXXX
+            {
+                WORD value;
+                if (! ParseOctalValue(command.mid(4), &value))
+                    this->print(MESSAGE_WRONG_VALUE);
+                else
+                {
+                    pProc->SetPSW(value);
+                    this->printRegister(_T("PS"), value);
+                    okUpdateAllViews = TRUE;
+                }
+            }
+            else
+                this->print(MESSAGE_UNKNOWN_COMMAND);
+        }
+        else
+            this->print(MESSAGE_UNKNOWN_COMMAND);
     }
     else if (command == _T("s"))  // "s" - Step Into, execute one instruction
     {
@@ -182,6 +310,49 @@ void QConsoleView::execConsoleCommand(const QString &command)
         Emulator_Start();
 
         okUpdateMenu = TRUE;
+    }
+    else if (command.startsWith(_T("d")) ||  // Disassemble
+             command.startsWith(_T("D")))    // Disassemble, short format
+    {
+        BOOL okShort = (command[0] == _T('D'));
+        if (command.length() == 1)  // "d" - disassemble at current address
+            this->printDisassemble(pProc->GetPC(), FALSE, okShort);
+        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "dXXXXXX" - disassemble at address XXXXXX
+        {
+            WORD value;
+            if (! ParseOctalValue(command.mid(1), &value))
+                this->print(MESSAGE_WRONG_VALUE);
+            else
+                this->printDisassemble(value, FALSE, okShort);
+        }
+        else
+            this->print(MESSAGE_UNKNOWN_COMMAND);
+    }
+    else if (command.startsWith(_T("m")))
+    {
+        if (command.length() == 1)  // "m" - dump memory at current address
+        {
+            this->printMemoryDump(pProc->GetPC(), 8);
+        }
+        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "mXXXXXX" - dump memory at address XXXXXX
+        {
+            WORD value;
+            if (! ParseOctalValue(command.mid(1), &value))
+                this->print(MESSAGE_WRONG_VALUE);
+            else
+                this->printMemoryDump(value, 8);
+        }
+        else if (command[1].toAscii() == 'r' && command.length() >= 3 &&
+                command[2].toAscii() >= '0' && command[2].toAscii() <= '7')  // "mrN" - dump memory at address from register N
+        {
+            int r = command[2].toAscii() - '0';
+            WORD address = pProc->GetReg(r);
+            this->printMemoryDump(address, 8);
+        }
+        else
+            this->print(MESSAGE_UNKNOWN_COMMAND);
+        //TODO: "mXXXXXX YYYYYY" - set memory cell at XXXXXX to value YYYYYY
+        //TODO: "mrN YYYYYY" - set memory cell at address from rN to value YYYYYY
     }
     else if (command == _T("g"))  // Go
     {
