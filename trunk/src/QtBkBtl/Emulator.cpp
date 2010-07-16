@@ -77,12 +77,14 @@ const LPCTSTR FILENAME_BKROM_TESTS      = _T("tests.rom");
 const LPCTSTR FILENAME_BKROM_BASIC10_1  = _T("basic10_1.rom");
 const LPCTSTR FILENAME_BKROM_BASIC10_2  = _T("basic10_2.rom");
 const LPCTSTR FILENAME_BKROM_BASIC10_3  = _T("basic10_3.rom");
-const LPCTSTR FILENAME_BKROM_DISK_327   = _T("disk_327.rom");
+const LPCTSTR FILENAME_BKROM_DISK_326   = _T("disk_326.rom");
 const LPCTSTR FILENAME_BKROM_BK11M_BOS  = _T("b11m_bos.rom");
 const LPCTSTR FILENAME_BKROM_BK11M_EXT  = _T("b11m_ext.rom");
+const LPCTSTR FILENAME_BKROM_BASIC11M_0 = _T("basic11m_0.rom");
+const LPCTSTR FILENAME_BKROM_BASIC11M_1 = _T("basic11m_1.rom");
 
 
-BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD bytesToRead)
+BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD fileOffset, DWORD bytesToRead)
 {
     FILE* fpRomFile = ::_tfopen(strFileName, _T("rb"));
     if (fpRomFile == NULL)
@@ -96,6 +98,11 @@ BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD bytesToRead)
     {
         ::fclose(fpRomFile);
         return FALSE;
+    }
+
+    if (fileOffset > 0)
+    {
+        ::fseek(fpRomFile, fileOffset, SEEK_SET);
     }
 
     ::fclose(fpRomFile);
@@ -112,8 +119,8 @@ BOOL Emulator_Init()
     g_pBoard = new CMotherboard();
 
     // Allocate memory for old RAM values
-    g_pEmulatorRam = (BYTE*) ::malloc(65536);  memset(g_pEmulatorRam, 0, 65536);
-    g_pEmulatorChangedRam = (BYTE*) ::malloc(65536);  memset(g_pEmulatorChangedRam, 0, 65536);
+    g_pEmulatorRam = (BYTE*) ::malloc(65536);  ::memset(g_pEmulatorRam, 0, 65536);
+    g_pEmulatorChangedRam = (BYTE*) ::malloc(65536);  ::memset(g_pEmulatorChangedRam, 0, 65536);
 
     g_pBoard->Reset();
 
@@ -159,32 +166,35 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
 
     BYTE buffer[8192];
 
-    // Load Monitor ROM file - in all configurations
-    if (!Emulator_LoadRomFile(FILENAME_BKROM_MONIT10, buffer, 8192))
+    if ((configuration & BK_COPT_BK0011) == 0)
     {
-        AlertWarning(_T("Failed to load Monitor ROM file."));
-        return FALSE;
+        // Load Monitor ROM file
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_MONIT10, buffer, 0, 8192))
+        {
+            AlertWarning(_T("Failed to load Monitor ROM file."));
+            return FALSE;
+        }
+        g_pBoard->LoadROM(0, buffer);
     }
-    g_pBoard->LoadROM(0, buffer);
 
     if (configuration & BK_COPT_ROM_BASIC)
     {
         // Load BASIC ROM 1 file
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_1, buffer, 8192))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_1, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BASIC ROM 1 file."));
             return FALSE;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BASIC ROM 2 file
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_2, buffer, 8192))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_2, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BASIC ROM 2 file."));
             return FALSE;
         }
         g_pBoard->LoadROM(2, buffer);
         // Load BASIC ROM 3 file
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_3, buffer, 8064))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_3, buffer, 0, 8064))
         {
             AlertWarning(_T("Failed to load BASIC ROM 3 file."));
             return FALSE;
@@ -194,7 +204,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
     else if (configuration & BK_COPT_ROM_FOCAL)
     {
         // Load Focal ROM file
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_FOCAL, buffer, 8192))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_FOCAL, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load Focal ROM file."));
             return FALSE;
@@ -204,7 +214,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         ::memset(buffer, 0, 8192);
         g_pBoard->LoadROM(2, buffer);
         // Load Tests ROM file
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_TESTS, buffer, 8064))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_TESTS, buffer, 0, 8064))
         {
             AlertWarning(_T("Failed to load Tests ROM file."));
             return FALSE;
@@ -214,32 +224,54 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
 
     if (configuration & BK_COPT_BK0011)
     {
+        // Load BK0011M BASIC 0, part 1
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 0, 8192))
+        {
+            AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
+            return FALSE;
+        }
+        g_pBoard->LoadROM(0, buffer);
+        // Load BK0011M BASIC 0, part 2
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 8192, 8192))
+        {
+            AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
+            return FALSE;
+        }
+        g_pBoard->LoadROM(1, buffer);
+        // Load BK0011M BASIC 1
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_1, buffer, 0, 8192))
+        {
+            AlertWarning(_T("Failed to load BK11M BASIC 1 ROM file."));
+            return FALSE;
+        }
+        g_pBoard->LoadROM(2, buffer);
+
         // Load BK0011M EXT
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_EXT, buffer, 8192))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_EXT, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M EXT ROM file."));
             return FALSE;
         }
-        g_pBoard->LoadROM(1, buffer);
+        g_pBoard->LoadROM(3, buffer);
         // Load BK0011M BOS
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_BOS, buffer, 8192))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_BOS, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M BOS ROM file."));
             return FALSE;
         }
-        g_pBoard->LoadROM(2, buffer);
+        g_pBoard->LoadROM(4, buffer);
     }
 
     if (configuration & BK_COPT_FDD)
     {
         // Load disk driver ROM file
         ::memset(buffer, 0, 8192);
-        if (!Emulator_LoadRomFile(FILENAME_BKROM_DISK_327, buffer, 4096))
+        if (!Emulator_LoadRomFile(FILENAME_BKROM_DISK_326, buffer, 0, 4096))
         {
-            AlertWarning(_T("Failed to load DISK 327 ROM file."));
+            AlertWarning(_T("Failed to load DISK ROM file."));
             return FALSE;
         }
-        g_pBoard->LoadROM(3, buffer);
+        g_pBoard->LoadROM((configuration & BK_COPT_BK0011) ? 5 : 3, buffer);
     }
 
     g_nEmulatorConfiguration = configuration;
