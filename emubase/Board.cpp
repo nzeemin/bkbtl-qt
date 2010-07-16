@@ -77,7 +77,7 @@ void CMotherboard::Reset ()
     m_Port177660 = 0100;
     m_Port177662rd = 0;
     m_Port177662wr = 047400;
-    m_Port177664 = 0;
+    m_Port177664 = 01330;
     m_Port177714in = m_Port177714out = 0;
     m_Port177716 = ((m_Configuration & BK_COPT_BK0011) ? 0140000 : 0100000) | 0200;
     m_Port177716mem = m_Port177716tap = 0;
@@ -91,7 +91,7 @@ void CMotherboard::Reset ()
 
 void CMotherboard::LoadROM(int bank, const BYTE* pBuffer)  // Load 8 KB ROM image from the buffer
 {
-    ASSERT(bank >= 0 && bank < 4);
+    ASSERT(bank >= 0 && bank < 7);
     ::memcpy(m_pROM + 8192 * bank, pBuffer, 8192);
 }
 
@@ -181,12 +181,12 @@ void CMotherboard::SetRAMByte(BYTE chunk, WORD offset, BYTE byte)
 
 WORD CMotherboard::GetROMWord(WORD offset)
 {
-    ASSERT(offset < 32768);
+    ASSERT(offset < 1024 * 64);
     return *((WORD*)(m_pROM + offset)); 
 }
 BYTE CMotherboard::GetROMByte(WORD offset) 
 { 
-    ASSERT(offset < 32768);
+    ASSERT(offset < 1024 * 64);
     return m_pROM[offset]; 
 }
 
@@ -246,7 +246,7 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
                 m_timerdivider = 0;
             }
             break;
-        case 3:  // 32 * 16 * 4 = 2048 мкс
+        case 3:  // 32 * 16 * 4 = 2048 мкс, 8129 тактов процессора
             if (m_timerdivider >= 64)
             {
                 flag = TRUE;
@@ -259,7 +259,7 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
         return; 
 
     m_timer--;
-    m_timer &= 077777;
+    //m_timer &= 077777;
 
     if (m_timer == 0)
     {
@@ -267,20 +267,23 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
         //    m_timerflags |= 010;  // Overflow
         m_timerflags |= 0200;  // Set Ready bit
         //TODO: if m_timerflags bit 3 set then stop counting
-        m_timer = m_timerreload & 077777;  // Reload timer
+        //m_timer = m_timerreload & 077777;  // Reload timer
+        m_timer = m_timerreload;
     }
 }
 
 void CMotherboard::SetTimerReload(WORD val)	 // Sets timer reload value
 {
-    m_timerreload = val & 077777;
+    //m_timerreload = val & 077777;
+    m_timerreload = val;
     if ((m_timerflags & 1) == 0)
         m_timer = m_timerreload;
 }
 void CMotherboard::SetTimerState(WORD val) // Sets timer state
 {
     if ((val & 1) && ((m_timerflags & 1) == 0))
-        m_timer = m_timerreload & 077777;
+        //m_timer = m_timerreload & 077777;
+        m_timer = m_timerreload;
 
     //m_timerflags &= 0250;  // Clear everything but bits 7,5,3
     //m_timerflags |= (val & (~0250));  // Preserve bits 753
@@ -304,6 +307,7 @@ void CMotherboard::DebugTicks()
 * 160000 тиков ЦП - 8 раз за тик (БК-0011, 12МГц / 3 = 4 МГц, 2.5 мкс)
 * программируемый таймер - на каждый 128-й тик процессора; 42.6(6) мкс либо 32 мкс
 * 2 тика IRQ2 50 Гц, в 0-й и 10000-й тик фрейма
+* 625 тиков FDD - каждый 32-й тик (300 RPM = 5 оборотов в секунду)
 * 68571 тиков AY-3-891x: 1.714275 МГц (12МГц / 7 = 1.714 МГц, 5.83(3) мкс)
 */
 BOOL CMotherboard::SystemFrame()
@@ -343,7 +347,7 @@ BOOL CMotherboard::SystemFrame()
             Tick50();  // 1/50 timer event
         }
 
-        if ((m_Configuration & BK_COPT_FDD) && (frameticks % 32 == 0))  // FDD tick
+        if ((m_Configuration & BK_COPT_FDD) && (frameticks % 42 == 0))  // FDD tick
         {
             if (m_pFloppyCtl != NULL)
                 m_pFloppyCtl->Periodic();
@@ -635,43 +639,42 @@ int CMotherboard::TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, W
     {
         const int memoryBlockMap[8] = { 1, 5, 2, 3, 4, 7, 0, 6 };
         int memoryRamChunk = 0;  // Number of 16K RAM chunk, 0..7
-        int memoryBank = (address >> 14) & 3;
+        int memoryBank = (address >> 14) & 3;  // 4 banks #0..3
         switch (memoryBank)
         {
         case 0:  // 000000-037776: всегда страница ОЗУ 0
             addrType = ADDRTYPE_RAM;
             break;
         case 1:  // 040000-077777, окно 0, страница ОЗУ 0..7
-            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];
+            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];  // 8 chanks #0..7
             addrType = ADDRTYPE_RAM | memoryRamChunk;
-            address &= 37777;
+            address &= 037777;
             break;
         case 2:  // 100000-137776, окно 1, страница ОЗУ 0..7 или ПЗУ
-            if (m_Port177716mem & 0x1b)  // Включено ПЗУ 0..3
+            if (m_Port177716mem & 033)  // Включено ПЗУ 0..3
             {
                 addrType = ADDRTYPE_ROM;
-                address -= 0100000;
                 int memoryRomChunk = 0;
-                if (m_Port177716mem & 1)
-                    memoryRomChunk = 0;
-                else if (m_Port177716mem & 2)
-                    memoryRomChunk = 1;
+                if (m_Port177716mem & 16)
+                    memoryRomChunk = 3;
                 else if (m_Port177716mem & 8)
                     memoryRomChunk = 2;
-                else if (m_Port177716mem & 16)
-                    memoryRomChunk = 3;
-                address = memoryRomChunk * 040000;
+                else if (m_Port177716mem & 2)
+                    memoryRomChunk = 1;
+                else if (m_Port177716mem & 1)
+                    memoryRomChunk = 0;
+                address = address - 0100000 + memoryRomChunk * 040000;
             }
             else  // Включено ОЗУ 0..7
             {
                 memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 8) & 7];
                 addrType = ADDRTYPE_RAM | memoryRamChunk;
-                address &= 37777;
+                address &= 037777;
             }
             break;
         case 3:  // 140000-177776
             addrType = ADDRTYPE_ROM;
-            address -= 0100000;
+            address -= 040000;
             break;
         }
 
@@ -758,7 +761,7 @@ WORD CMotherboard::GetPortWord(WORD address)
         {
             WORD state = m_pFloppyCtl->GetState();
 //#if !defined(PRODUCT)
-//            DebugPrintFormat(_T("FDD GetState %06o\n"), state);
+//            DebugLogFormat(_T("Floppy GETSTATE %06o\t\tCPU %06o\n"), state, m_pCPU->GetInstructionPC());
 //#endif
             return state;
         }
@@ -771,7 +774,13 @@ WORD CMotherboard::GetPortWord(WORD address)
             return 0;
         }
         if (m_pFloppyCtl != NULL)
-            return m_pFloppyCtl->GetData();
+        {
+            WORD word = m_pFloppyCtl->GetData();
+//#if !defined(PRODUCT)
+//            DebugLogFormat(_T("Floppy READ\t\t%04x\tCPU %06o\n"), word, m_pCPU->GetInstructionPC());
+//#endif
+            return word;
+        }
         return 0;
 
     default: 
@@ -881,7 +890,7 @@ void CMotherboard::SetPortWord(WORD address, WORD word)
         SetTimerReload(word);
         break;
     case 0177710:  // System Timer Counter -- регистр реверсивного счетчика таймера
-        //TODO
+        m_timer = word;
         break;
     case 0177712:  // System Timer Manage -- регистр управления таймера
         SetTimerState(word);
@@ -917,16 +926,9 @@ void CMotherboard::SetPortWord(WORD address, WORD word)
     case 0177130:  // Регистр управления КНГМД
         if (m_pFloppyCtl != NULL)
         {
-            WORD drivebits = (word & 3);
-            switch (drivebits)  // Конвертируем биты выбора дисковода в формат, принятый у CFloppyDrive
-            {
-            case 0: drivebits = 00000; break;
-            case 1: drivebits = 02007; break;
-            case 2: drivebits = 02006; break;
-            case 3: drivebits = 02005; break;
-            }
-            word = (word & ~02007) | drivebits;
-
+//#if !defined(PRODUCT)
+//            DebugLogFormat(_T("Floppy COMMAND %06o\t\tCPU %06o\r\n"), word, m_pCPU->GetInstructionPC());
+//#endif
             m_pFloppyCtl->SetCommand(word);
         }
         break;
