@@ -55,13 +55,15 @@ void QDebugView::paintEvent(QPaintEvent *event)
 
     painter.drawText(cxChar * 1, 2 * cyLine, _T("CPU"));
 
-    DrawProcessor(painter, pDebugPU, cxChar * 6, 1 * cyLine, arrR, arrRChanged);
+    drawProcessor(painter, pDebugPU, cxChar * 6, 1 * cyLine, arrR, arrRChanged);
 
     // Draw stack
-    DrawMemoryForRegister(painter, 6, pDebugPU, 35 * cxChar, 1 * cyLine);
+    drawMemoryForRegister(painter, 6, pDebugPU, 35 * cxChar, 1 * cyLine);
+
+    drawPorts(painter, 57 * cxChar, 1 * cyLine);
 }
 
-void QDebugView::DrawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, WORD *arrR, BOOL *arrRChanged)
+void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, WORD *arrR, BOOL *arrRChanged)
 {
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
@@ -103,7 +105,7 @@ void QDebugView::DrawProcessor(QPainter &painter, const CProcessor *pProc, int x
         painter.drawText(x + 6 * cxChar, y + 12 * cyLine, _T("STOP"));
 }
 
-void QDebugView::DrawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y)
+void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y)
 {
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
@@ -145,3 +147,77 @@ void QDebugView::DrawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
         y += cyLine;
     }
 }
+
+void QDebugView::drawPorts(QPainter &painter, int x, int y)
+{
+    QFontMetrics fontmetrics(painter.font());
+    int cxChar = fontmetrics.averageCharWidth();
+    int cyLine = fontmetrics.height();
+
+    painter.drawText(x, y, _T("Port"));
+
+    WORD value;
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177660);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177660);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("keyb state"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177662);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177662);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("keyb data"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177664);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177664);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("scroll"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177706);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177706);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("timer reload"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177710);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177710);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("timer value"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177712);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177712);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("timer manage"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177714);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177714);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("parallel"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177716);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177716);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("system"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177130);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177130);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("floppy state"));
+    y += cyLine;
+    value = g_pBoard->GetPortView(0177132);
+    DrawOctalValue(painter, x + 0 * cxChar, y, 0177132);
+    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
+    painter.drawText(x + 16 * cxChar, y, _T("floppy data"));
+}
+
+
+//////////////////////////////////////////////////////////////////////
