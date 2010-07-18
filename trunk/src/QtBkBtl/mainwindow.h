@@ -10,6 +10,7 @@ class QDebugView;
 class QDisasmView;
 class QMemoryView;
 class QTeletypeView;
+class QLabel;
 
 namespace Ui {
     class MainWindow;
@@ -26,6 +27,8 @@ public:
     void UpdateAllViews();
     void restoreSettings();
     void printToTeletype(const QString&);
+    void showUptime(int uptimeMillisec);
+    void showFps(double framesPerSecond);
 
 public slots:
     void fileLoadBin();
@@ -71,6 +74,10 @@ private:
     QDockWidget* m_dockMemory;
     QTeletypeView * m_teletype;
     QDockWidget* m_dockTeletype;
+
+    QLabel* m_statusLabelInfo;
+    QLabel* m_statusLabelFrames;
+    QLabel* m_statusLabelUptime;
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
