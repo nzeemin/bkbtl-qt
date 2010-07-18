@@ -6,6 +6,7 @@
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 //#include "SoundGen.h"
+#include <QTime>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -22,7 +23,8 @@ WORD m_wEmulatorCPUBreakpoint = 0177777;
 BOOL m_okEmulatorSound = FALSE;
 
 long m_nFrameCount = 0;
-DWORD m_dwTickCount = 0;
+QTime m_emulatorTime;
+int m_nTickCount = 0;
 DWORD m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
 long m_nUptimeFrameCount = 0;
 
@@ -301,7 +303,8 @@ void Emulator_Start()
     g_okEmulatorRunning = TRUE;
 
     m_nFrameCount = 0;
-    //m_dwTickCount = GetTickCount();
+    m_emulatorTime.restart();
+    m_nTickCount = 0;
 }
 void Emulator_Stop()
 {
@@ -309,7 +312,7 @@ void Emulator_Stop()
     m_wEmulatorCPUBreakpoint = 0177777;
 
     // Reset FPS indicator
-    //MainWindow_SetStatusbarText(StatusbarPartFPS, _T(""));
+    Global_showFps(-1.0);
 
     Global_UpdateAllViews();
 }
@@ -322,6 +325,7 @@ void Emulator_Reset()
 
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
+    Global_showUptime(0);
 
     Global_UpdateAllViews();
 }
@@ -348,36 +352,28 @@ int Emulator_SystemFrame()
 	if (!g_pBoard->SystemFrame())
         return 0;
 
-    //// Calculate frames per second
-    //m_nFrameCount++;
-    //DWORD dwCurrentTicks = GetTickCount();
-    //long nTicksElapsed = dwCurrentTicks - m_dwTickCount;
-    //if (nTicksElapsed >= 1200)
-    //{
-    //	double dFramesPerSecond = m_nFrameCount * 1000.0 / nTicksElapsed;
-    //	TCHAR buffer[16];
-    //	_stprintf(buffer, _T("FPS: %05.2f"), dFramesPerSecond);
-    //    //MainWindow_SetStatusbarText(StatusbarPartFPS, buffer);
+    // Calculate frames per second
+    m_nFrameCount++;
+    int nCurrentTicks = m_emulatorTime.elapsed();
+    long nTicksElapsed = nCurrentTicks - m_nTickCount;
+    if (nTicksElapsed >= 1200)
+    {
+        double dFramesPerSecond = m_nFrameCount * 1000.0 / nTicksElapsed;
+        Global_showFps(dFramesPerSecond);
 
-    //	m_nFrameCount = 0;
-    //	m_dwTickCount = dwCurrentTicks;
-    //}
+        m_nFrameCount = 0;
+        m_nTickCount = nCurrentTicks;
+    }
 
-    //// Calculate emulator uptime (25 frames per second)
-    //m_nUptimeFrameCount++;
-    //if (m_nUptimeFrameCount >= 25)
-    //{
-    //	m_dwEmulatorUptime++;
-    //	m_nUptimeFrameCount = 0;
+    // Calculate emulator uptime (25 frames per second)
+    m_nUptimeFrameCount++;
+    if (m_nUptimeFrameCount >= 25)
+    {
+        m_dwEmulatorUptime++;
+        m_nUptimeFrameCount = 0;
 
-    //	int seconds = (int) (m_dwEmulatorUptime % 60);
-    //	int minutes = (int) (m_dwEmulatorUptime / 60 % 60);
-    //	int hours   = (int) (m_dwEmulatorUptime / 3600 % 60);
-
-    //	TCHAR buffer[20];
-    //	_stprintf(buffer, _T("Uptime: %02d:%02d:%02d"), hours, minutes, seconds);
-    //    //MainWindow_SetStatusbarText(StatusbarPartUptime, buffer);
-    //}
+        Global_showUptime(m_dwEmulatorUptime);
+    }
 
     return 1;
 }
