@@ -10,6 +10,7 @@ class QDebugView;
 class QDisasmView;
 class QMemoryView;
 class QTeletypeView;
+class QTapeView;
 class QLabel;
 
 namespace Ui {
@@ -74,6 +75,8 @@ private:
     QDockWidget* m_dockMemory;
     QTeletypeView * m_teletype;
     QDockWidget* m_dockTeletype;
+    QTapeView * m_tape;
+    QDockWidget* m_dockTape;
 
     QLabel* m_statusLabelInfo;
     QLabel* m_statusLabelFrames;

@@ -16,6 +16,7 @@
 #include "qdisasmview.h"
 #include "qmemoryview.h"
 #include "qteletypeview.h"
+#include "qtapeview.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -59,6 +60,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
     m_teletype = new QTeletypeView();
+    m_tape = new QTapeView();
 
     QVBoxLayout *vboxlayout = new QVBoxLayout;
     vboxlayout->setMargin(0);
@@ -85,13 +87,17 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dockTeletype = new QDockWidget(_T("Teletype"));
     m_dockTeletype->setObjectName(_T("dockTeletype"));
     m_dockTeletype->setWidget(m_teletype);
+    m_dockTape = new QDockWidget(_T("Tape"));
+    m_dockTape->setObjectName(_T("dockTape"));
+    m_dockTape->setWidget(m_tape);
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
     this->setCorner(Qt::TopRightCorner, Qt::RightDockWidgetArea);
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockDebug, Qt::Vertical);
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockDisasm, Qt::Vertical);
     this->addDockWidget(Qt::RightDockWidgetArea, m_dockMemory, Qt::Vertical);
-    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockTape, Qt::Vertical);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole, Qt::Vertical);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockTeletype);
 
     m_statusLabelInfo = new QLabel();
