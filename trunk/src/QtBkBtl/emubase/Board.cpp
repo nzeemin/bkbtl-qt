@@ -80,7 +80,8 @@ void CMotherboard::Reset ()
     m_Port177664 = 01330;
     m_Port177714in = m_Port177714out = 0;
     m_Port177716 = ((m_Configuration & BK_COPT_BK0011) ? 0140000 : 0100000) | 0200;
-    m_Port177716mem = m_Port177716tap = 0;
+    m_Port177716mem = 0000001;
+    m_Port177716tap = 0;
     m_timer = m_timerreload = m_timerdivider = 0;
     m_timerflags = 0177400;
 
@@ -89,9 +90,11 @@ void CMotherboard::Reset ()
     m_pCPU->Start();
 }
 
-void CMotherboard::LoadROM(int bank, const BYTE* pBuffer)  // Load 8 KB ROM image from the buffer
+// Load 8 KB ROM image from the buffer
+//   bank - number of 8k ROM bank, 0..7
+void CMotherboard::LoadROM(int bank, const BYTE* pBuffer)
 {
-    ASSERT(bank >= 0 && bank < 7);
+    ASSERT(bank >= 0 && bank <= 7);
     ::memcpy(m_pROM + 8192 * bank, pBuffer, 8192);
 }
 
@@ -223,52 +226,41 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
     if ((m_timerflags & 1) == 1)  // Timer is off, nothing to do
         return;
 
-    BOOL flag = FALSE;
     m_timerdivider++;
     
-    switch ((m_timerflags >> 5) & 3)
+    BOOL flag = FALSE;
+    switch ((m_timerflags >> 5) & 3)  // биты 5,6 -- prescaler
     {
         case 0:  // 32 мкс
             flag = TRUE;
-            m_timerdivider = 0;
             break;
         case 1:  // 32 * 16 = 512 мкс
-            if (m_timerdivider >= 16)
-            {
-                flag = TRUE;
-                m_timerdivider = 0;
-            }
+            flag = (m_timerdivider >= 16);
             break;
         case 2: // 32 * 4 = 128 мкс
-            if (m_timerdivider >= 4)
-            {
-                flag = TRUE;
-                m_timerdivider = 0;
-            }
+            flag = (m_timerdivider >= 4);
             break;
         case 3:  // 32 * 16 * 4 = 2048 мкс, 8129 тактов процессора
-            if (m_timerdivider >= 64)
-            {
-                flag = TRUE;
-                m_timerdivider = 0;
-            }
+            flag = (m_timerdivider >= 64);
             break;
     }
 
     if (!flag)  // Nothing happened
         return; 
 
-    m_timer--;
-    //m_timer &= 077777;
+    m_timerdivider = 0;
 
-    if (m_timer == 0)
+    m_timer--;
+    if (m_timer != 0)
+        return;
+
+    if (m_timerflags & 010)  // If OneShot bit set then stop counting
+        m_timerflags &= ~020;
+    if ((m_timerflags & 2) == 0)  // If not WrapAround then reload
     {
-        //if (m_timerflags & 0200)
-        //    m_timerflags |= 010;  // Overflow
-        m_timerflags |= 0200;  // Set Ready bit
-        //TODO: if m_timerflags bit 3 set then stop counting
-        //m_timer = m_timerreload & 077777;  // Reload timer
         m_timer = m_timerreload;
+        if (m_timerflags & 4)
+            m_timerflags |= 0200;  // Set Ready bit
     }
 }
 
@@ -421,8 +413,6 @@ void CMotherboard::KeyboardEvent(BYTE scancode, BOOL okPressed, BOOL okAr2)
 {
     if ((scancode & 0xf8) == 0210)  // События от джойстика
     {
-        //TODO: Check if joystick enabled
-
         WORD mask = 0;
         switch (scancode)
         {
@@ -430,9 +420,9 @@ void CMotherboard::KeyboardEvent(BYTE scancode, BOOL okPressed, BOOL okAr2)
         case BK_KEY_JOYSTICK_BUTTON2: mask = 0x02; break;
         case BK_KEY_JOYSTICK_BUTTON3: mask = 0x04; break;
         case BK_KEY_JOYSTICK_BUTTON4: mask = 0x08; break;
-        case BK_KEY_JOYSTICK_RIGHT:   mask = 0x10; break;
+        case BK_KEY_JOYSTICK_LEFT:    mask = 0x10; break;
         case BK_KEY_JOYSTICK_DOWN:    mask = 0x20; break;
-        case BK_KEY_JOYSTICK_LEFT:    mask = 0x40; break;
+        case BK_KEY_JOYSTICK_RIGHT:   mask = 0x40; break;
         case BK_KEY_JOYSTICK_UP:      mask = 0x80; break;
         }
 
@@ -485,6 +475,11 @@ void CMotherboard::TapeInput(BOOL inputBit)
     }
 }
 
+void CMotherboard::SetPrinterInPort(BYTE data)
+{
+    m_Port177714in = data;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // Motherboard: memory management
@@ -528,7 +523,7 @@ WORD CMotherboard::GetWord(WORD address, BOOL okHaltMode, BOOL okExec)
         //TODO: What to do if okExec == TRUE ?
         return GetPortWord(address);
     case ADDRTYPE_DENY:
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return 0;
     }
 
@@ -551,7 +546,7 @@ BYTE CMotherboard::GetByte(WORD address, BOOL okHaltMode)
         //TODO: What to do if okExec == TRUE ?
         return GetPortByte(address);
     case ADDRTYPE_DENY:
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return 0;
     }
 
@@ -571,13 +566,13 @@ void CMotherboard::SetWord(WORD address, BOOL okHaltMode, WORD word)
         SetRAMWord(addrtype & ADDRTYPE_RAMMASK, offset & 0177776, word);
         return;
     case ADDRTYPE_ROM:  // Writing to ROM: exception
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return;
     case ADDRTYPE_IO:
         SetPortWord(address, word);
         return;
     case ADDRTYPE_DENY:
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return;
     }
 
@@ -595,13 +590,13 @@ void CMotherboard::SetByte(WORD address, BOOL okHaltMode, BYTE byte)
         SetRAMByte(addrtype & ADDRTYPE_RAMMASK, offset, byte);
         return;
     case ADDRTYPE_ROM:  // Writing to ROM: exception
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return;
     case ADDRTYPE_IO:
         SetPortByte(address, byte);
         return;
     case ADDRTYPE_DENY:
-        m_pCPU->InterruptVIRQ(1, 4);
+        m_pCPU->MemoryError();
         return;
     }
 
@@ -634,54 +629,7 @@ int CMotherboard::TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, W
         return ADDRTYPE_IO;
     }
 
-    int addrType = 0;
-    if (m_Configuration & BK_COPT_BK0011)  // БК-0011, управление памятью через регистр 177716
-    {
-        const int memoryBlockMap[8] = { 1, 5, 2, 3, 4, 7, 0, 6 };
-        int memoryRamChunk = 0;  // Number of 16K RAM chunk, 0..7
-        int memoryBank = (address >> 14) & 3;  // 4 banks #0..3
-        switch (memoryBank)
-        {
-        case 0:  // 000000-037776: всегда страница ОЗУ 0
-            addrType = ADDRTYPE_RAM;
-            break;
-        case 1:  // 040000-077777, окно 0, страница ОЗУ 0..7
-            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];  // 8 chanks #0..7
-            addrType = ADDRTYPE_RAM | memoryRamChunk;
-            address &= 037777;
-            break;
-        case 2:  // 100000-137776, окно 1, страница ОЗУ 0..7 или ПЗУ
-            if (m_Port177716mem & 033)  // Включено ПЗУ 0..3
-            {
-                addrType = ADDRTYPE_ROM;
-                int memoryRomChunk = 0;
-                if (m_Port177716mem & 16)
-                    memoryRomChunk = 3;
-                else if (m_Port177716mem & 8)
-                    memoryRomChunk = 2;
-                else if (m_Port177716mem & 2)
-                    memoryRomChunk = 1;
-                else if (m_Port177716mem & 1)
-                    memoryRomChunk = 0;
-                address = address - 0100000 + memoryRomChunk * 040000;
-            }
-            else  // Включено ОЗУ 0..7
-            {
-                memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 8) & 7];
-                addrType = ADDRTYPE_RAM | memoryRamChunk;
-                address &= 037777;
-            }
-            break;
-        case 3:  // 140000-177776
-            addrType = ADDRTYPE_ROM;
-            address -= 040000;
-            break;
-        }
-
-        *pOffset = address;
-        return addrType;
-    }
-    else  // БК-0010, нет управления памятью
+    if ((m_Configuration & BK_COPT_BK0011) == 0)  // БК-0010, нет управления памятью
     {
         int memoryBlock = (address >> 13) & 7;  // 8K block number 0..7
         BOOL okValid = (m_MemoryMapOnOff >> memoryBlock) & 1;  // 1 - OK, 0 - deny
@@ -693,6 +641,66 @@ int CMotherboard::TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, W
         
         *pOffset = address;
         return (okRom) ? ADDRTYPE_ROM : ADDRTYPE_RAM;
+    }
+    else  // БК-0011, управление памятью через регистр 177716
+    {
+        const int memoryBlockMap[8] = { 1, 5, 2, 3, 4, 7, 0, 6 };
+        int memoryRamChunk = 0;  // Number of 16K RAM chunk, 0..7
+        int memoryBank = (address >> 14) & 3;  // 16K bank number 0..3
+        int addrType = 0;
+        switch (memoryBank)
+        {
+        case 0:  // 000000-037777: всегда страница ОЗУ 0
+            addrType = ADDRTYPE_RAM;
+            break;
+        case 1:  // 040000-077777, окно 0, страница ОЗУ 0..7
+            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];  // 8 chanks #0..7
+            addrType = ADDRTYPE_RAM | memoryRamChunk;
+            address &= 037777;
+            break;
+        case 2:  // 100000-137777, окно 1, страница ОЗУ 0..7 или ПЗУ
+            if (m_Port177716mem & 033)  // Включено ПЗУ 0..3
+            {
+                addrType = ADDRTYPE_ROM;
+                int memoryRomChunk = 0;
+                if (m_Port177716mem & 1)
+                {
+                    //addrType = ADDRTYPE_DENY;
+                    //break;
+                    memoryRomChunk = 0;
+                }
+                else if (m_Port177716mem & 2)
+                    memoryRomChunk = 1;
+                else if (m_Port177716mem & 8)
+                {
+                    addrType = ADDRTYPE_DENY;
+                    break;
+                    //memoryRomChunk = 2;
+                }
+                else
+                {
+                    addrType = ADDRTYPE_DENY;
+                    break;
+                }
+                //else if (m_Port177716mem & 16)
+                //    memoryRomChunk = 3;
+                address = (address & 037777) + memoryRomChunk * 040000;
+                break;
+            }
+            
+            // Включено ОЗУ 0..7
+            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 8) & 7];
+            addrType = ADDRTYPE_RAM | memoryRamChunk;
+            address &= 037777;
+            break;
+        case 3:  // 140000-177777
+            addrType = ADDRTYPE_ROM;
+            address -= 040000;
+            break;
+        }
+
+        *pOffset = address;
+        return addrType;
     }
 }
 
@@ -904,6 +912,9 @@ void CMotherboard::SetPortWord(WORD address, WORD word)
         if (word & 04000)
         {
             m_Port177716mem = word;
+//#if !defined(PRODUCT)
+//            DebugLogFormat(_T("177716mem %06o\t\t%06o\r\n"), word, m_pCPU->GetInstructionPC());
+//#endif
         }
         else
         {
