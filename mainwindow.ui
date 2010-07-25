@@ -58,6 +58,7 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionHelpAbout"/>
     <addaction name="actionHelpAboutQt"/>
    </widget>
    <widget class="QMenu" name="menuConfiguration">
@@ -395,6 +396,11 @@
    </property>
    <property name="text">
     <string>Teletype View</string>
+   </property>
+  </action>
+  <action name="actionHelpAbout">
+   <property name="text">
+    <string>About</string>
    </property>
   </action>
  </widget>

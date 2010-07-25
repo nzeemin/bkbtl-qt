@@ -34,6 +34,7 @@ public:
 public slots:
     void fileLoadBin();
     void fileScreenshot();
+    void helpAbout();
     void helpAboutQt();
     void emulatorFrame();
     void emulatorRun();

@@ -50,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
+    QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 
     // Views
@@ -322,6 +323,18 @@ void MainWindow::fileScreenshot()
     m_screen->saveScreenshot(strFileName);
 }
 
+void MainWindow::helpAbout()
+{
+    QMessageBox::about(this, _T("About"), _T(
+        "QtBkBtl Version 1.0\n"
+        "Copyright (C) 2009-2010\n\n"
+        "http://code.google.com/p/bkbtl/\n\n"
+        "Author:\n"
+        "Nikita Zimin (nzeemin@gmail.com)\n\n"
+        "Special thanks to:\n"
+        "Alexey Kisly\n\n"
+        "Build date:\t" __DATE__ __TIME__));
+}
 void MainWindow::helpAboutQt()
 {
     QMessageBox::aboutQt(this, _T("About Qt"));

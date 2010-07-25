@@ -92,7 +92,7 @@ void QMemoryView::paintEvent(QPaintEvent *event)
             BOOL okHalt = FALSE;
             WORD wChanged = 0;
 
-            okHalt = g_pBoard->GetCPU()->IsHaltMode();
+            okHalt = pDebugPU->IsHaltMode();
             word = g_pBoard->GetWordView(address, okHalt, FALSE, &addrtype);
             wChanged = Emulator_GetChangeRamStatus(address);
 
