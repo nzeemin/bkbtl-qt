@@ -7,9 +7,6 @@
 #include <sys/stat.h>
 #include "Emubase.h"
 
-#ifdef _MSC_VER
-#pragma warning( disable: 4996 )  //NOTE: I know, we use unsafe functions
-#endif
 
 //////////////////////////////////////////////////////////////////////
 
@@ -165,10 +162,10 @@ void CFloppyController::SetCommand(WORD cmd)
     switch (cmd & 0x0f)
     {
     case 0:                             newdrive = -1; break;
-	case 1: default:                    newdrive = 0;  break;
-	case 2: case 6: case 10: case 14:   newdrive = 1;  break;
-	case 4: case 12:                    newdrive = 2;  break;
-	case 8:                             newdrive = 3;  break;
+    case 1: default:                    newdrive = 0;  break;
+    case 2: case 6: case 10: case 14:   newdrive = 1;  break;
+    case 4: case 12:                    newdrive = 2;  break;
+    case 8:                             newdrive = 3;  break;
     }
 
     if (m_drive != newdrive)
@@ -179,7 +176,7 @@ void CFloppyController::SetCommand(WORD cmd)
         m_pDrive = (newdrive == -1) ? NULL : m_drivedata + m_drive;
         okPrepareTrack = TRUE;
 #if !defined(PRODUCT)
-	    DebugLogFormat(_T("Floppy CURRENT DRIVE %d\r\n"), newdrive);
+        DebugLogFormat(_T("Floppy CURRENT DRIVE %d\r\n"), newdrive);
 #endif
     }
     if (m_drive == -1)
@@ -261,7 +258,7 @@ WORD CFloppyController::GetData(void)
 void CFloppyController::WriteData(WORD data)
 {
 #if !defined(PRODUCT)
-	DebugLogFormat(_T("Floppy WRITE\t\t%04x\r\n"), data);  //DEBUG
+    DebugLogFormat(_T("Floppy WRITE\t\t%04x\r\n"), data);  //DEBUG
 #endif
 
     m_writing = TRUE;  // Switch to write mode if not yet
