@@ -80,7 +80,7 @@ void CMotherboard::Reset ()
     m_Port177664 = 01330;
     m_Port177714in = m_Port177714out = 0;
     m_Port177716 = ((m_Configuration & BK_COPT_BK0011) ? 0140000 : 0100000) | 0200;
-    m_Port177716mem = 0000001;
+    m_Port177716mem = 0000002;
     m_Port177716tap = 0;
     m_timer = m_timerreload = m_timerdivider = 0;
     m_timerflags = 0177400;
@@ -206,6 +206,11 @@ void CMotherboard::ResetDevices()
     m_Port177560 = m_Port177562 = 0;
     m_Port177564 = 0200;
     m_Port177566 = 0;
+
+    // Reset timer
+    m_timerflags = 0177400;
+    m_timer = 0177777;
+    m_timerreload = 011000;
 }
 
 void CMotherboard::Tick50()  // 50 Hz timer
@@ -225,11 +230,13 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
 {
     if ((m_timerflags & 1) == 1)  // Timer is off, nothing to do
         return;
+    if ((m_timerflags & 16) == 0)  // Not RUN
+        return;
 
     m_timerdivider++;
     
     BOOL flag = FALSE;
-    switch ((m_timerflags >> 5) & 3)  // биты 5,6 -- prescaler
+    switch ((m_timerflags >> 5) & 3)  // bits 5,6 -- prescaler
     {
         case 0:  // 32 мкс
             flag = TRUE;
@@ -249,37 +256,37 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23437
         return; 
 
     m_timerdivider = 0;
-
     m_timer--;
     if (m_timer != 0)
         return;
 
-    if (m_timerflags & 010)  // If OneShot bit set then stop counting
-        m_timerflags &= ~020;
-    if ((m_timerflags & 2) == 0)  // If not WrapAround then reload
+    if ((m_timerflags & 4) != 0)  // If EXPENABLE
     {
-        m_timer = m_timerreload;
-        if (m_timerflags & 4)
-            m_timerflags |= 0200;  // Set Ready bit
+        m_timerflags |= 128;  // Set EXPIRY bit
+        //DebugPrint(_T("Timer\r\n"));
+    }
+    if (m_timerflags & 8 && (m_timerflags & 2) == 0)  // If ONESHOT and not WRAPAROUND then reset RUN bit
+        m_timerflags &= ~16;
+    else
+    {
+        if ((m_timerflags & 2) == 0)  // If not WRAPAROUND then reload
+            m_timer = m_timerreload;
     }
 }
 
 void CMotherboard::SetTimerReload(WORD val)	 // Sets timer reload value
 {
-    //m_timerreload = val & 077777;
+    //DebugPrintFormat(_T("SetTimerReload %06o\r\n"), val);
     m_timerreload = val;
-    if ((m_timerflags & 1) == 0)
-        m_timer = m_timerreload;
 }
 void CMotherboard::SetTimerState(WORD val) // Sets timer state
 {
-    if ((val & 1) && ((m_timerflags & 1) == 0))
-        //m_timer = m_timerreload & 077777;
+    //DebugPrintFormat(_T("SetTimerState %06o\r\n"), val);
+    if ((val & 1) && ((m_timerflags & 1) == 0) ||
+        ((val & 16) == 0) && ((m_timerflags & 16) == 1))
         m_timer = m_timerreload;
 
-    //m_timerflags &= 0250;  // Clear everything but bits 7,5,3
-    //m_timerflags |= (val & (~0250));  // Preserve bits 753
-    m_timerflags = 0177400 | (val & 0x00ff);
+    m_timerflags = 0177400 | val;
 }
 
 void CMotherboard::DebugTicks()
@@ -339,7 +346,7 @@ BOOL CMotherboard::SystemFrame()
             Tick50();  // 1/50 timer event
         }
 
-        if ((m_Configuration & BK_COPT_FDD) && (frameticks % 42 == 0))  // FDD tick
+        if ((m_Configuration & BK_COPT_FDD) && (frameticks % 44 == 0))  // FDD tick
         {
             if (m_pFloppyCtl != NULL)
                 m_pFloppyCtl->Periodic();
@@ -495,7 +502,8 @@ WORD CMotherboard::GetWordView(WORD address, BOOL okHaltMode, BOOL okExec, int* 
     switch (addrtype & ADDRTYPE_MASK)
     {
     case ADDRTYPE_RAM:
-        return GetRAMWord(offset & 0177776);  //TODO: Use (addrtype & ADDRTYPE_RAMMASK) bits
+        //return GetRAMWord(offset & 0177776);  //TODO: Use (addrtype & ADDRTYPE_RAMMASK) bits
+        return GetRAMWord(addrtype & ADDRTYPE_RAMMASK, offset & 0177776);
     case ADDRTYPE_ROM:
         return GetROMWord(offset);
     case ADDRTYPE_IO:
@@ -539,7 +547,7 @@ BYTE CMotherboard::GetByte(WORD address, BOOL okHaltMode)
     switch (addrtype & ADDRTYPE_MASK)
     {
     case ADDRTYPE_RAM:
-        return GetRAMByte(addrtype & ADDRTYPE_RAMMASK, offset);  //TODO: Use (addrtype & ADDRTYPE_RAMMASK) bits
+        return GetRAMByte(addrtype & ADDRTYPE_RAMMASK, offset);
     case ADDRTYPE_ROM:
         return GetROMByte(offset);
     case ADDRTYPE_IO:
@@ -663,39 +671,37 @@ int CMotherboard::TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, W
             {
                 addrType = ADDRTYPE_ROM;
                 int memoryRomChunk = 0;
-                if (m_Port177716mem & 1)
-                {
-                    //addrType = ADDRTYPE_DENY;
-                    //break;
+                if (m_Port177716mem & 1)  // Page 0 - BASIC
                     memoryRomChunk = 0;
-                }
-                else if (m_Port177716mem & 2)
+                else if (m_Port177716mem & 2)  // Page 1 - ext. BOS + ext. BASIC
                     memoryRomChunk = 1;
-                else if (m_Port177716mem & 8)
-                {
-                    addrType = ADDRTYPE_DENY;
-                    break;
-                    //memoryRomChunk = 2;
-                }
                 else
                 {
                     addrType = ADDRTYPE_DENY;
                     break;
                 }
-                //else if (m_Port177716mem & 16)
-                //    memoryRomChunk = 3;
+
                 address = (address & 037777) + memoryRomChunk * 040000;
-                break;
             }
-            
-            // Включено ОЗУ 0..7
-            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 8) & 7];
-            addrType = ADDRTYPE_RAM | memoryRamChunk;
-            address &= 037777;
+            else  // Включено ОЗУ 0..7
+            {
+                memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 8) & 7];
+                addrType = ADDRTYPE_RAM | memoryRamChunk;
+                address &= 037777;
+            }
             break;
         case 3:  // 140000-177777
             addrType = ADDRTYPE_ROM;
-            address -= 040000;
+            if (address < 0160000)  // 140000-157777 -- system ROM
+                address = (address & 017777) + 0100000;
+            else  // 160000-177777 -- FDD ROM
+            {
+                if ((m_Configuration & BK_COPT_FDD) == 0)
+                    //addrType = ADDRTYPE_DENY;
+                    address = (address & 017777) + 0120000;  // BK-0011V MSTD
+                else
+                    address = (address & 017777) + 0120000;  // FDD ROM
+            }
             break;
         }
 
@@ -724,6 +730,13 @@ WORD CMotherboard::GetPortWord(WORD address)
         return m_Port177564;
     case 0177566:  // Serial port interrupt vector
         return 060;
+
+    case 0177700:  // Регистр режима (РР) ВМ1
+        return 0177740;
+    case 0177702:  // Регистр адреса прерывания (РАП) ВМ1
+        return 0177777;
+    case 0177704:  // Регистр ошибки (РОШ) ВМ1
+        return 0177440;
 
     case 0177706:  // System Timer counter start value -- регистр установки таймера
         return m_timerreload;
@@ -898,7 +911,7 @@ void CMotherboard::SetPortWord(WORD address, WORD word)
         SetTimerReload(word);
         break;
     case 0177710:  // System Timer Counter -- регистр реверсивного счетчика таймера
-        m_timer = word;
+        //Do nothing: the register is read-only
         break;
     case 0177712:  // System Timer Manage -- регистр управления таймера
         SetTimerState(word);
@@ -937,6 +950,26 @@ void CMotherboard::SetPortWord(WORD address, WORD word)
     case 0177130:  // Регистр управления КНГМД
         if (m_pFloppyCtl != NULL)
         {
+            if ((m_Configuration & BK_COPT_BK0011) == 0)
+            {
+                // Выбирать по адресам 120000-157777 в соответствии с битами 2-3 либо ПЗУ BASIC либо дополнительное ОЗУ
+                switch (word & 0x0c)
+                {
+                case 0x0c:
+                    m_MemoryMap |= (32 | 64);  // 16KB BASIC ROM memory mapped to 120000-157777
+                    m_MemoryMapOnOff |= (32 | 64);
+                    break;
+                case 0x08:
+                    m_MemoryMap &= ~(32 | 64);
+                    m_MemoryMapOnOff &= ~(32 | 64);  // Nothing mapped to 120000-157777
+                    break;
+                default:
+                    m_MemoryMap &= ~(32 | 64);  // 16KB extra memory mapped to 120000-157777
+                    m_MemoryMapOnOff |= (32 | 64);
+                    break;
+                }
+                word &= ~(0x0c);
+            }
 //#if !defined(PRODUCT)
 //            DebugLogFormat(_T("Floppy COMMAND %06o\t\tCPU %06o\r\n"), word, m_pCPU->GetInstructionPC());
 //#endif
