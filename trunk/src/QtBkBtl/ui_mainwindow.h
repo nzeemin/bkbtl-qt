@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Mon May 16 23:40:38 2011
+** Created: Sat Jun 18 21:27:29 2011
 **      by: Qt User Interface Compiler version 4.6.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -35,10 +35,6 @@ public:
     QAction *actionDrivesFloppy1;
     QAction *actionDrivesFloppy2;
     QAction *actionDrivesFloppy3;
-    QAction *actionDrivesCartridge1;
-    QAction *actionDrivesHard1;
-    QAction *actionDrivesCartridge2;
-    QAction *actionDrivesHard2;
     QAction *actionFileScreenshot;
     QAction *actionConfBK10Basic;
     QAction *actionConfBK10Focal;
@@ -105,27 +101,6 @@ public:
         actionDrivesFloppy3->setObjectName(QString::fromUtf8("actionDrivesFloppy3"));
         actionDrivesFloppy3->setCheckable(false);
         actionDrivesFloppy3->setIcon(icon2);
-        actionDrivesCartridge1 = new QAction(MainWindow);
-        actionDrivesCartridge1->setObjectName(QString::fromUtf8("actionDrivesCartridge1"));
-        actionDrivesCartridge1->setCheckable(false);
-        QIcon icon3;
-        icon3.addFile(QString::fromUtf8(":/images/iconCartridgeSlot.png"), QSize(), QIcon::Normal, QIcon::Off);
-        icon3.addFile(QString::fromUtf8(":/images/iconCartridge.png"), QSize(), QIcon::Normal, QIcon::On);
-        actionDrivesCartridge1->setIcon(icon3);
-        actionDrivesHard1 = new QAction(MainWindow);
-        actionDrivesHard1->setObjectName(QString::fromUtf8("actionDrivesHard1"));
-        actionDrivesHard1->setCheckable(false);
-        QIcon icon4;
-        icon4.addFile(QString::fromUtf8(":/images/iconHddSlot.png"), QSize(), QIcon::Normal, QIcon::Off);
-        actionDrivesHard1->setIcon(icon4);
-        actionDrivesCartridge2 = new QAction(MainWindow);
-        actionDrivesCartridge2->setObjectName(QString::fromUtf8("actionDrivesCartridge2"));
-        actionDrivesCartridge2->setCheckable(false);
-        actionDrivesCartridge2->setIcon(icon3);
-        actionDrivesHard2 = new QAction(MainWindow);
-        actionDrivesHard2->setObjectName(QString::fromUtf8("actionDrivesHard2"));
-        actionDrivesHard2->setCheckable(false);
-        actionDrivesHard2->setIcon(icon4);
         actionFileScreenshot = new QAction(MainWindow);
         actionFileScreenshot->setObjectName(QString::fromUtf8("actionFileScreenshot"));
         actionConfBK10Basic = new QAction(MainWindow);
@@ -180,7 +155,7 @@ public:
         menuEmulator->setObjectName(QString::fromUtf8("menuEmulator"));
         menuDrives = new QMenu(menuBar);
         menuDrives->setObjectName(QString::fromUtf8("menuDrives"));
-        menuDrives->setEnabled(false);
+        menuDrives->setEnabled(true);
         menuHelp = new QMenu(menuBar);
         menuHelp->setObjectName(QString::fromUtf8("menuHelp"));
         menuConfiguration = new QMenu(menuBar);
@@ -240,6 +215,10 @@ public:
         mainToolBar->addSeparator();
         mainToolBar->addAction(actionEmulatorColorScreen);
         mainToolBar->addSeparator();
+        mainToolBar->addAction(actionDrivesFloppy0);
+        mainToolBar->addAction(actionDrivesFloppy1);
+        mainToolBar->addAction(actionDrivesFloppy2);
+        mainToolBar->addAction(actionDrivesFloppy3);
 
         retranslateUi(MainWindow);
 
@@ -254,22 +233,14 @@ public:
         actionEmulatorRun->setShortcut(QApplication::translate("MainWindow", "F9", 0, QApplication::UnicodeUTF8));
         actionEmulatorReset->setText(QApplication::translate("MainWindow", "Reset", 0, QApplication::UnicodeUTF8));
         actionHelpAboutQt->setText(QApplication::translate("MainWindow", "About Qt", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy0->setText(QApplication::translate("MainWindow", "Floppy MZ0:", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy0->setIconText(QApplication::translate("MainWindow", "0", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy1->setText(QApplication::translate("MainWindow", "Floppy MZ1:", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy1->setIconText(QApplication::translate("MainWindow", "1", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy2->setText(QApplication::translate("MainWindow", "Floppy MZ2:", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy2->setIconText(QApplication::translate("MainWindow", "2", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy3->setText(QApplication::translate("MainWindow", "Floppy MZ3:", 0, QApplication::UnicodeUTF8));
-        actionDrivesFloppy3->setIconText(QApplication::translate("MainWindow", "3", 0, QApplication::UnicodeUTF8));
-        actionDrivesCartridge1->setText(QApplication::translate("MainWindow", "Cartridge 1", 0, QApplication::UnicodeUTF8));
-        actionDrivesCartridge1->setIconText(QApplication::translate("MainWindow", "1", 0, QApplication::UnicodeUTF8));
-        actionDrivesHard1->setText(QApplication::translate("MainWindow", "Hard Drive 1", 0, QApplication::UnicodeUTF8));
-        actionDrivesHard1->setIconText(QApplication::translate("MainWindow", "1", 0, QApplication::UnicodeUTF8));
-        actionDrivesCartridge2->setText(QApplication::translate("MainWindow", "Cartridge 2", 0, QApplication::UnicodeUTF8));
-        actionDrivesCartridge2->setIconText(QApplication::translate("MainWindow", "2", 0, QApplication::UnicodeUTF8));
-        actionDrivesHard2->setText(QApplication::translate("MainWindow", "Hard Drive 2", 0, QApplication::UnicodeUTF8));
-        actionDrivesHard2->setIconText(QApplication::translate("MainWindow", "2", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy0->setText(QApplication::translate("MainWindow", "Floppy A:", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy0->setIconText(QApplication::translate("MainWindow", "A", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy1->setText(QApplication::translate("MainWindow", "Floppy B:", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy1->setIconText(QApplication::translate("MainWindow", "B", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy2->setText(QApplication::translate("MainWindow", "Floppy C:", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy2->setIconText(QApplication::translate("MainWindow", "C", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy3->setText(QApplication::translate("MainWindow", "Floppy D:", 0, QApplication::UnicodeUTF8));
+        actionDrivesFloppy3->setIconText(QApplication::translate("MainWindow", "D", 0, QApplication::UnicodeUTF8));
         actionFileScreenshot->setText(QApplication::translate("MainWindow", "Screenshot", 0, QApplication::UnicodeUTF8));
         actionConfBK10Basic->setText(QApplication::translate("MainWindow", "BK 0010.01 BASIC", 0, QApplication::UnicodeUTF8));
         actionConfBK10Focal->setText(QApplication::translate("MainWindow", "BK 0010.01 FOCAL", 0, QApplication::UnicodeUTF8));

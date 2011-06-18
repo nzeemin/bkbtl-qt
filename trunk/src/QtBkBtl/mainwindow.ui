@@ -44,7 +44,7 @@
    </widget>
    <widget class="QMenu" name="menuDrives">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Drives</string>
@@ -122,6 +122,10 @@
    <addaction name="separator"/>
    <addaction name="actionEmulatorColorScreen"/>
    <addaction name="separator"/>
+   <addaction name="actionDrivesFloppy0"/>
+   <addaction name="actionDrivesFloppy1"/>
+   <addaction name="actionDrivesFloppy2"/>
+   <addaction name="actionDrivesFloppy3"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionFileExit">
@@ -168,10 +172,10 @@
      <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
    </property>
    <property name="text">
-    <string>Floppy MZ0:</string>
+    <string>Floppy A:</string>
    </property>
    <property name="iconText">
-    <string>0</string>
+    <string>A</string>
    </property>
   </action>
   <action name="actionDrivesFloppy1">
@@ -184,10 +188,10 @@
      <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
    </property>
    <property name="text">
-    <string>Floppy MZ1:</string>
+    <string>Floppy B:</string>
    </property>
    <property name="iconText">
-    <string>1</string>
+    <string>B</string>
    </property>
   </action>
   <action name="actionDrivesFloppy2">
@@ -200,10 +204,10 @@
      <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
    </property>
    <property name="text">
-    <string>Floppy MZ2:</string>
+    <string>Floppy C:</string>
    </property>
    <property name="iconText">
-    <string>2</string>
+    <string>C</string>
    </property>
   </action>
   <action name="actionDrivesFloppy3">
@@ -216,72 +220,10 @@
      <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
    </property>
    <property name="text">
-    <string>Floppy MZ3:</string>
+    <string>Floppy D:</string>
    </property>
    <property name="iconText">
-    <string>3</string>
-   </property>
-  </action>
-  <action name="actionDrivesCartridge1">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/images/iconCartridgeSlot.png</normaloff>
-     <normalon>:/images/iconCartridge.png</normalon>:/images/iconCartridgeSlot.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge 1</string>
-   </property>
-   <property name="iconText">
-    <string>1</string>
-   </property>
-  </action>
-  <action name="actionDrivesHard1">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/images/iconHddSlot.png</normaloff>:/images/iconHddSlot.png</iconset>
-   </property>
-   <property name="text">
-    <string>Hard Drive 1</string>
-   </property>
-   <property name="iconText">
-    <string>1</string>
-   </property>
-  </action>
-  <action name="actionDrivesCartridge2">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/images/iconCartridgeSlot.png</normaloff>
-     <normalon>:/images/iconCartridge.png</normalon>:/images/iconCartridgeSlot.png</iconset>
-   </property>
-   <property name="text">
-    <string>Cartridge 2</string>
-   </property>
-   <property name="iconText">
-    <string>2</string>
-   </property>
-  </action>
-  <action name="actionDrivesHard2">
-   <property name="checkable">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>:/images/iconHddSlot.png</normaloff>:/images/iconHddSlot.png</iconset>
-   </property>
-   <property name="text">
-    <string>Hard Drive 2</string>
-   </property>
-   <property name="iconText">
-    <string>2</string>
+    <string>D</string>
    </property>
   </action>
   <action name="actionFileScreenshot">

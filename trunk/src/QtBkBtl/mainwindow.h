@@ -85,6 +85,7 @@ private:
 
     void setConfiguration(int configuration);
     void emulatorFloppy(int slot);
+
 };
 
 #endif // MAINWINDOW_H
