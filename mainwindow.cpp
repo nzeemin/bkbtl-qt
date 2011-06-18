@@ -39,10 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionConfBK10Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0010Fdd()));
     QObject::connect(ui->actionConfBK11, SIGNAL(triggered()), this, SLOT(configurationBK0011()));
     QObject::connect(ui->actionConfBK11Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0011Fdd()));
-    //QObject::connect(ui->actionDrivesFloppy0, SIGNAL(triggered()), this, SLOT(emulatorFloppy0()));
-    //QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), this, SLOT(emulatorFloppy1()));
-    //QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), this, SLOT(emulatorFloppy2()));
-    //QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), this, SLOT(emulatorFloppy3()));
+    QObject::connect(ui->actionDrivesFloppy0, SIGNAL(triggered()), this, SLOT(emulatorFloppy0()));
+    QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), this, SLOT(emulatorFloppy1()));
+    QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), this, SLOT(emulatorFloppy2()));
+    QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), this, SLOT(emulatorFloppy3()));
     QObject::connect(ui->actionDebugConsoleView, SIGNAL(triggered()), this, SLOT(debugConsoleView()));
     QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
@@ -412,31 +412,31 @@ void MainWindow::emulatorFloppy2() { emulatorFloppy(2); }
 void MainWindow::emulatorFloppy3() { emulatorFloppy(3); }
 void MainWindow::emulatorFloppy(int slot)
 {
-    //if (g_pBoard->IsFloppyImageAttached(slot))
-    //{
-    //    g_pBoard->DetachFloppyImage(slot);
-    //    Settings_SetFloppyFilePath(slot, NULL);
-    //}
-    //else
-    //{
-    //    QFileDialog dlg;
-    //    dlg.setNameFilter(_T("BK floppy images (*.dsk *.rtd)"));
-    //    if (dlg.exec() == QDialog::Rejected)
-    //        return;
+    if (g_pBoard->IsFloppyImageAttached(slot))
+    {
+        g_pBoard->DetachFloppyImage(slot);
+        //Settings_SetFloppyFilePath(slot, NULL);
+    }
+    else
+    {
+        QFileDialog dlg;
+        dlg.setNameFilter(_T("BK floppy images (*.img *.bkd)"));
+        if (dlg.exec() == QDialog::Rejected)
+            return;
 
-    //    QString strFileName = dlg.selectedFiles().at(0);
-    //    LPCTSTR sFileName = qPrintable(strFileName);
+        QString strFileName = dlg.selectedFiles().at(0);
+        LPCTSTR sFileName = qPrintable(strFileName);
 
-    //    if (! g_pBoard->AttachFloppyImage(slot, sFileName))
-    //    {
-    //        AlertWarning(_T("Failed to attach floppy image."));
-    //        return;
-    //    }
+        if (! g_pBoard->AttachFloppyImage(slot, sFileName))
+        {
+            AlertWarning(_T("Failed to attach floppy image."));
+            return;
+        }
 
-    //    Settings_SetFloppyFilePath(slot, sFileName);
-    //}
+        //Settings_SetFloppyFilePath(slot, sFileName);
+    }
 
-    //UpdateMenu();
+    UpdateMenu();
 }
 
 void MainWindow::debugConsoleView()

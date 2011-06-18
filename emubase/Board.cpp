@@ -1,3 +1,13 @@
+/*  This file is part of BKBTL.
+    BKBTL is free software: you can redistribute it and/or modify it under the terms
+of the GNU Lesser General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+    BKBTL is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public License along with
+BKBTL. If not, see <http://www.gnu.org/licenses/>. */
+
 // Board.cpp
 //
 
@@ -314,6 +324,7 @@ BOOL CMotherboard::SystemFrame()
     int frameProcTicks = (m_Configuration & BK_COPT_BK0011) ? 8 : 6;
     const int audioticks = 20286 / (SOUNDSAMPLERATE / 25);
     const int teletypeTicks = 20000 / (9600 / 25);
+    int floppyTicks = (m_Configuration & BK_COPT_BK0011) ? 38 : 44;
     int teletypeTxCount = 0;
 
     int frameTapeTicks = 0, tapeSamplesPerFrame = 0, tapeReadError = 0;
@@ -346,7 +357,7 @@ BOOL CMotherboard::SystemFrame()
             Tick50();  // 1/50 timer event
         }
 
-        if ((m_Configuration & BK_COPT_FDD) && (frameticks % 44 == 0))  // FDD tick
+        if ((m_Configuration & BK_COPT_FDD) && (frameticks % floppyTicks == 0))  // FDD tick
         {
             if (m_pFloppyCtl != NULL)
                 m_pFloppyCtl->Periodic();

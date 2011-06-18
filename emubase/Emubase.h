@@ -1,3 +1,13 @@
+/*  This file is part of BKBTL.
+    BKBTL is free software: you can redistribute it and/or modify it under the terms
+of the GNU Lesser General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+    BKBTL is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public License along with
+BKBTL. If not, see <http://www.gnu.org/licenses/>. */
+
 // Emubase.h  Header for use of all emubase classes
 //
 
@@ -55,8 +65,6 @@ struct CFloppyDrive
 {
     FILE* fpFile;
     BOOL okReadOnly;    // Write protection flag
-    WORD track;         // Track number: from 0 to 79
-    WORD side;          // Disk side: 0 or 1
     WORD dataptr;       // Data offset within m_data - "head" position
     BYTE data[FLOPPY_RAWTRACKSIZE];  // Raw track image for the current track
     BYTE marker[FLOPPY_RAWMARKERSIZE];  // Marker positions
