@@ -51,7 +51,7 @@ void QMemoryView::scrollValueChanged()
     this->repaint();
 }
 
-void QMemoryView::paintEvent(QPaintEvent *event)
+void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 {
     if (g_pBoard == NULL) return;
 
@@ -83,7 +83,7 @@ void QMemoryView::paintEvent(QPaintEvent *event)
         DrawOctalValue(painter, 2 * cxChar, y, address);
 
         int x = 10 * cxChar;
-        TCHAR wchars[16];
+        //TCHAR wchars[16];
 
         for (int j = 0; j < 8; j++) {  // Draw words as octal value
             // Get word from memory
