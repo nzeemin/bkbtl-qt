@@ -35,7 +35,7 @@ void QDebugView::updateData()
     m_wDebugCpuR[8] = pswCPU;
 }
 
-void QDebugView::paintEvent(QPaintEvent *event)
+void QDebugView::paintEvent(QPaintEvent * /*event*/)
 {
     if (g_pBoard == NULL) return;
 

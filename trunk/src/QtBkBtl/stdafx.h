@@ -5,10 +5,18 @@
 
 #pragma once
 
+#ifdef _MSC_VER
+//NOTE: I know, we use unsafe string copy functions
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 
 // C RunTime Header Files
 #include <string.h>
 #include <stdio.h>
+
+#ifdef _MSC_VER
+#include <stdlib.h>
+#endif
 
 #ifdef __APPLE__
 #include <stdlib.h>

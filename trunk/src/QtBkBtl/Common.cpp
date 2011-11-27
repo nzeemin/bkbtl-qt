@@ -4,10 +4,35 @@
 #include <QMessageBox>
 #include <QFont>
 #include <QPainter>
+#include <QCoreApplication>
 
 
 //////////////////////////////////////////////////////////////////////
 
+
+BOOL AssertFailedLine(const char * lpszFileName, int nLine)
+{
+    TCHAR buffer[360];
+    _sntprintf(buffer, 360,
+#ifdef _UNICODE
+            _T("ASSERTION FAILED\n\nFile: %S\nLine: %d\n\n")
+#else
+            _T("ASSERTION FAILED\n\nFile: %s\nLine: %d\n\n")
+#endif
+            _T("Press Abort to stop the program, Retry to break to the debugger, or Ignore to continue execution."),
+            lpszFileName, nLine);
+    int result = QMessageBox::question(NULL, _T("BK Back to Life"), buffer, QMessageBox::Abort, QMessageBox::Retry, QMessageBox::Ignore);
+    switch (result)
+    {
+        case QMessageBox::Retry:
+            return TRUE;
+        case QMessageBox::Ignore:
+            return FALSE;
+        case QMessageBox::Abort:
+            QCoreApplication::exit(255);
+    }
+    return FALSE;
+}
 
 void AlertWarning(LPCTSTR sMessage)
 {
@@ -26,29 +51,51 @@ BOOL AlertOkCancel(LPCTSTR sMessage)
 
 #if !defined(PRODUCT)
 
-void DebugPrint(LPCTSTR message)
+void DebugPrint(LPCTSTR /*message*/)
 {
     //TODO: Implement in this environment
 }
 
 void DebugPrintFormat(LPCTSTR pszFormat, ...)
 {
-    //TODO: Implement in this environment
+    TCHAR buffer[512];
+
+    va_list ptr;
+    va_start(ptr, pszFormat);
+    _sntprintf(buffer, 512, pszFormat, ptr);
+    va_end(ptr);
+
+    DebugPrint(buffer);
 }
 
 const LPCTSTR TRACELOG_FILE_NAME = _T("trace.log");
 const LPCTSTR TRACELOG_NEWLINE = _T("\r\n");
 
-HANDLE Common_LogFile = NULL;
+FILE* Common_LogFile = NULL;
 
 void DebugLog(LPCTSTR message)
 {
-    //TODO: Implement in this environment
+    if (Common_LogFile == NULL)
+    {
+        Common_LogFile = ::_tfopen(TRACELOG_FILE_NAME, _T("r+b"));
+    }
+
+    ::fseek(Common_LogFile, 0, SEEK_END);
+
+    size_t dwLength = strlen(message) * sizeof(TCHAR);
+    ::fwrite(message, 1, dwLength, Common_LogFile);
 }
 
 void DebugLogFormat(LPCTSTR pszFormat, ...)
 {
-    //TODO: Implement in this environment
+    TCHAR buffer[512];
+
+    va_list ptr;
+    va_start(ptr, pszFormat);
+    _sntprintf(buffer, 512, pszFormat, ptr);
+    va_end(ptr);
+
+    DebugLog(buffer);
 }
 
 

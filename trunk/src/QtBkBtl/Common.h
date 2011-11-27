@@ -35,8 +35,8 @@ typedef char TCHAR;
 #define _T(x)       x
 #endif
 
-#ifndef __MINGW32__
-#define _stat       stat
+#ifdef __GNUC__
+//#define _stat       stat
 #define _stricmp    strcasecmp
 #define _snprintf   snprintf
 #endif
@@ -47,8 +47,8 @@ typedef const wchar_t * LPCTSTR;
 typedef const char * LPCTSTR;
 #endif
 
-typedef long LONG;
-typedef unsigned long DWORD;
+typedef int LONG;
+typedef unsigned int DWORD;
 typedef unsigned short WORD;
 typedef unsigned char BYTE;
 
@@ -68,9 +68,13 @@ typedef int BOOL;
 #define HIBYTE(w)           ((BYTE)((((DWORD)(w)) >> 8) & 0xff))
 
 #ifdef __GNUC__
-#define CALLBACK __attribute__((stdcall))
+ #ifdef __APPLE__
+  #define CALLBACK
+ #else
+  #define CALLBACK __attribute__((stdcall))
+ #endif
 #else
-#define CALLBACK __stdcall
+ #define CALLBACK __stdcall
 #endif
 
 typedef void *HANDLE;
@@ -83,8 +87,8 @@ typedef void *HANDLE;
 
 #ifdef _DEBUG
 
-BOOL AssertFailedLine(LPCSTR lpszFileName, int nLine);
-#define ASSERT(f)          (void) ((f) || !AssertFailedLine(__FILE__, __LINE__) || (DebugBreak(), 0))
+BOOL AssertFailedLine(const char * lpszFileName, int nLine);
+#define ASSERT(f)          (void) ((f) || !AssertFailedLine(__FILE__, __LINE__) || (__debugbreak(), 0))
 #define VERIFY(f)          ASSERT(f)
 
 #else   // _DEBUG

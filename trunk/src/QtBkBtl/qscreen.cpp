@@ -30,7 +30,7 @@ void QScreen::setMode(ScreenViewMode mode)
     this->repaint();
 }
 
-void QScreen::paintEvent(QPaintEvent *event)
+void QScreen::paintEvent(QPaintEvent * /*event*/)
 {
     Emulator_PrepareScreenRGB32(m_image->bits(), m_mode);
 
