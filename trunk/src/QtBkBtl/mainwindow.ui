@@ -85,11 +85,18 @@
     <addaction name="actionDebugStepInto"/>
     <addaction name="actionDebugStepOver"/>
    </widget>
+   <widget class="QMenu" name="menuScript">
+    <property name="title">
+     <string>Script</string>
+    </property>
+    <addaction name="actionScriptRun"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuConfiguration"/>
    <addaction name="menuDrives"/>
    <addaction name="menuDebug"/>
+   <addaction name="menuScript"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -343,6 +350,11 @@
   <action name="actionHelpAbout">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="actionScriptRun">
+   <property name="text">
+    <string>Run Script...</string>
    </property>
   </action>
  </widget>

@@ -56,6 +56,7 @@ public slots:
     void debugTeletypeView();
     void debugStepInto();
     void debugStepOver();
+    void scriptRun();
 
 protected:
     void changeEvent(QEvent *);
