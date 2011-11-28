@@ -19,7 +19,9 @@ SOURCES += main.cpp \
     qmemoryview.cpp \
     qconsoleview.cpp \
     qteletypeview.cpp \
-    qtapeview.cpp
+    qtapeview.cpp \
+    qscriptwindow.cpp \
+    qemulator.cpp
 HEADERS += mainwindow.h \
     util/WavPcmFile.h \
     stdafx.h \
@@ -39,6 +41,12 @@ HEADERS += mainwindow.h \
     qconsoleview.h \
     qteletypeview.h \
     qdebugview.h \
-    qtapeview.h
+    qtapeview.h \
+    qscriptwindow.h \
+    qemulator.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
+QT += script
+
+
+

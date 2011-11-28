@@ -6,6 +6,7 @@
 #include <QVBoxLayout>
 #include <QDockWidget>
 #include <QLabel>
+#include <QScriptEngine>
 #include "main.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -17,6 +18,7 @@
 #include "qmemoryview.h"
 #include "qteletypeview.h"
 #include "qtapeview.h"
+#include "qscriptwindow.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -50,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
+    QObject::connect(ui->actionScriptRun, SIGNAL(triggered()), this, SLOT(scriptRun()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 
@@ -307,7 +310,6 @@ void MainWindow::fileLoadBin()
     }
 
     ::free(pBuffer);
-
 }
 
 void MainWindow::fileScreenshot()
@@ -492,4 +494,24 @@ void MainWindow::printToTeletype(const QString & message)
     {
         m_teletype->print(message);
     }
+}
+
+void MainWindow::scriptRun()
+{
+    if (g_okEmulatorRunning)
+        emulatorRun();  // Stop the emulator
+
+    QFileDialog dlg;
+    dlg.setAcceptMode(QFileDialog::AcceptOpen);
+    dlg.setNameFilter(_T("Script files (*.js)"));
+    if (dlg.exec() == QDialog::Rejected)
+        return;
+
+    QString strFileName = dlg.selectedFiles().at(0);
+    QFile file(strFileName);
+    file.open(QIODevice::ReadOnly);
+    QString strScript = file.readAll();
+
+    QScriptWindow window(this);
+    window.runScript(strScript);
 }

@@ -77,7 +77,7 @@ void DebugLog(LPCTSTR message)
 {
     if (Common_LogFile == NULL)
     {
-        Common_LogFile = ::_tfopen(TRACELOG_FILE_NAME, _T("r+b"));
+        Common_LogFile = ::_tfopen(TRACELOG_FILE_NAME, _T("a+b"));
     }
 
     ::fseek(Common_LogFile, 0, SEEK_END);
