@@ -1,8 +1,48 @@
 #include "stdafx.h"
-#include "qscriptwindow.h"
-#include "main.h"
-#include "qemulator.h"
 #include <QApplication>
+#include "main.h"
+#include "mainwindow.h"
+#include "Emulator.h"
+#include "qscripting.h"
+
+
+//////////////////////////////////////////////////////////////////////
+// QEmulator
+
+void QEmulator::reset()
+{
+    Emulator_Reset();
+
+    Global_getMainWindow()->UpdateAllViews();
+}
+
+bool QEmulator::run(int frames)
+{
+    bool result = true;
+    for (int i = 0; i < frames; i++)
+    {
+        int res = Emulator_SystemFrame();
+        if (!res)
+        {
+            result = false;
+            break;
+        }
+
+        if (i % 25 == 24)  // Update the screen every 25 frames
+        {
+            Global_getMainWindow()->UpdateAllViews();
+            Global_getApplication()->processEvents();
+        }
+    }
+
+    Global_getMainWindow()->UpdateAllViews();
+
+    return result;
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// QScriptWindow
 
 QScriptWindow::QScriptWindow(QWidget * parent)
     : QDialog(parent, Qt::Dialog),

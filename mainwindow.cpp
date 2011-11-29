@@ -18,7 +18,7 @@
 #include "qmemoryview.h"
 #include "qteletypeview.h"
 #include "qtapeview.h"
-#include "qscriptwindow.h"
+#include "qscripting.h"
 #include "Emulator.h"
 
 MainWindow::MainWindow(QWidget *parent) :

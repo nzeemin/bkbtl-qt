@@ -1,13 +1,30 @@
-#ifndef QSCRIPTWINDOW_H
-#define QSCRIPTWINDOW_H
+#ifndef QSCRIPTING_H
+#define QSCRIPTING_H
 
+#include <QObject>
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QPushButton>
 #include <QLabel>
 #include <QScriptEngine>
 
-class QEmulator;
+
+class QEmulator : public QObject
+{
+    Q_OBJECT
+public:
+    QEmulator() { }
+
+public:
+
+
+public slots:
+    void reset();
+    bool run(int frames);
+    //TODO: void setBreakpoint(qword address);
+    //TODO: bool isBreakpoint()
+};
+
 
 class QScriptWindow : public QDialog
 {
@@ -33,4 +50,4 @@ private:
 };
 
 
-#endif //QSCRIPTWINDOW_H
+#endif //QSCRIPTING_H
