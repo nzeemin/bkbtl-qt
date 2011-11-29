@@ -20,8 +20,7 @@ SOURCES += main.cpp \
     qconsoleview.cpp \
     qteletypeview.cpp \
     qtapeview.cpp \
-    qscriptwindow.cpp \
-    qemulator.cpp
+    qscripting.cpp
 HEADERS += mainwindow.h \
     util/WavPcmFile.h \
     stdafx.h \
@@ -42,11 +41,13 @@ HEADERS += mainwindow.h \
     qteletypeview.h \
     qdebugview.h \
     qtapeview.h \
-    qscriptwindow.h \
-    qemulator.h
+    qscripting.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
 QT += script
+
+
+
 
 
 
