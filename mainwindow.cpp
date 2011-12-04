@@ -36,6 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
     QObject::connect(ui->actionEmulatorReset, SIGNAL(triggered()), this, SLOT(emulatorReset()));
     QObject::connect(ui->actionEmulatorColorScreen, SIGNAL(triggered()), this, SLOT(emulatorColorScreen()));
+    QObject::connect(ui->actionEmulatorScreen0, SIGNAL(triggered()), this, SLOT(emulatorScreen0()));
+    QObject::connect(ui->actionEmulatorScreen1, SIGNAL(triggered()), this, SLOT(emulatorScreen1()));
+    QObject::connect(ui->actionEmulatorScreen2, SIGNAL(triggered()), this, SLOT(emulatorScreen2()));
+    QObject::connect(ui->actionEmulatorScreen3, SIGNAL(triggered()), this, SLOT(emulatorScreen3()));
     QObject::connect(ui->actionConfBK10Basic, SIGNAL(triggered()), this, SLOT(configurationBK0010Basic()));
     QObject::connect(ui->actionConfBK10Focal, SIGNAL(triggered()), this, SLOT(configurationBK0010Focal()));
     QObject::connect(ui->actionConfBK10Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0010Fdd()));
@@ -171,8 +175,12 @@ void MainWindow::UpdateMenu()
 {
     ui->actionEmulatorRun->setChecked(g_okEmulatorRunning);
 
+    ui->actionEmulatorScreen0->setChecked(m_screen->mode() == 0);
+    ui->actionEmulatorScreen1->setChecked(m_screen->mode() == 1);
+    ui->actionEmulatorScreen2->setChecked(m_screen->mode() == 2);
+    ui->actionEmulatorScreen3->setChecked(m_screen->mode() == 3);
     ui->actionEmulatorColorScreen->setIcon(QIcon(
-            m_screen->mode() == ColorScreen ? _T(":/images/iconScreenColor.png") : _T(":/images/iconScreenBW.png") ));
+            (m_screen->mode() & 1) ? _T(":/images/iconScreenColor.png") : _T(":/images/iconScreenBW.png") ));
 
     ui->actionConfBK10Basic->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_BASIC);
     ui->actionConfBK10Focal->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FOCAL);
@@ -378,10 +386,46 @@ void MainWindow::emulatorReset()
 
 void MainWindow::emulatorColorScreen()
 {
-    ScreenViewMode newMode = (m_screen->mode() == ColorScreen) ? BlackWhiteScreen : ColorScreen;
-    m_screen->setMode(newMode);
+    int newMode = m_screen->mode() ^ 1;
 
+    m_screen->setMode(newMode);
     UpdateMenu();
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+}
+
+void MainWindow::emulatorScreen0()
+{
+    m_screen->setMode(0);
+    UpdateMenu();
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+}
+void MainWindow::emulatorScreen1()
+{
+    m_screen->setMode(1);
+    UpdateMenu();
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+}
+void MainWindow::emulatorScreen2()
+{
+    m_screen->setMode(2);
+    UpdateMenu();
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+}
+void MainWindow::emulatorScreen3()
+{
+    m_screen->setMode(3);
+    UpdateMenu();
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
 }
 
 void MainWindow::configurationBK0010Basic() { setConfiguration(BK_CONF_BK0010_BASIC); }

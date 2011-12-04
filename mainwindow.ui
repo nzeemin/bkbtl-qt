@@ -40,7 +40,10 @@
     <addaction name="actionEmulatorRun"/>
     <addaction name="actionEmulatorReset"/>
     <addaction name="separator"/>
-    <addaction name="actionEmulatorColorScreen"/>
+    <addaction name="actionEmulatorScreen0"/>
+    <addaction name="actionEmulatorScreen1"/>
+    <addaction name="actionEmulatorScreen2"/>
+    <addaction name="actionEmulatorScreen3"/>
    </widget>
    <widget class="QMenu" name="menuDrives">
     <property name="enabled">
@@ -278,9 +281,12 @@
     <string>BK 0011M FDD</string>
    </property>
   </action>
-  <action name="actionEmulatorColorScreen">
+  <action name="actionEmulatorScreen0">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Color Screen</string>
+    <string>512 x 256 BW</string>
    </property>
    <property name="iconText">
     <string>Color</string>
@@ -355,6 +361,41 @@
   <action name="actionScriptRun">
    <property name="text">
     <string>Run Script...</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>512 x 256 Color</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>512 x 384 BW</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>512 x 384 Color</string>
+   </property>
+  </action>
+  <action name="actionEmulatorColorScreen">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Color</string>
+   </property>
+   <property name="toolTip">
+    <string>Color / BW</string>
    </property>
   </action>
  </widget>

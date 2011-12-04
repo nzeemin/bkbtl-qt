@@ -32,12 +32,24 @@ bool QEmulator::run(int frames)
         {
             Global_getMainWindow()->UpdateAllViews();
             Global_getApplication()->processEvents();
+            if (m_window->isAborted())
+                return false;
         }
     }
 
     Global_getMainWindow()->UpdateAllViews();
 
     return result;
+}
+
+void QEmulator::setBreakpoint(quint16 address)
+{
+    Emulator_SetCPUBreakpoint((WORD)address);
+}
+
+bool QEmulator::isBreakpoint()
+{
+    return Emulator_IsBreakpoint();
 }
 
 
@@ -58,7 +70,7 @@ QScriptWindow::QScriptWindow(QWidget * parent)
 
     QObject::connect(&m_cancelButton, SIGNAL(clicked()), this, SLOT(cancelButtonPressed()));
 
-    m_emulator = new QEmulator();
+    m_emulator = new QEmulator(this);
     m_engine.globalObject().setProperty("emulator", m_engine.newQObject(m_emulator));
 }
 
@@ -96,11 +108,11 @@ void QScriptWindow::runScript(const QString & script)
         QScriptValue result = m_engine.evaluate(script);
         if (m_aborted)
         {
-            message.append("Script was STOPPED.");
+            message.append("The script was STOPPED.");
             break;
         }
 
-        message.append("Script finished. The result is:\n\n")
+        message.append("The script FINISHED. The result is:\n\n")
             .append(result.toString());
         break;
     }
