@@ -14,10 +14,11 @@ public:
 
 public:
     void saveScreenshot(QString strFileName);
-    ScreenViewMode mode() const { return m_mode; }
-    void setMode(ScreenViewMode mode);
+    int mode() const { return m_mode; }
+    void setMode(int mode);
 
 protected:
+    void createDisplay();
     void paintEvent(QPaintEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
@@ -26,7 +27,7 @@ private:
     QImage* m_image;
     int m_nImageTop;
     int m_nImageLeft;
-    ScreenViewMode m_mode;
+    int m_mode;
 
 private:
     unsigned char TranslateQtKeyToBkKey(int qtkey, BOOL okShift);

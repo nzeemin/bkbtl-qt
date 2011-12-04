@@ -35,7 +35,8 @@ void Emulator_Stop();
 void Emulator_Reset();
 int Emulator_SystemFrame();
 
-void Emulator_PrepareScreenRGB32(void* pBits, ScreenViewMode screenMode);
+void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei);
+void Emulator_PrepareScreenRGB32(void* pBits, int screenMode);
 
 void Emulator_KeyEvent(BYTE keyPressed, BOOL pressed, BOOL ctrl);
 WORD Emulator_GetKeyEventFromQueue();

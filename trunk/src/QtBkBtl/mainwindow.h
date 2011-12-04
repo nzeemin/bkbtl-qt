@@ -40,6 +40,10 @@ public slots:
     void emulatorRun();
     void emulatorReset();
     void emulatorColorScreen();
+    void emulatorScreen0();
+    void emulatorScreen1();
+    void emulatorScreen2();
+    void emulatorScreen3();
     void configurationBK0010Basic();
     void configurationBK0010Focal();
     void configurationBK0010Fdd();

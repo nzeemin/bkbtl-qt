@@ -9,11 +9,13 @@
 #include <QScriptEngine>
 
 
+class QScriptWindow;
+
 class QEmulator : public QObject
 {
     Q_OBJECT
 public:
-    QEmulator() { }
+    QEmulator(QScriptWindow * window) : m_window(window) { }
 
 public:
 
@@ -21,8 +23,13 @@ public:
 public slots:
     void reset();
     bool run(int frames);
-    //TODO: void setBreakpoint(qword address);
-    //TODO: bool isBreakpoint()
+    void setBreakpoint(quint16 address);
+    bool isBreakpoint();
+    //TODO: Configurations
+    //TODO: Disks
+
+private:
+    QScriptWindow * m_window;
 };
 
 
@@ -36,6 +43,7 @@ public:
 
 public:
     void runScript(const QString & script);
+    bool isAborted() const { return m_aborted; }
 
 private slots:
     void cancelButtonPressed();

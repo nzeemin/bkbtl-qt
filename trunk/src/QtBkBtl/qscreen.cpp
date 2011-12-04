@@ -6,12 +6,11 @@
 QScreen::QScreen(QWidget *parent) :
     QWidget(parent)
 {
-    setMinimumSize(BK_SCREEN_WIDTH + 8, BK_SCREEN_HEIGHT + 8);
-    setMaximumSize(BK_SCREEN_WIDTH + 100, BK_SCREEN_HEIGHT + 20);
     setFocusPolicy(Qt::StrongFocus);
 
-    m_image = new QImage(BK_SCREEN_WIDTH, BK_SCREEN_HEIGHT, QImage::Format_RGB32);
-    m_mode = BlackWhiteScreen;
+    m_mode = 0;
+
+    createDisplay();
 }
 
 QScreen::~QScreen()
@@ -24,10 +23,32 @@ void QScreen::saveScreenshot(QString strFileName)
     m_image->save(strFileName, _T("PNG"), -1);
 }
 
-void QScreen::setMode(ScreenViewMode mode)
+void QScreen::setMode(int mode)
 {
+    if (m_mode == mode) return;
+
     m_mode = mode;
+
+    createDisplay();
+
     this->repaint();
+}
+
+void QScreen::createDisplay()
+{
+    if (m_image != 0)
+    {
+        delete m_image;
+        m_image = 0;
+    }
+
+    int cxScreenWidth, cyScreenHeight;
+    Emulator_GetScreenSize(m_mode, &cxScreenWidth, &cyScreenHeight);
+
+    m_image = new QImage(cxScreenWidth, cyScreenHeight, QImage::Format_RGB32);
+
+    setMinimumSize(cxScreenWidth + 8, cyScreenHeight + 8);
+    setMaximumSize(cxScreenWidth + 100, cyScreenHeight + 20);
 }
 
 void QScreen::paintEvent(QPaintEvent * /*event*/)
