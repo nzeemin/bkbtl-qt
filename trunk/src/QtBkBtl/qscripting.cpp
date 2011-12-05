@@ -46,10 +46,14 @@ void QEmulator::setBreakpoint(quint16 address)
 {
     Emulator_SetCPUBreakpoint((WORD)address);
 }
-
 bool QEmulator::isBreakpoint()
 {
     return Emulator_IsBreakpoint();
+}
+
+void QEmulator::saveScreenshot(QString filename)
+{
+    Global_getMainWindow()->saveScreenshot(filename);
 }
 
 
