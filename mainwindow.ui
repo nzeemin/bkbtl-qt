@@ -31,6 +31,8 @@
     <addaction name="separator"/>
     <addaction name="actionFileScreenshot"/>
     <addaction name="separator"/>
+    <addaction name="actionScriptRun"/>
+    <addaction name="separator"/>
     <addaction name="actionFileExit"/>
    </widget>
    <widget class="QMenu" name="menuEmulator">
@@ -88,18 +90,11 @@
     <addaction name="actionDebugStepInto"/>
     <addaction name="actionDebugStepOver"/>
    </widget>
-   <widget class="QMenu" name="menuScript">
-    <property name="title">
-     <string>Script</string>
-    </property>
-    <addaction name="actionScriptRun"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEmulator"/>
    <addaction name="menuConfiguration"/>
    <addaction name="menuDrives"/>
    <addaction name="menuDebug"/>
-   <addaction name="menuScript"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">

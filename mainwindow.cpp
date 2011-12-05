@@ -1,12 +1,12 @@
 #include "stdafx.h"
-#include <QMessageBox>
-#include <QFileDialog>
 #include <QAction>
-#include <QSettings>
-#include <QVBoxLayout>
 #include <QDockWidget>
+#include <QFileDialog>
 #include <QLabel>
-#include <QScriptEngine>
+#include <QMessageBox>
+#include <QSettings>
+#include <QSignalMapper>
+#include <QVBoxLayout>
 #include "main.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -32,23 +32,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // Assign signals
     QObject::connect(ui->actionFileLoadBin, SIGNAL(triggered()), this, SLOT(fileLoadBin()));
     QObject::connect(ui->actionFileScreenshot, SIGNAL(triggered()), this, SLOT(fileScreenshot()));
+    QObject::connect(ui->actionScriptRun, SIGNAL(triggered()), this, SLOT(scriptRun()));
     QObject::connect(ui->actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
     QObject::connect(ui->actionEmulatorReset, SIGNAL(triggered()), this, SLOT(emulatorReset()));
     QObject::connect(ui->actionEmulatorColorScreen, SIGNAL(triggered()), this, SLOT(emulatorColorScreen()));
-    QObject::connect(ui->actionEmulatorScreen0, SIGNAL(triggered()), this, SLOT(emulatorScreen0()));
-    QObject::connect(ui->actionEmulatorScreen1, SIGNAL(triggered()), this, SLOT(emulatorScreen1()));
-    QObject::connect(ui->actionEmulatorScreen2, SIGNAL(triggered()), this, SLOT(emulatorScreen2()));
-    QObject::connect(ui->actionEmulatorScreen3, SIGNAL(triggered()), this, SLOT(emulatorScreen3()));
     QObject::connect(ui->actionConfBK10Basic, SIGNAL(triggered()), this, SLOT(configurationBK0010Basic()));
     QObject::connect(ui->actionConfBK10Focal, SIGNAL(triggered()), this, SLOT(configurationBK0010Focal()));
     QObject::connect(ui->actionConfBK10Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0010Fdd()));
     QObject::connect(ui->actionConfBK11, SIGNAL(triggered()), this, SLOT(configurationBK0011()));
     QObject::connect(ui->actionConfBK11Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0011Fdd()));
-    QObject::connect(ui->actionDrivesFloppy0, SIGNAL(triggered()), this, SLOT(emulatorFloppy0()));
-    QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), this, SLOT(emulatorFloppy1()));
-    QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), this, SLOT(emulatorFloppy2()));
-    QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), this, SLOT(emulatorFloppy3()));
     QObject::connect(ui->actionDebugConsoleView, SIGNAL(triggered()), this, SLOT(debugConsoleView()));
     QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
@@ -56,9 +49,30 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
-    QObject::connect(ui->actionScriptRun, SIGNAL(triggered()), this, SLOT(scriptRun()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
+
+    QSignalMapper* mapScreenMode = new QSignalMapper(this);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen0, 0);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen1, 1);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen2, 2);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen3, 3);
+    QObject::connect(mapScreenMode, SIGNAL(mapped(int)), this, SLOT(emulatorScreenMode(int)));
+    QObject::connect(ui->actionEmulatorScreen0, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen1, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen2, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen3, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+
+    QSignalMapper* mapFloppy = new QSignalMapper(this);
+    mapFloppy->setMapping(ui->actionDrivesFloppy0, 0);
+    mapFloppy->setMapping(ui->actionDrivesFloppy1, 1);
+    mapFloppy->setMapping(ui->actionDrivesFloppy2, 2);
+    mapFloppy->setMapping(ui->actionDrivesFloppy3, 3);
+    QObject::connect(mapFloppy, SIGNAL(mapped(int)), this, SLOT(emulatorFloppy(int)));
+    QObject::connect(ui->actionDrivesFloppy0, SIGNAL(triggered()), mapFloppy, SLOT(map()));
+    QObject::connect(ui->actionDrivesFloppy1, SIGNAL(triggered()), mapFloppy, SLOT(map()));
+    QObject::connect(ui->actionDrivesFloppy2, SIGNAL(triggered()), mapFloppy, SLOT(map()));
+    QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), mapFloppy, SLOT(map()));
 
     // Views
     m_screen = new QScreen();
@@ -70,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_teletype = new QTeletypeView();
     m_tape = new QTapeView();
 
+    // Prepare the layout
     QVBoxLayout *vboxlayout = new QVBoxLayout;
     vboxlayout->setMargin(0);
     vboxlayout->setSpacing(0);
@@ -245,8 +260,9 @@ void MainWindow::showFps(double framesPerSecond)
     }
     else
     {
+        double speed = framesPerSecond / 25.0 * 100.0;
         TCHAR buffer[16];
-        _sntprintf(buffer, 16, _T("FPS: %05.2f"), framesPerSecond);
+        _sntprintf(buffer, 16, _T("%03.f%%"), speed);
         m_statusLabelFrames->setText(buffer);
     }
 }
@@ -320,7 +336,7 @@ void MainWindow::fileLoadBin()
     ::free(pBuffer);
 }
 
-void MainWindow::fileScreenshot()
+void MainWindow::saveScreenshot()
 {
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
@@ -330,6 +346,10 @@ void MainWindow::fileScreenshot()
 
     QString strFileName = dlg.selectedFiles().at(0);
 
+    saveScreenshot(strFileName);
+}
+void MainWindow::saveScreenshot(const QString& strFileName)
+{
     m_screen->saveScreenshot(strFileName);
 }
 
@@ -337,7 +357,7 @@ void MainWindow::helpAbout()
 {
     QMessageBox::about(this, _T("About"), _T(
         "QtBkBtl Version 1.0\n"
-        "Copyright (C) 2009-2010\n\n"
+        "Copyright (C) 2009-2011\n\n"
         "http://code.google.com/p/bkbtl/\n\n"
         "Author:\n"
         "Nikita Zimin (nzeemin@gmail.com)\n\n"
@@ -387,41 +407,14 @@ void MainWindow::emulatorReset()
 void MainWindow::emulatorColorScreen()
 {
     int newMode = m_screen->mode() ^ 1;
-
-    m_screen->setMode(newMode);
-    UpdateMenu();
-
-    //Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+    emulatorScreenMode(newMode);
 }
 
-void MainWindow::emulatorScreen0()
+void MainWindow::emulatorScreenMode(int mode)
 {
-    m_screen->setMode(0);
-    UpdateMenu();
+    if (mode < 0 || mode > 3) return;
 
-    //Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-}
-void MainWindow::emulatorScreen1()
-{
-    m_screen->setMode(1);
-    UpdateMenu();
-
-    //Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-}
-void MainWindow::emulatorScreen2()
-{
-    m_screen->setMode(2);
-    UpdateMenu();
-
-    //Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-}
-void MainWindow::emulatorScreen3()
-{
-    m_screen->setMode(3);
+    m_screen->setMode(mode);
     UpdateMenu();
 
     //Update centralWidget size
@@ -452,10 +445,6 @@ void MainWindow::setConfiguration(int configuration)
     Global_UpdateAllViews();
 }
 
-void MainWindow::emulatorFloppy0() { emulatorFloppy(0); }
-void MainWindow::emulatorFloppy1() { emulatorFloppy(1); }
-void MainWindow::emulatorFloppy2() { emulatorFloppy(2); }
-void MainWindow::emulatorFloppy3() { emulatorFloppy(3); }
 void MainWindow::emulatorFloppy(int slot)
 {
     if (g_pBoard->IsFloppyImageAttached(slot))

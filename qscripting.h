@@ -21,12 +21,30 @@ public:
 
 
 public slots:
+    /**
+      Resets the emulator.
+      */
     void reset();
+    /**
+      Runs the emulator for the given number of frames. One second is 25 frames.
+      */
     bool run(int frames);
+    /**
+      Sets breakpoint address for the next run() call.
+      */
     void setBreakpoint(quint16 address);
+    /**
+      Check if the emulator stopped on a breakpoint.
+      */
     bool isBreakpoint();
+    /**
+      Save screenshot to PNG file.
+      */
+    void saveScreenshot(QString filename);
+
     //TODO: Configurations
     //TODO: Disks
+    //TODO: Change screen mode
 
 private:
     QScriptWindow * m_window;

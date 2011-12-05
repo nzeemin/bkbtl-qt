@@ -33,26 +33,21 @@ public:
 
 public slots:
     void fileLoadBin();
-    void fileScreenshot();
+    void saveScreenshot();
+    void saveScreenshot(const QString&);
     void helpAbout();
     void helpAboutQt();
     void emulatorFrame();
     void emulatorRun();
     void emulatorReset();
     void emulatorColorScreen();
-    void emulatorScreen0();
-    void emulatorScreen1();
-    void emulatorScreen2();
-    void emulatorScreen3();
+    void emulatorScreenMode(int mode);
     void configurationBK0010Basic();
     void configurationBK0010Focal();
     void configurationBK0010Fdd();
     void configurationBK0011();
     void configurationBK0011Fdd();
-    void emulatorFloppy0();
-    void emulatorFloppy1();
-    void emulatorFloppy2();
-    void emulatorFloppy3();
+    void emulatorFloppy(int slot);
     void debugConsoleView();
     void debugDebugView();
     void debugDisasmView();
@@ -89,7 +84,6 @@ private:
     QLabel* m_statusLabelUptime;
 
     void setConfiguration(int configuration);
-    void emulatorFloppy(int slot);
 
 };
 
