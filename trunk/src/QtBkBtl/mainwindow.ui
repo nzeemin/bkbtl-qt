@@ -64,7 +64,6 @@
      <string>Help</string>
     </property>
     <addaction name="actionHelpAbout"/>
-    <addaction name="actionHelpAboutQt"/>
    </widget>
    <widget class="QMenu" name="menuConfiguration">
     <property name="title">
