@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <QApplication>
+#include <QCloseEvent>
 #include "main.h"
 #include "mainwindow.h"
 #include "Emulator.h"
@@ -66,11 +67,12 @@ QScriptWindow::QScriptWindow(QWidget * parent)
 {
     setWindowTitle("Script Running");
     setMinimumSize(300, 125);
-    setMaximumSize(360, 160);
+    setMaximumSize(400, 200);
     m_cancelButton.setText("Stop");
     m_vlayout.addWidget(&m_static, 0, 0);
     m_vlayout.addWidget(&m_cancelButton, 0, Qt::AlignHCenter);
     setLayout(&m_vlayout);
+    setModal(true);
 
     QObject::connect(&m_cancelButton, SIGNAL(clicked()), this, SLOT(cancelButtonPressed()));
 
@@ -135,6 +137,19 @@ void QScriptWindow::cancelButtonPressed()
     }
     else  // The script is not running
     {
-        reject();  // Close the window
+        QDialog::reject();  // Close the window
+    }
+}
+
+void QScriptWindow::reject()
+{
+    if (m_engine.isEvaluating())
+    {
+        m_aborted = true;
+        m_engine.abortEvaluation();
+    }
+    else  // The script is not running
+    {
+        QDialog::reject();
     }
 }
