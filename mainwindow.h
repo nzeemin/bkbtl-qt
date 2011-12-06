@@ -36,7 +36,6 @@ public slots:
     void saveScreenshot();
     void saveScreenshot(const QString&);
     void helpAbout();
-    void helpAboutQt();
     void emulatorFrame();
     void emulatorRun();
     void emulatorReset();

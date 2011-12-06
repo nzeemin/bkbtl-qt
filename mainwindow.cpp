@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // Assign signals
     QObject::connect(ui->actionFileLoadBin, SIGNAL(triggered()), this, SLOT(fileLoadBin()));
-    QObject::connect(ui->actionFileScreenshot, SIGNAL(triggered()), this, SLOT(fileScreenshot()));
+    QObject::connect(ui->actionFileScreenshot, SIGNAL(triggered()), this, SLOT(saveScreenshot()));
     QObject::connect(ui->actionScriptRun, SIGNAL(triggered()), this, SLOT(scriptRun()));
     QObject::connect(ui->actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
@@ -50,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
-    QObject::connect(ui->actionHelpAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 
     QSignalMapper* mapScreenMode = new QSignalMapper(this);
     mapScreenMode->setMapping(ui->actionEmulatorScreen0, 0);
@@ -363,11 +362,8 @@ void MainWindow::helpAbout()
         "Nikita Zimin (nzeemin@gmail.com)\n\n"
         "Special thanks to:\n"
         "Alexey Kisly\n\n"
-        "Build date:\t" __DATE__ __TIME__));
-}
-void MainWindow::helpAboutQt()
-{
-    QMessageBox::aboutQt(this, _T("About Qt"));
+        "Build date:\t" __DATE__ " " __TIME__ "\n"
+        "Qt version:\t" QT_VERSION_STR));
 }
 
 void MainWindow::emulatorFrame()
