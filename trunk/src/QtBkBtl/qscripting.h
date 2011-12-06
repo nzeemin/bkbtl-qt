@@ -63,6 +63,9 @@ public:
     void runScript(const QString & script);
     bool isAborted() const { return m_aborted; }
 
+public slots:
+    void reject();
+
 private slots:
     void cancelButtonPressed();
 
