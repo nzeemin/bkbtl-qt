@@ -27,7 +27,7 @@ class QEmulatorProcessor : public QObject
     Q_PROPERTY(ushort psw READ getPSW)
 
 public:
-    QEmulatorProcessor(QScriptEngine* engine, CProcessor* processor);
+    QEmulatorProcessor(CProcessor* processor);
 
 public slots:
     /// \brief Get the processor register value.
@@ -44,7 +44,6 @@ public slots:
     ushort getPSW();
 
 private:
-    QScriptEngine* m_engine;
     CProcessor* m_processor;
 };
 
@@ -58,7 +57,7 @@ class QEmulator : public QObject
     Q_PROPERTY(QObject* cpu READ getCPU)
 
 public:
-    QEmulator(QScriptWindow * window);
+    QEmulator(QScriptWindow * window, QScriptEngine * engine);
 
 public slots:
     /// \brief Resets the emulator.
@@ -89,6 +88,11 @@ public slots:
     /// \param addr memory address */
     uchar readByte(ushort addr);
 
+    /// \brief Disassemble one instruction at the given address.
+    /// \param addr memory address
+    /// \return Array of four: { address, instruction, arguments, instruction length }.
+    QScriptValue disassemble(ushort addr);
+
     //TODO: Configurations
     //TODO: Disks
     //TODO: Change screen mode
@@ -96,6 +100,7 @@ public slots:
 
 private:
     QScriptWindow * m_window;
+    QScriptEngine * m_engine;
     QEmulatorProcessor m_cpu;
 };
 

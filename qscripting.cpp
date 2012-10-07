@@ -5,15 +5,17 @@
 #include "mainwindow.h"
 #include "Emulator.h"
 #include "qscripting.h"
+#include "emubase/Emubase.h"
 #include "emubase/Processor.h"
 
 
 //////////////////////////////////////////////////////////////////////
 // QEmulator
 
-QEmulator::QEmulator(QScriptWindow * window) :
+QEmulator::QEmulator(QScriptWindow * window, QScriptEngine *engine) :
     m_window(window),
-    m_cpu(window->getEngine(), g_pBoard->GetCPU())
+    m_engine(engine),
+    m_cpu(g_pBoard->GetCPU())
 {
 }
 
@@ -83,12 +85,34 @@ uchar QEmulator::readByte(ushort addr)
     return (addr & 1) ? word & 0xff : (word >> 8) & 0xff;
 }
 
+QScriptValue QEmulator::disassemble(ushort addr)
+{
+    WORD buffer[4];
+    WORD current = addr;
+    for (int i = 0; i < 4; i++)
+    {
+        BOOL okValid;
+        buffer[i] = g_pBoard->GetWordView(current, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
+        current += 2;
+    }
+
+    TCHAR instr[8], args[32];
+    int instrlen = DisassembleInstruction(buffer, addr, instr, args);
+
+    QScriptValue list = m_engine->newArray(4);
+    list.setProperty(0, m_engine->newVariant(addr));
+    list.setProperty(1, m_engine->newVariant(instr));
+    list.setProperty(2, m_engine->newVariant(args));
+    list.setProperty(3, m_engine->newVariant(instrlen));
+    return list;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // QEmulatorProcessor
 
-QEmulatorProcessor::QEmulatorProcessor(QScriptEngine *engine, CProcessor *processor)
-    : m_engine(engine), m_processor(processor)
+QEmulatorProcessor::QEmulatorProcessor(CProcessor *processor)
+    : m_processor(processor)
 {
 }
 
@@ -121,7 +145,7 @@ QScriptWindow::QScriptWindow(QWidget * parent)
 
     QObject::connect(&m_cancelButton, SIGNAL(clicked()), this, SLOT(cancelButtonPressed()));
 
-    m_emulator = new QEmulator(this);
+    m_emulator = new QEmulator(this, &m_engine);
     m_engine.globalObject().setProperty("emulator", m_engine.newQObject(m_emulator));
     m_engine.globalObject().setProperty("emu", m_engine.newQObject(m_emulator));
 }
