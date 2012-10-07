@@ -5,10 +5,17 @@
 #include "mainwindow.h"
 #include "Emulator.h"
 #include "qscripting.h"
+#include "emubase/Processor.h"
 
 
 //////////////////////////////////////////////////////////////////////
 // QEmulator
+
+QEmulator::QEmulator(QScriptWindow * window) :
+    m_window(window),
+    m_cpu(window->getEngine(), g_pBoard->GetCPU())
+{
+}
 
 void QEmulator::reset()
 {
@@ -43,6 +50,11 @@ bool QEmulator::run(int frames)
     return result;
 }
 
+float QEmulator::getUptime()
+{
+    return Emulator_GetUptime();
+}
+
 void QEmulator::setBreakpoint(quint16 address)
 {
     Emulator_SetCPUBreakpoint((WORD)address);
@@ -55,6 +67,25 @@ bool QEmulator::isBreakpoint()
 void QEmulator::saveScreenshot(QString filename)
 {
     Global_getMainWindow()->saveScreenshot(filename);
+}
+
+
+//////////////////////////////////////////////////////////////////////
+// QEmulatorProcessor
+
+QEmulatorProcessor::QEmulatorProcessor(QScriptEngine *engine, CProcessor *processor)
+    : m_engine(engine), m_processor(processor)
+{
+}
+
+ushort QEmulatorProcessor::getReg(int regno)
+{
+    if (regno < 0 || regno > 7) return 0;
+    return m_processor->GetReg(regno);
+}
+ushort QEmulatorProcessor::getPSW()
+{
+    return m_processor->GetPSW();
 }
 
 

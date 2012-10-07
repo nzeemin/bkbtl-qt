@@ -34,6 +34,7 @@ void Emulator_Start();
 void Emulator_Stop();
 void Emulator_Reset();
 int Emulator_SystemFrame();
+float Emulator_GetUptime();  // BK uptime, in seconds
 
 void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei);
 void Emulator_PrepareScreenRGB32(void* pBits, int screenMode);
