@@ -418,6 +418,11 @@ int Emulator_SystemFrame()
     return 1;
 }
 
+float Emulator_GetUptime()
+{
+    return (float)m_dwEmulatorUptime + float(m_nUptimeFrameCount) / 25.0f;
+}
+
 // Update cached values after Run or Step
 void Emulator_OnUpdate()
 {
