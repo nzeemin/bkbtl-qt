@@ -69,6 +69,20 @@ void QEmulator::saveScreenshot(QString filename)
     Global_getMainWindow()->saveScreenshot(filename);
 }
 
+ushort QEmulator::readWord(ushort addr)
+{
+    BOOL okValid;
+    return g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
+}
+uchar QEmulator::readByte(ushort addr)
+{
+    BOOL okValid;
+    ushort word = g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
+    if (!okValid)
+        return 0;
+    return (addr & 1) ? word & 0xff : (word >> 8) & 0xff;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // QEmulatorProcessor
@@ -109,6 +123,7 @@ QScriptWindow::QScriptWindow(QWidget * parent)
 
     m_emulator = new QEmulator(this);
     m_engine.globalObject().setProperty("emulator", m_engine.newQObject(m_emulator));
+    m_engine.globalObject().setProperty("emu", m_engine.newQObject(m_emulator));
 }
 
 QScriptWindow::~QScriptWindow()

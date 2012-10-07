@@ -52,6 +52,8 @@ class QEmulator : public QObject
 {
     Q_OBJECT
 
+    /// \brief Get emulator uptime, in seconds, short for for getUptime().
+    Q_PROPERTY(float uptime READ getUptime)
     /// \brief Get CPU object, short form for getCPU().
     Q_PROPERTY(QObject* cpu READ getCPU)
 
@@ -80,9 +82,17 @@ public slots:
     /// \return QEmulatorProcessor object.
     QObject* getCPU() { return &m_cpu; }
 
+    /// \brief Read word from the processor memory.
+    /// \param addr memory address */
+    ushort readWord(ushort addr);
+    /// \brief Read byte from the processor memory.
+    /// \param addr memory address */
+    uchar readByte(ushort addr);
+
     //TODO: Configurations
     //TODO: Disks
     //TODO: Change screen mode
+    //TODO: Print message to debug console
 
 private:
     QScriptWindow * m_window;
