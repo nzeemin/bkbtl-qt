@@ -93,10 +93,13 @@ public slots:
     /// \return Array of four: { address, instruction, arguments, instruction length }.
     QScriptValue disassemble(ushort addr);
 
+    /// \brief Print a message to debug console window.
+    /// \param message The message to print.
+    void consolePrint(const QString& message);
+
     //TODO: Configurations
     //TODO: Disks
     //TODO: Change screen mode
-    //TODO: Print message to debug console
 
 private:
     QScriptWindow * m_window;

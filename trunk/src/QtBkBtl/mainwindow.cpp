@@ -544,3 +544,8 @@ void MainWindow::scriptRun()
     QScriptWindow window(this);
     window.runScript(strScript);
 }
+
+void MainWindow::consolePrint(const QString &message)
+{
+    m_console->printLine(message);
+}
