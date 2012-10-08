@@ -55,6 +55,7 @@ public slots:
     void debugStepInto();
     void debugStepOver();
     void scriptRun();
+    void consolePrint(const QString&);
 
 protected:
     void changeEvent(QEvent *);

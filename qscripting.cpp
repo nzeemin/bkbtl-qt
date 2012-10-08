@@ -107,6 +107,11 @@ QScriptValue QEmulator::disassemble(ushort addr)
     return list;
 }
 
+void QEmulator::consolePrint(const QString &message)
+{
+    Global_getMainWindow()->consolePrint(message);
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // QEmulatorProcessor
