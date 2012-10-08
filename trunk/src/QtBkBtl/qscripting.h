@@ -43,6 +43,17 @@ public slots:
     /// \brief Get the processor status word value.
     ushort getPSW();
 
+    /// \brief Put the given value to the given processor register.
+    /// \param regno 0..7 */
+    /// \param value Value to put in the processor register. */
+    void setReg(int regno, ushort value);
+    /// \brief Set the processor SP register value.
+    void setSP(ushort value) { setReg(6, value); }
+    /// \brief Set the processor PC register value.
+    void setPC(ushort value) { setReg(7, value); }
+    /// \brief Set the processor PSW register value.
+    void setPSW(ushort value);
+
 private:
     CProcessor* m_processor;
 };
