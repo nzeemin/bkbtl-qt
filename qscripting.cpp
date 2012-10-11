@@ -85,6 +85,47 @@ uchar QEmulator::readByte(ushort addr)
     return (addr & 1) ? word & 0xff : (word >> 8) & 0xff;
 }
 
+void QEmulator::keyScan(uchar bkscan, int timeout)
+{
+    g_pBoard->KeyboardEvent(bkscan, TRUE, FALSE);
+    run(timeout);
+    g_pBoard->KeyboardEvent(bkscan, FALSE, FALSE);
+    run(3);
+}
+
+const uchar arrChar2BkScan[128] = {
+/*       0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f  */
+/*0*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0030, 0000, 0012, 0000, 0000, 0000, 0000, 0000,
+/*1*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
+/*2*/    0040, 0041, 0042, 0043, 0044, 0045, 0046, 0047, 0050, 0051, 0052, 0053, 0054, 0055, 0056, 0057,
+/*3*/    0060, 0061, 0062, 0063, 0064, 0065, 0066, 0067, 0070, 0071, 0072, 0073, 0074, 0275, 0076, 0077,
+/*4*/    0100, 0101, 0102, 0103, 0104, 0105, 0106, 0107, 0110, 0111, 0112, 0113, 0114, 0115, 0116, 0117,
+/*5*/    0120, 0121, 0122, 0123, 0124, 0125, 0126, 0127, 0130, 0131, 0132, 0133, 0134, 0135, 0136, 0137,
+/*6*/    0140, 0141, 0142, 0143, 0144, 0145, 0146, 0147, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 0157,
+/*7*/    0160, 0161, 0162, 0163, 0164, 0165, 0166, 0167, 0170, 0171, 0172, 0173, 0174, 0175, 0176, 0000,
+};
+
+void QEmulator::keyChar(char ch, int timeout)
+{
+    if (ch < 0) return;  // ASCII only
+
+    uchar scan = arrChar2BkScan[(uchar)ch];
+    if (scan == 0)
+        return;
+    keyScan(scan, timeout);
+}
+
+void QEmulator::keyString(QString str)
+{
+    for (int i = 0; i < str.length(); i++)
+    {
+        char ch = str[i].toAscii();
+        keyChar(ch);
+        if (m_window->isAborted())
+            return;
+    }
+}
+
 QScriptValue QEmulator::disassemble(ushort addr)
 {
     WORD buffer[4];
