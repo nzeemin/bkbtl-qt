@@ -20,21 +20,21 @@ class QEmulatorProcessor : public QObject
     Q_OBJECT
 
     /// \brief Get the processor stack register value, short form for getSP().
-    Q_PROPERTY(ushort sp READ getSP)
+    Q_PROPERTY(ushort sp READ getSP WRITE setSP)
     /// \brief Get the processor PC register value, short form for getPC().
-    Q_PROPERTY(ushort pc READ getPC)
+    Q_PROPERTY(ushort pc READ getPC WRITE setPC)
     /// \brief Get the processor status word value, short form for getPSW().
-    Q_PROPERTY(ushort psw READ getPSW)
+    Q_PROPERTY(ushort psw READ getPSW WRITE setPSW)
 
 public:
     QEmulatorProcessor(CProcessor* processor);
 
 public slots:
     /// \brief Get the processor register value.
-    /// \param regno 0..7 */
+    /// \param regno 0..7
     ushort getReg(int regno);
     /// \brief Get the processor register value, short form for getReg().
-    /// \param regno 0..7 */
+    /// \param regno 0..7
     ushort r(int regno) { return getReg(regno); }
     /// \brief Get the processor stack register value.
     ushort getSP() { return getReg(6); }
@@ -44,8 +44,8 @@ public slots:
     ushort getPSW();
 
     /// \brief Put the given value to the given processor register.
-    /// \param regno 0..7 */
-    /// \param value Value to put in the processor register. */
+    /// \param regno 0..7
+    /// \param value Value to put in the processor register.
     void setReg(int regno, ushort value);
     /// \brief Set the processor SP register value.
     void setSP(ushort value) { setReg(6, value); }
@@ -93,16 +93,22 @@ public slots:
     QObject* getCPU() { return &m_cpu; }
 
     /// \brief Read word from the processor memory.
-    /// \param addr memory address */
+    /// \param addr memory address
     ushort readWord(ushort addr);
     /// \brief Read byte from the processor memory.
-    /// \param addr memory address */
+    /// \param addr memory address
     uchar readByte(ushort addr);
 
     /// \brief Disassemble one instruction at the given address.
     /// \param addr memory address
     /// \return Array of four: { address, instruction, arguments, instruction length }.
     QScriptValue disassemble(ushort addr);
+
+    /// \brief Press the key (by scan code), wait timeout frames, release the key, wait 3 frames.
+    /// \param ukncscan BK scan code
+    void keyScan(uchar bkscan, int timeout = 3);
+    /// \brief Type the key sequence.
+    void keyString(QString str);
 
     /// \brief Print a message to debug console window.
     /// \param message The message to print.
@@ -111,6 +117,9 @@ public slots:
     //TODO: Configurations
     //TODO: Disks
     //TODO: Change screen mode
+
+private:
+    void keyChar(char ch, int timeout = 3);
 
 private:
     QScriptWindow * m_window;
