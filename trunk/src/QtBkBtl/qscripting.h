@@ -86,7 +86,7 @@ public slots:
     bool isBreakpoint();
 
     /// \brief Save screenshot to PNG file.
-    void saveScreenshot(QString filename);
+    void saveScreenshot(const QString& filename);
 
     /// \brief Get CPU object.
     /// \return QEmulatorProcessor object.
@@ -108,11 +108,15 @@ public slots:
     /// \param ukncscan BK scan code
     void keyScan(uchar bkscan, int timeout = 3);
     /// \brief Type the key sequence.
-    void keyString(QString str);
+    void keyString(const QString& str);
 
     /// \brief Print a message to debug console window.
     /// \param message The message to print.
     void consolePrint(const QString& message);
+
+    /// \brief Load .BIN-file into the memory.
+    /// \param binfilename Path/name of the .bin file to load.
+    bool loadBin(const QString& binfilename);
 
     //TODO: Configurations
     //TODO: Disks
