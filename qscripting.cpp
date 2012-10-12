@@ -66,7 +66,7 @@ bool QEmulator::isBreakpoint()
     return Emulator_IsBreakpoint();
 }
 
-void QEmulator::saveScreenshot(QString filename)
+void QEmulator::saveScreenshot(const QString &filename)
 {
     Global_getMainWindow()->saveScreenshot(filename);
 }
@@ -115,7 +115,7 @@ void QEmulator::keyChar(char ch, int timeout)
     keyScan(scan, timeout);
 }
 
-void QEmulator::keyString(QString str)
+void QEmulator::keyString(const QString& str)
 {
     for (int i = 0; i < str.length(); i++)
     {
@@ -151,6 +151,52 @@ QScriptValue QEmulator::disassemble(ushort addr)
 void QEmulator::consolePrint(const QString &message)
 {
     Global_getMainWindow()->consolePrint(message);
+}
+
+bool QEmulator::loadBin(const QString &binfilename)
+{
+    // Open file for reading
+    QFile file(binfilename);
+    if (!file.open(QIODevice::ReadOnly))
+        return false;
+
+    // Load header
+    QByteArray dataHeader = file.read(4);
+    if (file.error())
+    {
+        file.close();
+        return false;
+    }
+
+    const WORD * pDataHeader = (const WORD *)dataHeader.constData();
+    WORD baseAddress = pDataHeader[0];
+    WORD dataSize = pDataHeader[1];
+    WORD memoryBytes = (dataSize + 1) & 0xfffe;
+
+    // Load file data
+    QByteArray data = file.readAll();
+    if (file.error())
+    {
+        file.close();
+        return false;
+    }
+    file.close();
+    if (data.length() != dataSize)
+        return false;
+
+    // Copy data to BK memory
+    WORD address = baseAddress;
+    const WORD * pData = (const WORD *)data.constData();
+    while (address < baseAddress + memoryBytes)
+    {
+        WORD value = *pData++;
+        g_pBoard->SetRAMWord(address, value);
+        address += 2;
+    }
+
+    data.clear();
+
+    return true;
 }
 
 

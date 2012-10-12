@@ -457,7 +457,7 @@ WORD Emulator_GetChangeRamStatus(WORD address)
 
 void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei)
 {
-    if (scrmode < 0 || scrmode >= sizeof(ScreenModeReference) / sizeof(ScreenModeStruct))
+    if (scrmode < 0 || scrmode >= int(sizeof(ScreenModeReference) / sizeof(ScreenModeStruct)))
         return;
     ScreenModeStruct* pinfo = ScreenModeReference + scrmode;
     *pwid = pinfo->width;

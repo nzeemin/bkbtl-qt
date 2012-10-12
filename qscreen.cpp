@@ -8,6 +8,7 @@ QScreen::QScreen(QWidget *parent) :
 {
     setFocusPolicy(Qt::StrongFocus);
 
+    m_image = 0;
     m_mode = 0;
 
     createDisplay();
