@@ -83,7 +83,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         DrawOctalValue(painter, 2 * cxChar, y, address);
 
         int x = 10 * cxChar;
-        //TCHAR wchars[16];
+        ushort wchars[16];
 
         for (int j = 0; j < 8; j++) {  // Draw words as octal value
             // Get word from memory
@@ -102,24 +102,25 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
                 DrawOctalValue(painter, x, y, word);
             }
 
-//            // Prepare characters to draw at right
-//            BYTE ch1 = LOBYTE(word);
-//            TCHAR wch1 = Translate_BK_Unicode(ch1);
-//            if (ch1 < 32) wch1 = _T('·');
-//            wchars[j * 2] = wch1;
-//            BYTE ch2 = HIBYTE(word);
-//            TCHAR wch2 = Translate_BK_Unicode(ch2);
-//            if (ch2 < 32) wch2 = _T('·');
-//            wchars[j * 2 + 1] = wch2;
+            // Prepare characters to draw at right
+            BYTE ch1 = LOBYTE(word);
+            ushort wch1 = Translate_BK_Unicode(ch1);
+            if (ch1 < 32) wch1 = 0x00b7;
+            wchars[j * 2] = wch1;
+            BYTE ch2 = HIBYTE(word);
+            ushort wch2 = Translate_BK_Unicode(ch2);
+            if (ch2 < 32) wch2 = 0x00b7;
+            wchars[j * 2 + 1] = wch2;
 
             address += 2;
             x += 7 * cxChar;
         }
         painter.setPen(colorText);
 
-//        // Draw characters at right
-//        int xch = x + cxChar;
-//        painter.drawText(hdc, xch, y, wchars);
+        // Draw characters at right
+        int xch = x + cxChar;
+        QString wstr = QString::fromUtf16(wchars, 16);
+        painter.drawText(xch, y, wstr);
 
         y += cyLine;
         if (y > this->height()) break;
