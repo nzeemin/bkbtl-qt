@@ -139,6 +139,8 @@ void DrawBinaryValue(QPainter &painter, int x, int y, WORD value);
 BOOL ParseOctalValue(LPCTSTR text, WORD* pValue);
 BOOL ParseOctalValue(const QString &text, WORD* pValue);
 
+WORD Translate_BK_Unicode(BYTE ch);
+
 
 //////////////////////////////////////////////////////////////////////
 #endif // COMMON_H
