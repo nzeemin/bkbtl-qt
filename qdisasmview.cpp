@@ -14,6 +14,8 @@ QDisasmView::QDisasmView()
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
     this->setMinimumSize(cxChar * 55, cyLine * 10 + cyLine / 2);
+
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 void QDisasmView::updateData()
@@ -21,6 +23,15 @@ void QDisasmView::updateData()
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
     ASSERT(pDisasmPU != NULL);
     m_wDisasmBaseAddr = pDisasmPU->GetPC();
+}
+
+void QDisasmView::focusInEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
+}
+void QDisasmView::focusOutEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
 }
 
 void QDisasmView::paintEvent(QPaintEvent * /*event*/)
@@ -32,17 +43,32 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
+    QFontMetrics fontmetrics(font);
+    int cyLine = fontmetrics.height();
 
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
     ASSERT(pDisasmPU != NULL);
 
     // Draw disasseble for the current processor
     WORD prevPC = g_wEmulatorPrevCpuPC;
-    DrawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC);
+    int yFocus = DrawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC);
+
+    // Draw focus rect
+    if (hasFocus())
+    {
+        QStyleOptionFocusRect option;
+        option.initFrom(this);
+        option.state |= QStyle::State_KeyboardFocusChange;
+        option.backgroundColor = QColor(Qt::gray);
+        option.rect = QRect(0, yFocus - cyLine + 1, 1000, cyLine);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
+    }
 }
 
-void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned short base, unsigned short previous)
+int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned short base, unsigned short previous)
 {
+    int result = -1;
+
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
@@ -94,7 +120,10 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
 
         // Current position
         if (address == current)
+        {
             painter.drawText(1 * cxChar, y, _T("  >"));
+            result = y;  // Remember line for the focus rect
+        }
         if (address == proccurrent)
         {
             BOOL okPCchanged = proccurrent != previous;
@@ -159,4 +188,6 @@ void QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned
     }
 
     m_wDisasmNextBaseAddr = wNextBaseAddr;
+
+    return result;
 }

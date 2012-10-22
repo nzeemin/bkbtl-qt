@@ -16,12 +16,14 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void focusInEvent(QFocusEvent *);
+    void focusOutEvent(QFocusEvent *);
 
 private:
     unsigned short m_wDisasmBaseAddr;
     unsigned short m_wDisasmNextBaseAddr;
 
-    void DrawDisassemble(QPainter& painter, CProcessor* pProc, unsigned short base, unsigned short previous);
+    int DrawDisassemble(QPainter& painter, CProcessor* pProc, unsigned short base, unsigned short previous);
 };
 
 #endif // QDISASMVIEW_H

@@ -5,9 +5,11 @@
 #include "qmemoryview.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
+#include "qdialogs.h"
 
 QMemoryView::QMemoryView()
 {
+    m_ByteMode = false;
     m_wBaseAddress = 0;
     m_cyLineMemory = 0;
     m_nPageSize = 0;
@@ -26,6 +28,8 @@ QMemoryView::QMemoryView()
     m_scrollbar->setRange(0, 65536 - 16);
     m_scrollbar->setSingleStep(16);
     QObject::connect(m_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scrollValueChanged()));
+
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 QMemoryView::~QMemoryView()
@@ -33,8 +37,60 @@ QMemoryView::~QMemoryView()
     delete m_scrollbar;
 }
 
+void QMemoryView::updateScrollPos()
+{
+    m_scrollbar->setValue(m_wBaseAddress);
+}
+
 void QMemoryView::updateData()
 {
+}
+
+void QMemoryView::focusInEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
+}
+void QMemoryView::focusOutEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
+}
+
+void QMemoryView::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu(this);
+    menu.addAction("Go to Address...", this, SLOT(gotoAddress()));
+    menu.addSeparator();
+    menu.addAction("Words / Bytes", this, SLOT(changeWordByteMode()));
+
+    menu.exec(event->globalPos());
+}
+
+void QMemoryView::changeWordByteMode()
+{
+    m_ByteMode = !m_ByteMode;
+    repaint();
+}
+
+void QMemoryView::scrollBy(uint16_t delta)
+{
+    if (delta == 0) return;
+
+    m_wBaseAddress = (WORD)(m_wBaseAddress + delta);
+    m_wBaseAddress = m_wBaseAddress & ((WORD)~15);
+    repaint();
+    updateScrollPos();
+}
+
+void QMemoryView::gotoAddress()
+{
+    WORD value = m_wBaseAddress;
+    QInputOctalDialog dialog(this, "Go To Address", "Address (octal):", &value);
+    if (dialog.exec() == QDialog::Rejected) return;
+
+    // Scroll to the address
+    m_wBaseAddress = value & ((WORD)~15);
+    repaint();
+    updateScrollPos();
 }
 
 void QMemoryView::resizeEvent(QResizeEvent *)
@@ -47,7 +103,7 @@ void QMemoryView::resizeEvent(QResizeEvent *)
 void QMemoryView::scrollValueChanged()
 {
     int value = m_scrollbar->value();
-    m_wBaseAddress = (unsigned short)value & ~15;
+    m_wBaseAddress = (unsigned short)value & ((WORD)~15);
     this->repaint();
 }
 
@@ -71,6 +127,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
     m_cyLineMemory = cyLine;
 
+    TCHAR buffer[7];
     const TCHAR* ADDRESS_LINE = _T(" address  0      2      4      6      10     12     14     16");
     painter.drawText(0, cyLine, ADDRESS_LINE);
 
@@ -99,7 +156,15 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
             {
                 painter.setPen(wChanged != 0 ? Qt::red : colorText);
-                DrawOctalValue(painter, x, y, word);
+                if (m_ByteMode)
+                {
+                    PrintOctalValue(buffer, (word & 0xff));
+                    painter.drawText(x, y, buffer + 3);
+                    PrintOctalValue(buffer, (word >> 8));
+                    painter.drawText(x + 3 * cxChar + cxChar / 2, y, buffer + 3);
+                }
+                else
+                    DrawOctalValue(painter, x, y, word);
             }
 
             // Prepare characters to draw at right
@@ -124,5 +189,59 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
         y += cyLine;
         if (y > this->height()) break;
+    }  // Draw lines
+
+    // Draw focus rect
+    if (hasFocus())
+    {
+        QStyleOptionFocusRect option;
+        option.initFrom(this);
+        option.state |= QStyle::State_KeyboardFocusChange;
+        option.backgroundColor = QColor(Qt::gray);
+        option.rect = QRect(0, cyLine + 1, 85 * cxChar, cyLine * m_nPageSize);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
+}
+
+void QMemoryView::keyPressEvent(QKeyEvent *event)
+{
+    switch (event->key())
+    {
+    case Qt::Key_G:
+        event->accept();
+        gotoAddress();
+        break;
+    case Qt::Key_B:
+        event->accept();
+        changeWordByteMode();
+        break;
+
+    case Qt::Key_Up:
+        event->accept();
+        scrollBy(-16);
+        break;
+    case Qt::Key_Down:
+        event->accept();
+        scrollBy(16);
+        break;
+
+    case Qt::Key_PageUp:
+        event->accept();
+        scrollBy(-m_nPageSize * 16);
+        break;
+    case Qt::Key_PageDown:
+        event->accept();
+        scrollBy(m_nPageSize * 16);
+        break;
+    }
+}
+
+void QMemoryView::wheelEvent(QWheelEvent * event)
+{
+    if (event->orientation() == Qt::Horizontal)
+        return;
+    event->accept();
+
+    int steps = -event->delta() / 60;
+    scrollBy(steps * 16);
 }
