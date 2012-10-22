@@ -136,6 +136,17 @@ void PrintOctalValue(TCHAR* buffer, WORD value)
     }
     buffer[6] = 0;
 }
+// Print hex 16-bit value to buffer
+// buffer size at least 5 characters
+void PrintHexValue(TCHAR* buffer, WORD value)
+{
+    for (int p = 0; p < 4; p++) {
+        int digit = value & 15;
+        buffer[3 - p] = (digit < 10) ? _T('0') + (TCHAR)digit : _T('a') + (TCHAR)(digit - 10);
+        value = (value >> 4);
+    }
+    buffer[4] = 0;
+}
 // Print binary 16-bit value to buffer
 // buffer size at least 17 characters
 void PrintBinaryValue(TCHAR* buffer, WORD value)
@@ -153,7 +164,12 @@ void DrawOctalValue(QPainter &painter, int x, int y, WORD value)
     PrintOctalValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
-
+void DrawHexValue(QPainter &painter, int x, int y, WORD value)
+{
+    TCHAR buffer[7];
+    PrintHexValue(buffer, value);
+    painter.drawText(x, y, buffer);
+}
 void DrawBinaryValue(QPainter &painter, int x, int y, WORD value)
 {
     TCHAR buffer[17];

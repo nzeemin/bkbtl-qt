@@ -17,6 +17,8 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event);
+    void focusInEvent(QFocusEvent *);
+    void focusOutEvent(QFocusEvent *);
 
 private:
     unsigned short m_wDebugCpuR[9];  // Old register values - R0..R7, PSW
