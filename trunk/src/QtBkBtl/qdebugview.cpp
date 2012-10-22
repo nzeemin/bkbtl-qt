@@ -17,6 +17,8 @@ QDebugView::QDebugView(QWidget *parent) :
     int cyLine = fontmetrics.height();
     this->setMinimumSize(cxChar * 55, cyLine * 14 + cyLine / 2);
     this->setMaximumHeight(cyLine * 14 + cyLine / 2);
+
+    setFocusPolicy(Qt::ClickFocus);
 }
 
 void QDebugView::updateData()
@@ -33,6 +35,15 @@ void QDebugView::updateData()
     WORD pswCPU = pCPU->GetPSW();
     m_okDebugCpuRChanged[8] = (m_wDebugCpuR[8] != pswCPU);
     m_wDebugCpuR[8] = pswCPU;
+}
+
+void QDebugView::focusInEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
+}
+void QDebugView::focusOutEvent(QFocusEvent *)
+{
+    repaint();  // Need to draw focus rect
 }
 
 void QDebugView::paintEvent(QPaintEvent * /*event*/)
@@ -53,14 +64,25 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     WORD* arrR = m_wDebugCpuR;
     BOOL* arrRChanged = m_okDebugCpuRChanged;
 
-    painter.drawText(cxChar * 1, 2 * cyLine, _T("CPU"));
+    //painter.drawText(cxChar * 1, 2 * cyLine, _T("CPU"));
 
-    drawProcessor(painter, pDebugPU, cxChar * 6, 1 * cyLine, arrR, arrRChanged);
+    drawProcessor(painter, pDebugPU, cxChar * 2, 1 * cyLine, arrR, arrRChanged);
 
     // Draw stack
     drawMemoryForRegister(painter, 6, pDebugPU, 35 * cxChar, 1 * cyLine);
 
     drawPorts(painter, 57 * cxChar, 1 * cyLine);
+
+    // Draw focus rect
+    if (hasFocus())
+    {
+        QStyleOptionFocusRect option;
+        option.initFrom(this);
+        option.state |= QStyle::State_KeyboardFocusChange;
+        option.backgroundColor = QColor(Qt::gray);
+        option.rect = this->rect();
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
+    }
 }
 
 void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, WORD *arrR, BOOL *arrRChanged)
@@ -70,7 +92,8 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     int cyLine = fontmetrics.height();
     QColor colorText = painter.pen().color();
 
-    painter.drawRect(x - cxChar, y - cyLine/2, 28 * cxChar, cyLine * 13);
+    painter.setPen(QColor(Qt::gray));
+    painter.drawRect(x - cxChar, y - cyLine/2, 33 * cxChar, cyLine * 13 + cyLine/2);
 
     // Registers
     for (int r = 0; r < 8; r++) {
@@ -81,7 +104,8 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
 
         WORD value = arrR[r]; //pProc->GetReg(r);
         DrawOctalValue(painter, x + cxChar * 3, y + (1 + r) * cyLine, value);
-        DrawBinaryValue(painter, x + cxChar * 10, y + (1 + r) * cyLine, value);
+        DrawHexValue(painter, x + cxChar * 10, y + (1 + r) * cyLine, value);
+        DrawBinaryValue(painter, x + cxChar * 15, y + (1 + r) * cyLine, value);
     }
     painter.setPen(colorText);
 
@@ -90,8 +114,9 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     painter.drawText(x, y + 10 * cyLine, _T("PS"));
     WORD psw = arrR[8]; // pProc->GetPSW();
     DrawOctalValue(painter, x + cxChar * 3, y + 10 * cyLine, psw);
-    painter.drawText(x + cxChar * 10, y + 9 * cyLine, _T("       HP  TNZVC"));
-    DrawBinaryValue(painter, x + cxChar * 10, y + 10 * cyLine, psw);
+    DrawHexValue(painter, x + cxChar * 10, y + 10 * cyLine, psw);
+    painter.drawText(x + cxChar * 15, y + 9 * cyLine, _T("       HP  TNZVC"));
+    DrawBinaryValue(painter, x + cxChar * 15, y + 10 * cyLine, psw);
 
     painter.setPen(colorText);
 

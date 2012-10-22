@@ -135,6 +135,7 @@ void Common_Cleanup();
 void PrintOctalValue(TCHAR* buffer, WORD value);
 void PrintBinaryValue(TCHAR* buffer, WORD value);
 void DrawOctalValue(QPainter &painter, int x, int y, WORD value);
+void DrawHexValue(QPainter &painter, int x, int y, WORD value);
 void DrawBinaryValue(QPainter &painter, int x, int y, WORD value);
 BOOL ParseOctalValue(LPCTSTR text, WORD* pValue);
 BOOL ParseOctalValue(const QString &text, WORD* pValue);
