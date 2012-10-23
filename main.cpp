@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     if (!Emulator_InitConfiguration((BKConfiguration)Global_getSettings()->value("Configuration", BK_CONF_BK0010_BASIC).toInt()))
         return 255;
 
-    w.restoreSettings();
+    w.restoreSettings(Global_getSettings());
 
     w.show();
 

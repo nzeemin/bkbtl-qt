@@ -292,8 +292,8 @@ void CMotherboard::SetTimerReload(WORD val)	 // Sets timer reload value
 void CMotherboard::SetTimerState(WORD val) // Sets timer state
 {
     //DebugPrintFormat(_T("SetTimerState %06o\r\n"), val);
-    if ((val & 1) && ((m_timerflags & 1) == 0) ||
-        ((val & 16) == 0) && ((m_timerflags & 16) == 1))
+    if (((val & 1) && ((m_timerflags & 1) == 0)) ||
+        (((val & 16) == 0) && ((m_timerflags & 16) == 1)))
         m_timer = m_timerreload;
 
     m_timerflags = 0177400 | val;
