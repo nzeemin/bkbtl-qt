@@ -12,6 +12,7 @@ class QMemoryView;
 class QTeletypeView;
 class QTapeView;
 class QLabel;
+class QSettings;
 
 namespace Ui {
     class MainWindow;
@@ -26,7 +27,8 @@ public:
 public:
     void UpdateMenu();
     void UpdateAllViews();
-    void restoreSettings();
+    void saveSettings(QSettings *);
+    void restoreSettings(QSettings *);
     void printToTeletype(const QString&);
     void showUptime(int uptimeMillisec);
     void showFps(double framesPerSecond);

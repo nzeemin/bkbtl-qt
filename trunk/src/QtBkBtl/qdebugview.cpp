@@ -19,6 +19,9 @@ QDebugView::QDebugView(QWidget *parent) :
     this->setMaximumHeight(cyLine * 14 + cyLine / 2);
 
     setFocusPolicy(Qt::ClickFocus);
+
+    memset(m_wDebugCpuR, 255, sizeof(m_wDebugCpuR));
+    memset(m_okDebugCpuRChanged, 1, sizeof(m_okDebugCpuRChanged));
 }
 
 void QDebugView::updateData()
@@ -63,8 +66,6 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     ASSERT(pDebugPU != NULL);
     WORD* arrR = m_wDebugCpuR;
     BOOL* arrRChanged = m_okDebugCpuRChanged;
-
-    //painter.drawText(cxChar * 1, 2 * cyLine, _T("CPU"));
 
     drawProcessor(painter, pDebugPU, cxChar * 2, 1 * cyLine, arrR, arrRChanged);
 
@@ -148,7 +149,7 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
                 current + idx * 2 - 14, pProc->IsHaltMode(), okExec, &addrtype);
     }
 
-    WORD address = current - 10;
+    WORD address = current - 14;
     for (int index = 0; index < 14; index++) {  // Рисуем строки
         // Адрес
         DrawOctalValue(painter, x + 4 * cxChar, y, address);

@@ -124,12 +124,12 @@
    <addaction name="actionEmulatorRun"/>
    <addaction name="actionEmulatorReset"/>
    <addaction name="separator"/>
-   <addaction name="actionEmulatorColorScreen"/>
-   <addaction name="separator"/>
    <addaction name="actionDrivesFloppy0"/>
    <addaction name="actionDrivesFloppy1"/>
    <addaction name="actionDrivesFloppy2"/>
    <addaction name="actionDrivesFloppy3"/>
+   <addaction name="separator"/>
+   <addaction name="actionEmulatorColorScreen"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionFileExit">

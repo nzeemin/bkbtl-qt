@@ -163,26 +163,30 @@ void MainWindow::changeEvent(QEvent *e)
 
 void MainWindow::closeEvent(QCloseEvent *)
 {
-    Global_getSettings()->setValue("MainWindow/Geometry", saveGeometry());
-    Global_getSettings()->setValue("MainWindow/WindowState", saveState());
-
-    Global_getSettings()->setValue("MainWindow/ConsoleView", m_dockConsole->isVisible());
-    Global_getSettings()->setValue("MainWindow/DebugView", m_dockDebug->isVisible());
-    Global_getSettings()->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
-    Global_getSettings()->setValue("MainWindow/MemoryView", m_dockMemory->isVisible());
-    Global_getSettings()->setValue("MainWindow/TeletypeView", m_dockTeletype->isVisible());
+    saveSettings(Global_getSettings());
 }
 
-void MainWindow::restoreSettings()
+void MainWindow::saveSettings(QSettings * settings)
 {
-    restoreGeometry(Global_getSettings()->value("MainWindow/Geometry").toByteArray());
-    restoreState(Global_getSettings()->value("MainWindow/WindowState").toByteArray());
+    settings->setValue("MainWindow/Geometry", saveGeometry());
+    settings->setValue("MainWindow/WindowState", saveState());
 
-    m_dockConsole->setVisible(Global_getSettings()->value("MainWindow/ConsoleView", false).toBool());
-    m_dockDebug->setVisible(Global_getSettings()->value("MainWindow/DebugView", false).toBool());
-    m_dockDisasm->setVisible(Global_getSettings()->value("MainWindow/DisasmView", false).toBool());
-    m_dockMemory->setVisible(Global_getSettings()->value("MainWindow/MemoryView", false).toBool());
-    m_dockTeletype->setVisible(Global_getSettings()->value("MainWindow/TeletypeView", false).toBool());
+    settings->setValue("MainWindow/ConsoleView", m_dockConsole->isVisible());
+    settings->setValue("MainWindow/DebugView", m_dockDebug->isVisible());
+    settings->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
+    settings->setValue("MainWindow/MemoryView", m_dockMemory->isVisible());
+    settings->setValue("MainWindow/TeletypeView", m_dockTeletype->isVisible());
+}
+void MainWindow::restoreSettings(QSettings * settings)
+{
+    restoreGeometry(settings->value("MainWindow/Geometry").toByteArray());
+    restoreState(settings->value("MainWindow/WindowState").toByteArray());
+
+    m_dockConsole->setVisible(settings->value("MainWindow/ConsoleView", false).toBool());
+    m_dockDebug->setVisible(settings->value("MainWindow/DebugView", false).toBool());
+    m_dockDisasm->setVisible(settings->value("MainWindow/DisasmView", false).toBool());
+    m_dockMemory->setVisible(settings->value("MainWindow/MemoryView", false).toBool());
+    m_dockTeletype->setVisible(settings->value("MainWindow/TeletypeView", false).toBool());
 }
 
 void MainWindow::UpdateMenu()
@@ -356,7 +360,7 @@ void MainWindow::helpAbout()
 {
     QMessageBox::about(this, _T("About"), _T(
         "QtBkBtl Version 1.0\n"
-        "Copyright (C) 2009-2011\n\n"
+        "Copyright (C) 2009-2012\n\n"
         "http://code.google.com/p/bkbtl/\n\n"
         "Author:\n"
         "Nikita Zimin (nzeemin@gmail.com)\n\n"
