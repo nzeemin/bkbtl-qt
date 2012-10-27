@@ -27,7 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setWindowTitle(_T("BK Back to Life"));
+    this->setWindowTitle("BK Back to Life");
 
     // Assign signals
     QObject::connect(ui->actionFileLoadBin, SIGNAL(triggered()), this, SLOT(fileLoadBin()));
@@ -94,23 +94,23 @@ MainWindow::MainWindow(QWidget *parent) :
     int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
     ui->centralWidget->setMaximumWidth(maxwid);
 
-    m_dockDebug = new QDockWidget(_T("Processor"));
-    m_dockDebug->setObjectName(_T("dockDebug"));
+    m_dockDebug = new QDockWidget("Processor");
+    m_dockDebug->setObjectName("dockDebug");
     m_dockDebug->setWidget(m_debug);
-    m_dockDisasm = new QDockWidget(_T("Disassemble"));
-    m_dockDisasm->setObjectName(_T("dockDisasm"));
+    m_dockDisasm = new QDockWidget("Disassemble");
+    m_dockDisasm->setObjectName("dockDisasm");
     m_dockDisasm->setWidget(m_disasm);
-    m_dockMemory = new QDockWidget(_T("Memory"));
-    m_dockMemory->setObjectName(_T("dockMemory"));
+    m_dockMemory = new QDockWidget("Memory");
+    m_dockMemory->setObjectName("dockMemory");
     m_dockMemory->setWidget(m_memory);
-    m_dockConsole = new QDockWidget(_T("Debug Console"));
-    m_dockConsole->setObjectName(_T("dockConsole"));
+    m_dockConsole = new QDockWidget("Debug Console");
+    m_dockConsole->setObjectName("dockConsole");
     m_dockConsole->setWidget(m_console);
-    m_dockTeletype = new QDockWidget(_T("Teletype"));
-    m_dockTeletype->setObjectName(_T("dockTeletype"));
+    m_dockTeletype = new QDockWidget("Teletype");
+    m_dockTeletype->setObjectName("dockTeletype");
     m_dockTeletype->setWidget(m_teletype);
-    m_dockTape = new QDockWidget(_T("Tape"));
-    m_dockTape->setObjectName(_T("dockTape"));
+    m_dockTape = new QDockWidget("Tape");
+    m_dockTape->setObjectName("dockTape");
     m_dockTape->setWidget(m_tape);
 
     this->setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
@@ -198,7 +198,7 @@ void MainWindow::UpdateMenu()
     ui->actionEmulatorScreen2->setChecked(m_screen->mode() == 2);
     ui->actionEmulatorScreen3->setChecked(m_screen->mode() == 3);
     ui->actionEmulatorColorScreen->setIcon(QIcon(
-            (m_screen->mode() & 1) ? _T(":/images/iconScreenColor.png") : _T(":/images/iconScreenBW.png") ));
+            (m_screen->mode() & 1) ? ":/images/iconScreenColor.png" : ":/images/iconScreenBW.png" ));
 
     ui->actionConfBK10Basic->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_BASIC);
     ui->actionConfBK10Focal->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FOCAL);
@@ -207,13 +207,13 @@ void MainWindow::UpdateMenu()
     ui->actionConfBK11Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011_FDD);
 
     ui->actionDrivesFloppy0->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(0) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+            g_pBoard->IsFloppyImageAttached(0) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
     ui->actionDrivesFloppy1->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(1) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+            g_pBoard->IsFloppyImageAttached(1) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
     ui->actionDrivesFloppy2->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(2) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+            g_pBoard->IsFloppyImageAttached(2) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
     ui->actionDrivesFloppy3->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(3) ? _T(":/images/iconFloppy.png") : _T(":/images/iconFloppySlot.png") ));
+            g_pBoard->IsFloppyImageAttached(3) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
 
     ui->actionDebugConsoleView->setChecked(m_console->isVisible());
     ui->actionDebugDebugView->setChecked(m_dockDebug->isVisible());
@@ -251,7 +251,7 @@ void MainWindow::showUptime(int uptimeMillisec)
     int hours   = (int) (uptimeMillisec / 3600 % 60);
 
     TCHAR buffer[20];
-    _sntprintf(buffer, 20, _T("Uptime: %02d:%02d:%02d"), hours, minutes, seconds);
+    _sntprintf(buffer, 20, "Uptime: %02d:%02d:%02d", hours, minutes, seconds);
 
     m_statusLabelUptime->setText(buffer);
 }
@@ -259,13 +259,13 @@ void MainWindow::showFps(double framesPerSecond)
 {
     if (framesPerSecond <= 0)
     {
-        m_statusLabelFrames->setText(_T(""));
+        m_statusLabelFrames->setText("");
     }
     else
     {
         double speed = framesPerSecond / 25.0 * 100.0;
         TCHAR buffer[16];
-        _sntprintf(buffer, 16, _T("%03.f%%"), speed);
+        _sntprintf(buffer, 16, "%03.f%%", speed);
         m_statusLabelFrames->setText(buffer);
     }
 }
@@ -274,7 +274,7 @@ void MainWindow::fileLoadBin()
 {
     // Open file dialog
     QFileDialog dlg;
-    dlg.setNameFilter(_T("BK binary images (*.bin)"));
+    dlg.setNameFilter("BK binary images (*.bin)");
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -285,7 +285,7 @@ void MainWindow::fileLoadBin()
     FILE* fpBin = ::_tfopen(sFileName, _T("rb"));
     if (fpBin == NULL)
     {
-        AlertWarning(_T("Failed to open file."));
+        AlertWarning("Failed to open file.");
         return;
     }
     unsigned char bufHeader[4];
@@ -293,7 +293,7 @@ void MainWindow::fileLoadBin()
     if (dwBytesRead != 4)
     {
         ::fclose(fpBin);
-        AlertWarning(_T("Failed to read file."));
+        AlertWarning("Failed to read file.");
         return;
     }
 
@@ -304,7 +304,7 @@ void MainWindow::fileLoadBin()
     // Ask user
     TCHAR bufMessage[100];
     _sntprintf(bufMessage, 100,
-        _T("Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?"),
+        "Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?",
         baseAddress, dataSize);
     if (!AlertOkCancel(bufMessage))
     {
@@ -320,7 +320,7 @@ void MainWindow::fileLoadBin()
     if (dwBytesRead != bytesToRead)
     {
         ::fclose(fpBin);
-        AlertWarning(_T("Failed to read file."));
+        AlertWarning("Failed to read file.");
         return;
     }
 
@@ -343,7 +343,7 @@ void MainWindow::saveScreenshot()
 {
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilter(_T("PNG images (*.png)"));
+    dlg.setNameFilter("PNG images (*.png)");
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -358,7 +358,7 @@ void MainWindow::saveScreenshot(const QString& strFileName)
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, _T("About"), _T(
+    QMessageBox::about(this, "About",
         "QtBkBtl Version 1.0\n"
         "Copyright (C) 2009-2012\n\n"
         "http://code.google.com/p/bkbtl/\n\n"
@@ -367,12 +367,14 @@ void MainWindow::helpAbout()
         "Special thanks to:\n"
         "Alexey Kisly\n\n"
         "Build date:\t" __DATE__ " " __TIME__ "\n"
-        "Qt version:\t" QT_VERSION_STR));
+        "Qt version:\t" QT_VERSION_STR);
 }
 
 void MainWindow::emulatorFrame()
 {
     if (!g_okEmulatorRunning)
+        return;
+    if (!isActiveWindow())
         return;
 
     if (Emulator_IsBreakpoint())
@@ -387,12 +389,12 @@ void MainWindow::emulatorRun()
 {
     if (g_okEmulatorRunning)
     {
-        this->setWindowTitle(_T("BK Back to Life"));
+        this->setWindowTitle("BK Back to Life");
         Emulator_Stop();
     }
     else
     {
-        this->setWindowTitle(_T("BK Back to Life [run]"));
+        this->setWindowTitle("BK Back to Life [run]");
         Emulator_Start();
     }
 }
@@ -433,7 +435,7 @@ void MainWindow::setConfiguration(int configuration)
         return;
 
     // Ask user -- we have to reset machine to change configuration
-    if (!AlertOkCancel(_T("Reset required after configuration change.\nAre you agree?")))
+    if (!AlertOkCancel("Reset required after configuration change.\nAre you agree?"))
         return;
 
     // Change configuration
@@ -455,7 +457,7 @@ void MainWindow::emulatorFloppy(int slot)
     else
     {
         QFileDialog dlg;
-        dlg.setNameFilter(_T("BK floppy images (*.img *.bkd)"));
+        dlg.setNameFilter("BK floppy images (*.img *.bkd)");
         if (dlg.exec() == QDialog::Rejected)
             return;
 
@@ -464,7 +466,7 @@ void MainWindow::emulatorFloppy(int slot)
 
         if (! g_pBoard->AttachFloppyImage(slot, sFileName))
         {
-            AlertWarning(_T("Failed to attach floppy image."));
+            AlertWarning("Failed to attach floppy image.");
             return;
         }
 
@@ -513,12 +515,12 @@ void MainWindow::debugTeletypeView()
 void MainWindow::debugStepInto()
 {
     if (!g_okEmulatorRunning)
-        m_console->execConsoleCommand(_T("s"));
+        m_console->execConsoleCommand("s");
 }
 void MainWindow::debugStepOver()
 {
     if (!g_okEmulatorRunning)
-        m_console->execConsoleCommand(_T("so"));
+        m_console->execConsoleCommand("so");
 }
 
 void MainWindow::printToTeletype(const QString & message)
@@ -536,7 +538,7 @@ void MainWindow::scriptRun()
 
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptOpen);
-    dlg.setNameFilter(_T("Script files (*.js)"));
+    dlg.setNameFilter("Script files (*.js)");
     if (dlg.exec() == QDialog::Rejected)
         return;
 

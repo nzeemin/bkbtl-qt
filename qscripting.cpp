@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <QApplication>
 #include <QCloseEvent>
+#include <QFile>
 #include "main.h"
 #include "mainwindow.h"
 #include "Emulator.h"

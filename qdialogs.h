@@ -14,13 +14,13 @@ class QInputOctalDialog : public QDialog
     Q_OBJECT
 
 public:
-    QInputOctalDialog(QWidget * parent, const QString & title, const QString & prompt, uint16_t * value);
+    QInputOctalDialog(QWidget * parent, const QString & title, const QString & prompt, quint16 * value);
 
 public slots:
     virtual void accept();
 
 private:
-    uint16_t * m_result;
+    quint16 * m_result;
     QVBoxLayout m_layout;
     QLabel m_label;
     QLineEdit m_edit;
