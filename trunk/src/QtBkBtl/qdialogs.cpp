@@ -2,9 +2,9 @@
 #include "qdialogs.h"
 #include <QMessageBox>
 
-QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, const QString & prompt, uint16_t * value)
-    : QDialog::QDialog(parent)
+QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, const QString & prompt, quint16 *value)
 {
+    setParent(parent);
     m_result = value;
 
     TCHAR buffer[8];
@@ -27,7 +27,7 @@ QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, con
 
 void QInputOctalDialog::accept()
 {
-    uint16_t value;
+    quint16 value;
     if (! ParseOctalValue(m_edit.text().toAscii().data(), &value))
     {
         QMessageBox::warning(this, 0, "Please enter correct octal value.");
