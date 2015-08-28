@@ -5,12 +5,12 @@
 #include "main.h"
 
 
-class QScreen : public QWidget
+class QEmulatorScreen : public QWidget
 {
     Q_OBJECT
 public:
-    QScreen(QWidget *parent = 0);
-    ~QScreen();
+    QEmulatorScreen(QWidget *parent = 0);
+    ~QEmulatorScreen();
 
 public:
     void saveScreenshot(QString strFileName);

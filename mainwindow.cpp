@@ -74,7 +74,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDrivesFloppy3, SIGNAL(triggered()), mapFloppy, SLOT(map()));
 
     // Views
-    m_screen = new QScreen();
+    m_screen = new QEmulatorScreen();
     m_keyboard = new QKeyboardView();
     m_console = new QConsoleView();
     m_debug = new QDebugView();

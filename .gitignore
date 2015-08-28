@@ -1,0 +1,8 @@
+/debug
+/release
+/Makefile.*
+/Makefile
+/*.rom
+/object_script.*
+/*.user
+/ui_mainwindow.h

@@ -3,7 +3,7 @@
 #include "qscreen.h"
 #include "Emulator.h"
 
-QScreen::QScreen(QWidget *parent) :
+QEmulatorScreen::QEmulatorScreen(QWidget *parent) :
     QWidget(parent)
 {
     setFocusPolicy(Qt::StrongFocus);
@@ -14,17 +14,17 @@ QScreen::QScreen(QWidget *parent) :
     createDisplay();
 }
 
-QScreen::~QScreen()
+QEmulatorScreen::~QEmulatorScreen()
 {
     delete m_image;
 }
 
-void QScreen::saveScreenshot(QString strFileName)
+void QEmulatorScreen::saveScreenshot(QString strFileName)
 {
     m_image->save(strFileName, _T("PNG"), -1);
 }
 
-void QScreen::setMode(int mode)
+void QEmulatorScreen::setMode(int mode)
 {
     if (m_mode == mode) return;
 
@@ -35,7 +35,7 @@ void QScreen::setMode(int mode)
     this->repaint();
 }
 
-void QScreen::createDisplay()
+void QEmulatorScreen::createDisplay()
 {
     if (m_image != 0)
     {
@@ -52,7 +52,7 @@ void QScreen::createDisplay()
     setMaximumSize(cxScreenWidth + 100, cyScreenHeight + 20);
 }
 
-void QScreen::paintEvent(QPaintEvent * /*event*/)
+void QEmulatorScreen::paintEvent(QPaintEvent * /*event*/)
 {
     Emulator_PrepareScreenRGB32(m_image->bits(), m_mode);
 
@@ -77,7 +77,7 @@ void QScreen::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-void QScreen::keyPressEvent(QKeyEvent *event)
+void QEmulatorScreen::keyPressEvent(QKeyEvent *event)
 {
     if (! g_okEmulatorRunning) return;
     if (event->isAutoRepeat()) return;
@@ -89,7 +89,7 @@ void QScreen::keyPressEvent(QKeyEvent *event)
     event->accept();
 }
 
-void QScreen::keyReleaseEvent(QKeyEvent *event)
+void QEmulatorScreen::keyReleaseEvent(QKeyEvent *event)
 {
     unsigned char bkscan = TranslateQtKeyToBkKey(event->key(), event->modifiers() & Qt::ShiftModifier);
     if (bkscan == 0) return;
@@ -138,7 +138,7 @@ const unsigned char arrPcscan2BkscanRus[256] = {  // ÐÓÑ
 };
 
 
-unsigned char QScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
+unsigned char QEmulatorScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
 {
     switch (qtkey)
     {

@@ -296,7 +296,7 @@ inline void CProcessor::SetZ (BOOL bFlag)
 // PSW bits calculations - implementation
 inline BOOL CProcessor::CheckAddForOverflow (BYTE a, BYTE b)
 {
-#ifdef _M_IX86
+#if defined(_M_IX86) && defined(_MSC_VER)
     BOOL bOverflow = FALSE;
     _asm
     {
@@ -320,7 +320,7 @@ inline BOOL CProcessor::CheckAddForOverflow (BYTE a, BYTE b)
 }
 inline BOOL CProcessor::CheckAddForOverflow (WORD a, WORD b)
 {
-#ifdef _M_IX86
+#if defined(_M_IX86) && defined(_MSC_VER)
     BOOL bOverflow = FALSE;
     _asm
     {
@@ -346,7 +346,7 @@ inline BOOL CProcessor::CheckAddForOverflow (WORD a, WORD b)
 
 inline BOOL CProcessor::CheckSubForOverflow (BYTE a, BYTE b)
 {
-#ifdef _M_IX86
+#if defined(_M_IX86) && defined(_MSC_VER)
     BOOL bOverflow = FALSE;
     _asm
     {
@@ -370,7 +370,7 @@ inline BOOL CProcessor::CheckSubForOverflow (BYTE a, BYTE b)
 }
 inline BOOL CProcessor::CheckSubForOverflow (WORD a, WORD b)
 {
-#ifdef _M_IX86
+#if defined(_M_IX86) && defined(_MSC_VER)
     BOOL bOverflow = FALSE;
     _asm
     {
