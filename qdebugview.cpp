@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <QtGui>
+#include <QStyleOptionFocusRect>
 #include "qdebugview.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"

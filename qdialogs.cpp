@@ -28,7 +28,7 @@ QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, con
 void QInputOctalDialog::accept()
 {
     quint16 value;
-    if (! ParseOctalValue(m_edit.text().toAscii().data(), &value))
+    if (! ParseOctalValue(m_edit.text().toLatin1().data(), &value))
     {
         QMessageBox::warning(this, 0, "Please enter correct octal value.");
         return;

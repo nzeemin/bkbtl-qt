@@ -1,5 +1,5 @@
-#ifndef QSCREEN_H
-#define QSCREEN_H
+#ifndef QEMULATORSCREEN_H
+#define QEMULATORSCREEN_H
 
 #include <QWidget>
 #include "main.h"
@@ -33,4 +33,4 @@ private:
     unsigned char TranslateQtKeyToBkKey(int qtkey, BOOL okShift);
 };
 
-#endif // QSCREEN_H
+#endif // QEMULATORSCREEN_H

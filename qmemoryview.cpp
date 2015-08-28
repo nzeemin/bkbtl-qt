@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include <QtGui>
+#include <QMenu>
 #include <QPainter>
 #include <QScrollBar>
+#include <QStyleOptionFocusRect>
 #include "qmemoryview.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"

@@ -46,7 +46,9 @@ HEADERS += mainwindow.h \
     qdialogs.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
+QT += widgets
 QT += script
+DEFINES -= UNICODE
 
 
 

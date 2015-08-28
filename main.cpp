@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include <QtGui/QApplication>
+#include <QApplication>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
 #include <QSettings>

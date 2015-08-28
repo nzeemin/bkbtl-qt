@@ -204,7 +204,7 @@ BOOL ParseOctalValue(const QString &text, WORD* pValue)
 #ifdef	_UNICODE
         TCHAR ch = text.at(p).unicode();
 #else
-        TCHAR ch = text.at(p).toAscii();
+        TCHAR ch = text.at(p).toLatin1();
 #endif
         if (ch == 0) break;
         if (ch < _T('0') || ch > _T('7')) return FALSE;

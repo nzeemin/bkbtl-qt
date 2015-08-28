@@ -120,7 +120,7 @@ void QEmulator::keyString(const QString& str)
 {
     for (int i = 0; i < str.length(); i++)
     {
-        char ch = str[i].toAscii();
+        char ch = str[i].toLatin1();
         keyChar(ch);
         if (m_window->isAborted())
             return;

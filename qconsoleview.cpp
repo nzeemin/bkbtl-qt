@@ -243,16 +243,16 @@ void QConsoleView::execConsoleCommand(const QString &command)
                 this->printRegister(name, value);
             }
         }
-        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "r0".."r7"
+        else if (command[1].toLatin1() >= '0' && command[1].toLatin1() <= '7')  // "r0".."r7"
         {
-            int r = command[1].toAscii() - '0';
+            int r = command[1].toLatin1() - '0';
             LPCTSTR name = REGISTER_NAME[r];
             if (command.length() == 2)  // "rN" - show register N
             {
                 WORD value = pProc->GetReg(r);
                 this->printRegister(name, value);
             }
-            else if (command[2].toAscii() == '=' || command[2].toAscii() == ' ')  // "rN=XXXXXX" - set register N to value XXXXXX
+            else if (command[2].toLatin1() == '=' || command[2].toLatin1() == ' ')  // "rN=XXXXXX" - set register N to value XXXXXX
             {
                 WORD value;
                 if (! ParseOctalValue(command.mid(3), &value))
@@ -267,14 +267,14 @@ void QConsoleView::execConsoleCommand(const QString &command)
             else
                 this->print(MESSAGE_UNKNOWN_COMMAND);
         }
-        else if (command.length() >= 2 && command[1].toAscii() == 'p' && command[2].toAscii() == 's')  // "rps"
+        else if (command.length() >= 2 && command[1].toLatin1() == 'p' && command[2].toLatin1() == 's')  // "rps"
         {
             if (command.length() == 2)  // "rps" - show PSW
             {
                 WORD value = pProc->GetPSW();
                 this->printRegister(_T("PS"), value);
             }
-            else if (command[3].toAscii() == '=' || command[3].toAscii() == ' ')  // "rps=XXXXXX" - set PSW to value XXXXXX
+            else if (command[3].toLatin1() == '=' || command[3].toLatin1() == ' ')  // "rps=XXXXXX" - set PSW to value XXXXXX
             {
                 WORD value;
                 if (! ParseOctalValue(command.mid(4), &value))
@@ -317,7 +317,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
         BOOL okShort = (command[0] == _T('D'));
         if (command.length() == 1)  // "d" - disassemble at current address
             this->printDisassemble(pProc->GetPC(), FALSE, okShort);
-        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "dXXXXXX" - disassemble at address XXXXXX
+        else if (command[1].toLatin1() >= '0' && command[1].toLatin1() <= '7')  // "dXXXXXX" - disassemble at address XXXXXX
         {
             WORD value;
             if (! ParseOctalValue(command.mid(1), &value))
@@ -334,7 +334,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
         {
             this->printMemoryDump(pProc->GetPC(), 8);
         }
-        else if (command[1].toAscii() >= '0' && command[1].toAscii() <= '7')  // "mXXXXXX" - dump memory at address XXXXXX
+        else if (command[1].toLatin1() >= '0' && command[1].toLatin1() <= '7')  // "mXXXXXX" - dump memory at address XXXXXX
         {
             WORD value;
             if (! ParseOctalValue(command.mid(1), &value))
@@ -342,10 +342,10 @@ void QConsoleView::execConsoleCommand(const QString &command)
             else
                 this->printMemoryDump(value, 8);
         }
-        else if (command[1].toAscii() == 'r' && command.length() >= 3 &&
-                command[2].toAscii() >= '0' && command[2].toAscii() <= '7')  // "mrN" - dump memory at address from register N
+        else if (command[1].toLatin1() == 'r' && command.length() >= 3 &&
+                command[2].toLatin1() >= '0' && command[2].toLatin1() <= '7')  // "mrN" - dump memory at address from register N
         {
-            int r = command[2].toAscii() - '0';
+            int r = command[2].toLatin1() - '0';
             WORD address = pProc->GetReg(r);
             this->printMemoryDump(address, 8);
         }
