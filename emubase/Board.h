@@ -135,19 +135,21 @@ public:  // Construct / destruct
 public:  // Getting devices
     CProcessor*     GetCPU() { return m_pCPU; }
 public:  // Memory access  //TODO: Make it private
-    WORD        GetRAMWord(WORD offset);
-    WORD        GetRAMWord(BYTE chunk, WORD offset);
-    BYTE        GetRAMByte(WORD offset);
-    BYTE        GetRAMByte(BYTE chunk, WORD offset);
+    WORD        GetRAMWord(WORD offset) const;
+    WORD        GetRAMWord(BYTE chunk, WORD offset) const;
+    BYTE        GetRAMByte(WORD offset) const;
+    BYTE        GetRAMByte(BYTE chunk, WORD offset) const;
     void        SetRAMWord(WORD offset, WORD word);
     void        SetRAMWord(BYTE chunk, WORD offset, WORD word);
     void        SetRAMByte(WORD offset, BYTE byte);
     void        SetRAMByte(BYTE chunk, WORD offset, BYTE byte);
-    WORD        GetROMWord(WORD offset);
-    BYTE        GetROMByte(WORD offset);
+    WORD        GetROMWord(WORD offset) const;
+    BYTE        GetROMByte(WORD offset) const;
 public:  // Debug
     void        DebugTicks();  // One Debug PPU tick -- use for debug step or debug breakpoint
     void        SetCPUBreakpoint(WORD bp) { m_CPUbp = bp; } // Set CPU breakpoint
+    BOOL        GetTrace() const { return m_okTraceCPU; }
+    void        SetTrace(BOOL okTraceCPU) { m_okTraceCPU = okTraceCPU; }
 public:  // System control
     void        SetConfiguration(WORD conf);
     void        Reset();  // Reset computer
@@ -163,7 +165,8 @@ public:
     WORD        GetKeyboardRegister(void);
     WORD        GetPrinterOutPort() const { return m_Port177714out; }
     void        SetPrinterInPort(BYTE data);
-public:  // Floppy    
+    BOOL        IsTapeMotorOn() const { return (m_Port177716tap & 0200) == 0; }
+public:  // Floppy
     BOOL        AttachFloppyImage(int slot, LPCTSTR sFileName);
     void        DetachFloppyImage(int slot);
     BOOL        IsFloppyImageAttached(int slot);
@@ -187,9 +190,9 @@ public:  // Memory
     // Write byte
     void SetByte(WORD address, BOOL okHaltMode, BYTE byte);
     // Read word from memory for debugger
-    WORD GetWordView(WORD address, BOOL okHaltMode, BOOL okExec, int* pValid);
+    WORD GetWordView(WORD address, BOOL okHaltMode, BOOL okExec, int* pValid) const;
     // Read word from port for debugger
-    WORD GetPortView(WORD address);
+    WORD GetPortView(WORD address) const;
     // Read SEL register
     WORD GetSelRegister() const { return m_Port177716; }
     // Get palette number 0..15 (BK0011 only)
@@ -203,7 +206,7 @@ private:
     //   okHaltMode - processor mode (USER/HALT)
     //   okExec - TRUE: read instruction for execution; FALSE: read memory
     //   pOffset - result - offset in memory plane
-    int TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, WORD* pOffset);
+    int TranslateAddress(WORD address, BOOL okHaltMode, BOOL okExec, WORD* pOffset) const;
 private:  // Access to I/O ports
     WORD        GetPortWord(WORD address);
     void        SetPortWord(WORD address, WORD word);
@@ -235,6 +238,7 @@ private:  // Timer implementation
     void		SetTimerState(WORD val);	//sets timer state
 private:
     WORD        m_CPUbp;  // CPU breakpoint address
+    BOOL        m_okTraceCPU;
 private:
     TAPEREADCALLBACK m_TapeReadCallback;
     TAPEWRITECALLBACK m_TapeWriteCallback;

@@ -24,10 +24,12 @@ class CProcessor  // KM1801VM1 processor
 {
 
 public:  // Constructor / initialization
-                CProcessor(CMotherboard* pBoard);
+    CProcessor(CMotherboard* pBoard);
     void        AssertHALT();
-    void		DeassertHALT();
-    void		MemoryError();
+    void        DeassertHALT();
+    void        MemoryError();
+    void        AssertIRQ1();
+    int			GetInternalTick() const { return m_internalTick; }
     void        SetInternalTick (WORD tick) { m_internalTick = tick; }
 
 public:
@@ -45,7 +47,7 @@ protected:  // Processor state
     BOOL        m_okStopped;        // "Processor stopped" flag
     BOOL        m_userspace;        // Read TRUE if user space is used -- CPU is accessing I/O from HALT mode using user space
     BOOL        m_stepmode;         // Read TRUE if it's step mode
-    BOOL        m_haltpin;			// HALT 
+    BOOL        m_haltpin;			// HALT
     BOOL        m_waitmode;			// WAIT
 
 protected:  // Current instruction processing
@@ -61,10 +63,11 @@ protected:  // Interrupt processing
     BOOL        m_RPLYrq;           // Hangup interrupt pending
     BOOL        m_RSVDrq;           // Reserved instruction interrupt pending
     BOOL        m_TBITrq;           // T-bit interrupt pending
-    BOOL		m_ACLOrq;           // Power down interrupt pending
+    BOOL        m_ACLOrq;           // Power down interrupt pending
     BOOL        m_HALTrq;           // HALT command or HALT signal
     BOOL        m_RPL2rq;           // Double hangup interrupt pending
-    BOOL		m_IRQ2rq;           // Timer event interrupt pending
+    BOOL        m_IRQ1rq;
+    BOOL        m_IRQ2rq;           // Timer event interrupt pending
     BOOL        m_BPT_rq;           // BPT command interrupt pending
     BOOL        m_IOT_rq;           // IOT command interrupt pending
     BOOL        m_EMT_rq;           // EMT command interrupt pending
@@ -102,22 +105,22 @@ public:  // Processor state
     // "Processor stopped" flag
     BOOL        IsStopped() const { return m_okStopped; }
     // HALT flag (TRUE - HALT mode, FALSE - USER mode)
-    BOOL        IsHaltMode() const 
-    { 
-            BOOL mode = ((m_psw & 0x100) != 0); 
-            if (mode)
-                if(m_userspace)
-                    return 0;
-            return mode;
+    BOOL        IsHaltMode() const
+    {
+        BOOL mode = ((m_psw & 0x100) != 0);
+        if (mode)
+            if (m_userspace)
+                return 0;
+        return mode;
     }
 public:  // Processor control
     void        Start();     // Start processor
     void        Stop();      // Stop processor
     void        TickIRQ2();  // IRQ2 signal
-    void		PowerFail();
+    void        PowerFail();
     void        InterruptVIRQ(int que, WORD interrupt);  // External interrupt via VIRQ signal
     void        Execute();   // Execute one instruction - for debugger only
-    
+
 public:  // Saving/loading emulator status (pImage addresses up to 32 bytes)
     void        SaveToImage(BYTE* pImage);
     void        LoadFromImage(const BYTE* pImage);
@@ -158,26 +161,18 @@ protected:  // PSW bits calculations
 
 protected:  // Implementation - instruction execution
     // No fields
-    WORD		GetWordAddr (BYTE meth, BYTE reg);
-    WORD		GetByteAddr (BYTE meth, BYTE reg);
+    WORD        GetWordAddr (BYTE meth, BYTE reg);
+    WORD        GetByteAddr (BYTE meth, BYTE reg);
 
     void        ExecuteUNKNOWN ();  // Нет такой инструкции - просто вызывается TRAP 10
     void        ExecuteHALT ();
     void        ExecuteWAIT ();
-    void		ExecuteRCPC	();
-    void		ExecuteRCPS ();
-    void		ExecuteWCPC	();
-    void		ExecuteWCPS	();
-    void		ExecuteMFUS ();
-    void		ExecuteMTUS ();
     void        ExecuteRTI ();
     void        ExecuteBPT ();
     void        ExecuteIOT ();
     void        ExecuteRESET ();
-    void		ExecuteSTEP	();
-    void        ExecuteRSEL ();
-    void        Execute000030 ();
-    void		ExecuteRUN	();
+    void        ExecuteSTEP ();
+    void        ExecuteRUN ();
     void        ExecuteRTT ();
     void        ExecuteNOP ();
     void        ExecuteCLC ();
@@ -233,7 +228,7 @@ protected:  // Implementation - instruction execution
     void        ExecuteSXT ();
     void        ExecuteMTPS ();
     void        ExecuteMFPS ();
-    
+
     // Branchs & interrupts
     void        ExecuteBR ();
     void        ExecuteBNE ();
@@ -302,11 +297,11 @@ inline BOOL CProcessor::CheckAddForOverflow (BYTE a, BYTE b)
     {
         pushf
         push cx
-        mov cl,byte ptr [a]
-        add cl,byte ptr [b]
+        mov cl, byte ptr [a]
+        add cl, byte ptr [b]
         jno end
-        mov dword ptr [bOverflow],1
-    end:                            
+        mov dword ptr [bOverflow], 1
+        end:
         pop cx
         popf
     }
@@ -326,11 +321,11 @@ inline BOOL CProcessor::CheckAddForOverflow (WORD a, WORD b)
     {
         pushf
         push cx
-        mov cx,word ptr [a]
-        add cx,word ptr [b]
+        mov cx, word ptr [a]
+        add cx, word ptr [b]
         jno end
-        mov dword ptr [bOverflow],1
-    end:                            
+        mov dword ptr [bOverflow], 1
+        end:
         pop cx
         popf
     }
@@ -342,7 +337,7 @@ inline BOOL CProcessor::CheckAddForOverflow (WORD a, WORD b)
     return ((~a ^ b) & (a ^ sum)) & 0100000;
 #endif
 }
-//void        CProcessor::SetReg(int regno, WORD word) 
+//void        CProcessor::SetReg(int regno, WORD word)
 
 inline BOOL CProcessor::CheckSubForOverflow (BYTE a, BYTE b)
 {
@@ -352,11 +347,11 @@ inline BOOL CProcessor::CheckSubForOverflow (BYTE a, BYTE b)
     {
         pushf
         push cx
-        mov cl,byte ptr [a]
-        sub cl,byte ptr [b]
+        mov cl, byte ptr [a]
+        sub cl, byte ptr [b]
         jno end
-        mov dword ptr [bOverflow],1
-    end:                            
+        mov dword ptr [bOverflow], 1
+        end:
         pop cx
         popf
     }
@@ -376,11 +371,11 @@ inline BOOL CProcessor::CheckSubForOverflow (WORD a, WORD b)
     {
         pushf
         push cx
-        mov cx,word ptr [a]
-        sub cx,word ptr [b]
+        mov cx, word ptr [a]
+        sub cx, word ptr [b]
         jno end
-        mov dword ptr [bOverflow],1
-    end:                            
+        mov dword ptr [bOverflow], 1
+        end:
         pop cx
         popf
     }
