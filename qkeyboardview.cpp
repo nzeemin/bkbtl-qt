@@ -170,7 +170,7 @@ void QKeyboardView::mouseReleaseEvent(QMouseEvent *event)
     Emulator_KeyEvent(keyscan, FALSE, event->modifiers() & Qt::ControlModifier);
 }
 
-unsigned char QKeyboardView::GetKeyByPoint(int x, int y, BOOL okShift)
+unsigned char QKeyboardView::GetKeyByPoint(int x, int y, bool okShift)
 {
     for (int i = 0; i < m_nKeyboardKeysCount; i++)
     {

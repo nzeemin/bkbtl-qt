@@ -298,8 +298,8 @@ void MainWindow::fileLoadBin()
     }
 
     // Calculate baseAddress / dataSize
-    WORD baseAddress = *((WORD*)bufHeader);
-    WORD dataSize = *(((WORD*)bufHeader) + 1);
+    quint16 baseAddress = *((quint16*)bufHeader);
+    quint16 dataSize = *(((quint16*)bufHeader) + 1);
 
     // Ask user
     TCHAR bufMessage[100];
@@ -313,8 +313,8 @@ void MainWindow::fileLoadBin()
     }
 
     // Load file data
-    DWORD bytesToRead = dataSize;
-    WORD memoryBytes = (dataSize + 1) & 0xfffe;
+    quint32 bytesToRead = dataSize;
+    quint16 memoryBytes = (dataSize + 1) & 0xfffe;
     void* pBuffer = ::malloc(memoryBytes);
     dwBytesRead = ::fread(pBuffer, 1, bytesToRead, fpBin);
     if (dwBytesRead != bytesToRead)
@@ -327,11 +327,11 @@ void MainWindow::fileLoadBin()
     ::fclose(fpBin);
 
     // Copy data to BK memory
-    WORD address = baseAddress;
-    WORD* pData = (WORD*)pBuffer;
+    quint16 address = baseAddress;
+    quint16* pData = (quint16*)pBuffer;
     while (address < baseAddress + memoryBytes)
     {
-        WORD value = *pData++;
+        quint16 value = *pData++;
         g_pBoard->SetRAMWord(address, value);
         address += 2;
     }
@@ -478,7 +478,7 @@ void MainWindow::emulatorFloppy(int slot)
 
 void MainWindow::debugConsoleView()
 {
-    BOOL okShow = !m_dockConsole->isVisible();
+    bool okShow = !m_dockConsole->isVisible();
     m_dockConsole->setVisible(okShow);
     m_dockDebug->setVisible(okShow);
     m_dockDisasm->setVisible(okShow);

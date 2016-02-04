@@ -13,6 +13,8 @@
 // C RunTime Header Files
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifdef _MSC_VER
 #include <stdlib.h>

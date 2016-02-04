@@ -10,7 +10,7 @@
 
 QTapeView* g_tapeView = NULL;
 
-BOOL CALLBACK TapeView_TapeReadCallback(unsigned int samples)
+bool CALLBACK TapeView_TapeReadCallback(unsigned int samples)
 {
     return g_tapeView->tapeReadCallback(samples);
 }
@@ -164,7 +164,7 @@ void QTapeView::openTape(const QString &sFileName)
 
     this->updatePosition();
 
-    DWORD wavLength = WavPcmFile_GetLength((HWAVPCMFILE)m_hTapeWavPcmFile);
+    quint32 wavLength = WavPcmFile_GetLength((HWAVPCMFILE)m_hTapeWavPcmFile);
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
     double wavLengthSeconds = double(wavLength) / wavFreq;
 
@@ -187,10 +187,10 @@ void QTapeView::closeTape()
 
     m_okTapeInserted = false;
 
-    m_buttonPlay->setEnabled(FALSE);
-    m_buttonRewind->setEnabled(FALSE);
-    m_buttonOpen->setEnabled(TRUE);
-    m_buttonSave->setEnabled(TRUE);
+    m_buttonPlay->setEnabled(false);
+    m_buttonRewind->setEnabled(false);
+    m_buttonOpen->setEnabled(true);
+    m_buttonSave->setEnabled(true);
     m_labelFile->setText(NULL);
     m_labelTotal->setText(NULL);
     m_labelCurrent->setText(NULL);
@@ -231,7 +231,7 @@ void QTapeView::stopTape()
 
 void QTapeView::updatePosition()
 {
-    DWORD wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
+    quint32 wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
     double wavPosSeconds = double(wavPos) / wavFreq;
     TCHAR buffer[64];
@@ -254,15 +254,15 @@ bool QTapeView::tapeReadCallback(unsigned int samples)
     {
         value = WavPcmFile_ReadOne((HWAVPCMFILE)m_hTapeWavPcmFile);
     }
-    BOOL result = (value > 0xffffffff / 2);
+    bool result = (value > 0xffffffff / 2);
 
-    DWORD wavLength = WavPcmFile_GetLength((HWAVPCMFILE)m_hTapeWavPcmFile);
-    DWORD wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
+    quint32 wavLength = WavPcmFile_GetLength((HWAVPCMFILE)m_hTapeWavPcmFile);
+    quint32 wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
     if (wavPos >= wavLength)  // End of tape
         this->stopTape();
 
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
-    if (wavPos - m_dwTapePositionShown > (DWORD)(wavFreq / 6) || !m_okTapePlaying)
+    if (wavPos - m_dwTapePositionShown > (quint32)(wavFreq / 6) || !m_okTapePlaying)
     {
         this->updatePosition();
     }
@@ -280,9 +280,9 @@ void QTapeView::tapeWriteCallback(int value, unsigned int samples)
     for (unsigned int i = 0; i < samples; i++)
         WavPcmFile_WriteOne((HWAVPCMFILE)m_hTapeWavPcmFile, value);
 
-    DWORD wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
+    quint32 wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
-    if (wavPos - m_dwTapePositionShown > (DWORD)(wavFreq / 6) || !m_okTapePlaying)
+    if (wavPos - m_dwTapePositionShown > (quint32)(wavFreq / 6) || !m_okTapePlaying)
     {
         this->updatePosition();
     }

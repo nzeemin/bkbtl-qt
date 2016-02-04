@@ -77,20 +77,20 @@ void QMemoryView::scrollBy(quint16 delta)
 {
     if (delta == 0) return;
 
-    m_wBaseAddress = (WORD)(m_wBaseAddress + delta);
-    m_wBaseAddress = m_wBaseAddress & ((WORD)~15);
+    m_wBaseAddress = (quint16)(m_wBaseAddress + delta);
+    m_wBaseAddress = m_wBaseAddress & ((quint16)~15);
     repaint();
     updateScrollPos();
 }
 
 void QMemoryView::gotoAddress()
 {
-    WORD value = m_wBaseAddress;
+    quint16 value = m_wBaseAddress;
     QInputOctalDialog dialog(this, "Go To Address", "Address (octal):", &value);
     if (dialog.exec() == QDialog::Rejected) return;
 
     // Scroll to the address
-    m_wBaseAddress = value & ((WORD)~15);
+    m_wBaseAddress = value & ((quint16)~15);
     repaint();
     updateScrollPos();
 }
@@ -105,7 +105,7 @@ void QMemoryView::resizeEvent(QResizeEvent *)
 void QMemoryView::scrollValueChanged()
 {
     int value = m_scrollbar->value();
-    m_wBaseAddress = (unsigned short)value & ((WORD)~15);
+    m_wBaseAddress = (unsigned short)value & ((quint16)~15);
     this->repaint();
 }
 
@@ -136,7 +136,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     // Calculate m_nPageSize
     m_nPageSize = this->height() / cyLine - 1;
 
-    WORD address = m_wBaseAddress;
+    quint16 address = m_wBaseAddress;
     int y = 2 * cyLine;
     for (;;) {  // Draw lines
         DrawOctalValue(painter, 2 * cxChar, y, address);
@@ -146,10 +146,10 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
         for (int j = 0; j < 8; j++) {  // Draw words as octal value
             // Get word from memory
-            WORD word = 0;
+            quint16 word = 0;
             int addrtype;
             BOOL okHalt = FALSE;
-            WORD wChanged = 0;
+            quint16 wChanged = 0;
 
             okHalt = pDebugPU->IsHaltMode();
             word = g_pBoard->GetWordView(address, okHalt, FALSE, &addrtype);
@@ -170,11 +170,11 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             }
 
             // Prepare characters to draw at right
-            BYTE ch1 = LOBYTE(word);
+            quint8 ch1 = LOBYTE(word);
             ushort wch1 = Translate_BK_Unicode(ch1);
             if (ch1 < 32) wch1 = 0x00b7;
             wchars[j * 2] = wch1;
-            BYTE ch2 = HIBYTE(word);
+            quint8 ch2 = HIBYTE(word);
             ushort wch2 = Translate_BK_Unicode(ch2);
             if (ch2 < 32) wch2 = 0x00b7;
             wchars[j * 2 + 1] = wch2;

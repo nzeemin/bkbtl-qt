@@ -60,7 +60,7 @@ float QEmulator::getUptime()
 
 void QEmulator::setBreakpoint(quint16 address)
 {
-    Emulator_SetCPUBreakpoint((WORD)address);
+    Emulator_SetCPUBreakpoint((quint16)address);
 }
 bool QEmulator::isBreakpoint()
 {
@@ -74,23 +74,23 @@ void QEmulator::saveScreenshot(const QString &filename)
 
 ushort QEmulator::readWord(ushort addr)
 {
-    BOOL okValid;
-    return g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
+    int addrType;
+    return g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
 }
-uchar QEmulator::readByte(ushort addr)
+uchar QEmulator::readByte(uint16_t addr)
 {
-    BOOL okValid;
-    ushort word = g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
-    if (!okValid)
+    int addrType;
+    uint16_t word = g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
+    if (addrType == ADDRTYPE_DENY)
         return 0;
     return (addr & 1) ? word & 0xff : (word >> 8) & 0xff;
 }
 
 void QEmulator::keyScan(uchar bkscan, int timeout)
 {
-    g_pBoard->KeyboardEvent(bkscan, TRUE, FALSE);
+    g_pBoard->KeyboardEvent(bkscan, true, false);
     run(timeout);
-    g_pBoard->KeyboardEvent(bkscan, FALSE, FALSE);
+    g_pBoard->KeyboardEvent(bkscan, false, false);
     run(3);
 }
 
@@ -129,12 +129,12 @@ void QEmulator::keyString(const QString& str)
 
 QScriptValue QEmulator::disassemble(ushort addr)
 {
-    WORD buffer[4];
-    WORD current = addr;
+    quint16 buffer[4];
+    quint16 current = addr;
     for (int i = 0; i < 4; i++)
     {
-        BOOL okValid;
-        buffer[i] = g_pBoard->GetWordView(current, g_pBoard->GetCPU()->IsHaltMode(), FALSE, &okValid);
+        int addrType;
+        buffer[i] = g_pBoard->GetWordView(current, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
         current += 2;
     }
 
@@ -169,10 +169,10 @@ bool QEmulator::loadBin(const QString &binfilename)
         return false;
     }
 
-    const WORD * pDataHeader = (const WORD *)dataHeader.constData();
-    WORD baseAddress = pDataHeader[0];
-    WORD dataSize = pDataHeader[1];
-    WORD memoryBytes = (dataSize + 1) & 0xfffe;
+    const quint16 * pDataHeader = (const quint16 *)dataHeader.constData();
+    quint16 baseAddress = pDataHeader[0];
+    quint16 dataSize = pDataHeader[1];
+    quint16 memoryBytes = (dataSize + 1) & 0xfffe;
 
     // Load file data
     QByteArray data = file.readAll();
@@ -186,11 +186,11 @@ bool QEmulator::loadBin(const QString &binfilename)
         return false;
 
     // Copy data to BK memory
-    WORD address = baseAddress;
-    const WORD * pData = (const WORD *)data.constData();
+    quint16 address = baseAddress;
+    const quint16 * pData = (const quint16 *)data.constData();
     while (address < baseAddress + memoryBytes)
     {
-        WORD value = *pData++;
+        quint16 value = *pData++;
         g_pBoard->SetRAMWord(address, value);
         address += 2;
     }

@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-BOOL AssertFailedLine(const char * lpszFileName, int nLine)
+bool AssertFailedLine(const char * lpszFileName, int nLine)
 {
     TCHAR buffer[360];
     _sntprintf(buffer, 360,
@@ -25,13 +25,13 @@ BOOL AssertFailedLine(const char * lpszFileName, int nLine)
     switch (result)
     {
         case QMessageBox::Retry:
-            return TRUE;
+            return true;
         case QMessageBox::Ignore:
-            return FALSE;
+            return false;
         case QMessageBox::Abort:
             QCoreApplication::exit(255);
     }
-    return FALSE;
+    return false;
 }
 
 void AlertWarning(LPCTSTR sMessage)
@@ -39,7 +39,7 @@ void AlertWarning(LPCTSTR sMessage)
     QMessageBox::warning(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok);
 }
 
-BOOL AlertOkCancel(LPCTSTR sMessage)
+bool AlertOkCancel(LPCTSTR sMessage)
 {
     int result = QMessageBox::question(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok, QMessageBox::Cancel);
     return (result == QMessageBox::Ok);
@@ -127,7 +127,7 @@ void Common_Cleanup()
 
 // Print octal 16-bit value to buffer
 // buffer size at least 7 characters
-void PrintOctalValue(TCHAR* buffer, WORD value)
+void PrintOctalValue(TCHAR* buffer, quint16 value)
 {
     for (int p = 0; p < 6; p++) {
         int digit = value & 7;
@@ -138,7 +138,7 @@ void PrintOctalValue(TCHAR* buffer, WORD value)
 }
 // Print hex 16-bit value to buffer
 // buffer size at least 5 characters
-void PrintHexValue(TCHAR* buffer, WORD value)
+void PrintHexValue(TCHAR* buffer, quint16 value)
 {
     for (int p = 0; p < 4; p++) {
         int digit = value & 15;
@@ -149,7 +149,7 @@ void PrintHexValue(TCHAR* buffer, WORD value)
 }
 // Print binary 16-bit value to buffer
 // buffer size at least 17 characters
-void PrintBinaryValue(TCHAR* buffer, WORD value)
+void PrintBinaryValue(TCHAR* buffer, quint16 value)
 {
     for (int b = 0; b < 16; b++) {
         int bit = (value >> b) & 1;
@@ -158,19 +158,19 @@ void PrintBinaryValue(TCHAR* buffer, WORD value)
     buffer[16] = 0;
 }
 
-void DrawOctalValue(QPainter &painter, int x, int y, WORD value)
+void DrawOctalValue(QPainter &painter, int x, int y, quint16 value)
 {
     TCHAR buffer[7];
     PrintOctalValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
-void DrawHexValue(QPainter &painter, int x, int y, WORD value)
+void DrawHexValue(QPainter &painter, int x, int y, quint16 value)
 {
     TCHAR buffer[7];
     PrintHexValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
-void DrawBinaryValue(QPainter &painter, int x, int y, WORD value)
+void DrawBinaryValue(QPainter &painter, int x, int y, quint16 value)
 {
     TCHAR buffer[17];
     PrintBinaryValue(buffer, value);
@@ -178,46 +178,46 @@ void DrawBinaryValue(QPainter &painter, int x, int y, WORD value)
 }
 
 // Parse octal value from text
-BOOL ParseOctalValue(LPCTSTR text, WORD* pValue)
+bool ParseOctalValue(LPCTSTR text, quint16* pValue)
 {
-    WORD value = 0;
+    quint16 value = 0;
     TCHAR* pChar = (TCHAR*) text;
     for (int p = 0; ; p++) {
-        if (p > 6) return FALSE;
+        if (p > 6) return false;
         TCHAR ch = *pChar;  pChar++;
         if (ch == 0) break;
-        if (ch < _T('0') || ch > _T('7')) return FALSE;
+        if (ch < _T('0') || ch > _T('7')) return false;
         value = (value << 3);
         int digit = ch - _T('0');
         value += digit;
     }
     *pValue = value;
-    return TRUE;
+    return true;
 }
 
 // Parse octal value from text
-BOOL ParseOctalValue(const QString &text, WORD* pValue)
+bool ParseOctalValue(const QString &text, quint16* pValue)
 {
-    WORD value = 0;
+    quint16 value = 0;
     for (int p = 0; p < text.length(); p++) {
-        if (p > 6) return FALSE;
+        if (p > 6) return false;
 #ifdef	_UNICODE
         TCHAR ch = text.at(p).unicode();
 #else
         TCHAR ch = text.at(p).toLatin1();
 #endif
         if (ch == 0) break;
-        if (ch < _T('0') || ch > _T('7')) return FALSE;
+        if (ch < _T('0') || ch > _T('7')) return false;
         value = (value << 3);
         int digit = ch - _T('0');
         value += digit;
     }
     *pValue = value;
-    return TRUE;
+    return true;
 }
 
 // BK to Unicode conversion table
-const WORD BK_CHAR_CODES[] = {
+const quint16 BK_CHAR_CODES[] = {
     0x3C0,  0x2534, 0x2665, 0x2510, 0x2561, 0x251C, 0x2514, 0x2550, 0x2564, 0x2660, 0x250C, 0x252C, 0x2568, 0x2193, 0x253C, 0x2551, 
     0x2524, 0x2190, 0x256C, 0x2191, 0x2663, 0x2500, 0x256B, 0x2502, 0x2666, 0x2518, 0x256A, 0x2565, 0x2567, 0x255E, 0x2192, 0x2593, 
     0x44E,  0x430,  0x431,  0x446,  0x434,  0x435,  0x444,  0x433,  0x445,  0x438,  0x439,  0x43A,  0x43B,  0x43C,  0x43D,  0x43E, 
@@ -226,11 +226,11 @@ const WORD BK_CHAR_CODES[] = {
     0x41F,  0x42F,  0x420,  0x421,  0x422,  0x423,  0x416,  0x412,  0x42C,  0x42B,  0x417,  0x428,  0x42D,  0x429,  0x427,  0x42A, 
 };
 // Translate one KOI8-R character to Unicode character
-WORD Translate_BK_Unicode(BYTE ch)
+quint16 Translate_BK_Unicode(quint8 ch)
 {
     if (ch < 32) return 0x00b7;
-    if (ch < 127) return (WORD) ch;
-    if (ch == 127) return (WORD) 0x25A0;
+    if (ch < 127) return (quint16) ch;
+    if (ch == 127) return (quint16) 0x25A0;
     if (ch >= 128 && ch < 160) return 0x00b7;
     return BK_CHAR_CODES[ch - 160];
 }

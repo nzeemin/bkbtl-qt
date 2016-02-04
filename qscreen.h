@@ -30,7 +30,7 @@ private:
     int m_mode;
 
 private:
-    unsigned char TranslateQtKeyToBkKey(int qtkey, BOOL okShift);
+    unsigned char TranslateQtKeyToBkKey(int qtkey, bool okShift);
 };
 
 #endif // QEMULATORSCREEN_H

@@ -28,9 +28,9 @@ private:
 
     void printConsolePrompt();
     void printHelp();
-    int printDisassemble(WORD address, BOOL okOneInstr, BOOL okShort);
-    void printRegister(LPCTSTR strName, WORD value);
-    void printMemoryDump(WORD address, int lines);
+    int printDisassemble(quint16 address, bool okOneInstr, bool okShort);
+    void printRegister(LPCTSTR strName, quint16 value);
+    void printMemoryDump(quint16 address, int lines);
 };
 
 #endif // QCONSOLEVIEW_H

@@ -50,24 +50,13 @@ typedef const char * LPCTSTR;
 #endif
 
 //typedef qint32 LONG;
-typedef long unsigned int DWORD;
-typedef quint16 WORD;
-typedef quint8 BYTE;
 
-typedef int BOOL;
-#ifndef FALSE
-#define FALSE               0
-#endif
-#ifndef TRUE
-#define TRUE                1
-#endif
-
-//#define MAKELONG(a, b)      ((LONG)(((WORD)(((DWORD)(a)) & 0xffff)) | ((DWORD)((WORD)(((DWORD)(b)) & 0xffff))) << 16))
-#define MAKEWORD(a, b)      ((WORD)(((BYTE)(((DWORD)(a)) & 0xff)) | ((WORD)((BYTE)(((DWORD)(b)) & 0xff))) << 8))
-#define LOWORD(l)           ((WORD)(((DWORD)(l)) & 0xffff))
-#define HIWORD(l)           ((WORD)((((DWORD)(l)) >> 16) & 0xffff))
-#define LOBYTE(w)           ((BYTE)(((DWORD)(w)) & 0xff))
-#define HIBYTE(w)           ((BYTE)((((DWORD)(w)) >> 8) & 0xff))
+//#define MAKELONG(a, b)      ((LONG)(((quint16)(((quint32)(a)) & 0xffff)) | ((quint32)((quint16)(((quint32)(b)) & 0xffff))) << 16))
+#define MAKEWORD(a, b)      ((quint16)(((quint8)(((quint32)(a)) & 0xff)) | ((quint16)((quint8)(((quint32)(b)) & 0xff))) << 8))
+#define LOWORD(l)           ((quint16)(((quint32)(l)) & 0xffff))
+#define HIWORD(l)           ((quint16)((((quint32)(l)) >> 16) & 0xffff))
+#define LOBYTE(w)           ((quint8)(((quint32)(w)) & 0xff))
+#define HIBYTE(w)           ((quint8)((((quint32)(w)) >> 8) & 0xff))
 
 #ifdef __GNUC__
  #ifdef __APPLE__
@@ -89,7 +78,7 @@ typedef void *HANDLE;
 
 #ifdef _DEBUG
 
-BOOL AssertFailedLine(const char * lpszFileName, int nLine);
+bool AssertFailedLine(const char * lpszFileName, int nLine);
 #define ASSERT(f)          (void) ((f) || !AssertFailedLine(__FILE__, __LINE__) || (__debugbreak(), 0))
 #define VERIFY(f)          ASSERT(f)
 
@@ -105,7 +94,7 @@ BOOL AssertFailedLine(const char * lpszFileName, int nLine);
 
 
 void AlertWarning(LPCTSTR sMessage);
-BOOL AlertOkCancel(LPCTSTR sMessage);
+bool AlertOkCancel(LPCTSTR sMessage);
 
 
 //////////////////////////////////////////////////////////////////////
@@ -132,15 +121,15 @@ const int BK_SCREEN_HEIGHT = 256;
 
 QFont Common_GetMonospacedFont();
 void Common_Cleanup();
-void PrintOctalValue(TCHAR* buffer, WORD value);
-void PrintBinaryValue(TCHAR* buffer, WORD value);
-void DrawOctalValue(QPainter &painter, int x, int y, WORD value);
-void DrawHexValue(QPainter &painter, int x, int y, WORD value);
-void DrawBinaryValue(QPainter &painter, int x, int y, WORD value);
-BOOL ParseOctalValue(LPCTSTR text, WORD* pValue);
-BOOL ParseOctalValue(const QString &text, WORD* pValue);
+void PrintOctalValue(TCHAR* buffer, quint16 value);
+void PrintBinaryValue(TCHAR* buffer, quint16 value);
+void DrawOctalValue(QPainter &painter, int x, int y, quint16 value);
+void DrawHexValue(QPainter &painter, int x, int y, quint16 value);
+void DrawBinaryValue(QPainter &painter, int x, int y, quint16 value);
+bool ParseOctalValue(LPCTSTR text, quint16* pValue);
+bool ParseOctalValue(const QString &text, quint16* pValue);
 
-WORD Translate_BK_Unicode(BYTE ch);
+quint16 Translate_BK_Unicode(quint8 ch);
 
 
 //////////////////////////////////////////////////////////////////////

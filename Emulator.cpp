@@ -15,41 +15,41 @@
 CMotherboard* g_pBoard = NULL;
 BKConfiguration g_nEmulatorConfiguration;  // Current configuration
 
-BOOL g_okEmulatorInitialized = FALSE;
-BOOL g_okEmulatorRunning = FALSE;
+bool g_okEmulatorInitialized = false;
+bool g_okEmulatorRunning = false;
 
-WORD m_wEmulatorCPUBreakpoint = 0177777;
+quint16 m_wEmulatorCPUBreakpoint = 0177777;
 
-BOOL m_okEmulatorSound = FALSE;
+bool m_okEmulatorSound = false;
 
 long m_nFrameCount = 0;
 QTime m_emulatorTime;
 int m_nTickCount = 0;
-DWORD m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
+quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
 long m_nUptimeFrameCount = 0;
 
-BYTE* g_pEmulatorRam;  // RAM values - for change tracking
-BYTE* g_pEmulatorChangedRam;  // RAM change flags
-WORD g_wEmulatorCpuPC = 0177777;      // Current PC value
-WORD g_wEmulatorPrevCpuPC = 0177777;  // Previous PC value
+quint8* g_pEmulatorRam;  // RAM values - for change tracking
+quint8* g_pEmulatorChangedRam;  // RAM change flags
+quint16 g_wEmulatorCpuPC = 0177777;      // Current PC value
+quint16 g_wEmulatorPrevCpuPC = 0177777;  // Previous PC value
 
 const int KEYEVENT_QUEUE_SIZE = 32;
-WORD m_EmulatorKeyQueue[KEYEVENT_QUEUE_SIZE];
+quint16 m_EmulatorKeyQueue[KEYEVENT_QUEUE_SIZE];
 int m_EmulatorKeyQueueTop = 0;
 int m_EmulatorKeyQueueBottom = 0;
 int m_EmulatorKeyQueueCount = 0;
 
-void CALLBACK Emulator_TeletypeCallback(BYTE symbol);
+void CALLBACK Emulator_TeletypeCallback(quint8 symbol);
 
 
 //////////////////////////////////////////////////////////////////////
 // Colors
 
-const DWORD ScreenView_ColorPalette[4] = {
+const quint32 ScreenView_ColorPalette[4] = {
     0x000000, 0x0000FF, 0x00FF00, 0xFF0000
 };
 
-const DWORD ScreenView_ColorPalettes[16][4] = {
+const quint32 ScreenView_ColorPalettes[16][4] = {
     //                                         Palette#     01           10          11
     { 0x000000, 0x0000FF, 0x00FF00, 0xFF0000 },  // 00    синий   |   зеленый  |  красный
     { 0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000 },  // 01   желтый   |  сиреневый |  красный
@@ -76,12 +76,12 @@ const DWORD ScreenView_ColorPalettes[16][4] = {
 //   pPalette       Палитра
 //   scroll         Текущее значение скроллинга
 //   pImageBits     Результат, 32-битный цвет, размер для каждой функции свой
-typedef void (CALLBACK* PREPARE_SCREEN_CALLBACK)(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits);
+typedef void (CALLBACK* PREPARE_SCREEN_CALLBACK)(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
 
-void CALLBACK Emulator_PrepareScreenBW512x256(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenColor512x256(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenBW512x384(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenColor512x384(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
 
 struct ScreenModeStruct
 {
@@ -114,11 +114,11 @@ const LPCTSTR FILENAME_BKROM_BASIC11M_1 = _T("basic11m_1.rom");
 const LPCTSTR FILENAME_BKROM_BK11M_MSTD = _T("b11m_mstd.rom");
 
 
-BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD fileOffset, DWORD bytesToRead)
+bool Emulator_LoadRomFile(LPCTSTR strFileName, quint8* buffer, quint32 fileOffset, quint32 bytesToRead)
 {
     FILE* fpRomFile = ::_tfopen(strFileName, _T("rb"));
     if (fpRomFile == NULL)
-        return FALSE;
+        return false;
 
     ASSERT(bytesToRead <= 8192);
     ::memset(buffer, 0, 8192);
@@ -128,19 +128,19 @@ BOOL Emulator_LoadRomFile(LPCTSTR strFileName, BYTE* buffer, DWORD fileOffset, D
         ::fseek(fpRomFile, fileOffset, SEEK_SET);
     }
 
-    DWORD dwBytesRead = ::fread(buffer, 1, bytesToRead, fpRomFile);
+    quint32 dwBytesRead = ::fread(buffer, 1, bytesToRead, fpRomFile);
     if (dwBytesRead != bytesToRead)
     {
         ::fclose(fpRomFile);
-        return FALSE;
+        return false;
     }
 
     ::fclose(fpRomFile);
 
-    return TRUE;
+    return true;
 }
 
-BOOL Emulator_Init()
+bool Emulator_Init()
 {
     ASSERT(g_pBoard == NULL);
 
@@ -149,8 +149,8 @@ BOOL Emulator_Init()
     g_pBoard = new CMotherboard();
 
     // Allocate memory for old RAM values
-    g_pEmulatorRam = (BYTE*) ::malloc(65536);  ::memset(g_pEmulatorRam, 0, 65536);
-    g_pEmulatorChangedRam = (BYTE*) ::malloc(65536);  ::memset(g_pEmulatorChangedRam, 0, 65536);
+    g_pEmulatorRam = (quint8*) ::malloc(65536);  ::memset(g_pEmulatorRam, 0, 65536);
+    g_pEmulatorChangedRam = (quint8*) ::malloc(65536);  ::memset(g_pEmulatorChangedRam, 0, 65536);
 
     g_pBoard->Reset();
 
@@ -167,8 +167,8 @@ BOOL Emulator_Init()
 
     Emulator_OnUpdate();
 
-    g_okEmulatorInitialized = TRUE;
-    return TRUE;
+    g_okEmulatorInitialized = true;
+    return true;
 }
 
 void Emulator_Done()
@@ -187,14 +187,14 @@ void Emulator_Done()
     ::free(g_pEmulatorRam);
     ::free(g_pEmulatorChangedRam);
 
-    g_okEmulatorInitialized = FALSE;
+    g_okEmulatorInitialized = false;
 }
 
-BOOL Emulator_InitConfiguration(BKConfiguration configuration)
+bool Emulator_InitConfiguration(BKConfiguration configuration)
 {
     g_pBoard->SetConfiguration(configuration);
 
-    BYTE buffer[8192];
+    quint8 buffer[8192];
 
     if ((configuration & BK_COPT_BK0011) == 0)
     {
@@ -202,7 +202,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_MONIT10, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load Monitor ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(0, buffer);
     }
@@ -213,21 +213,21 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_1, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BASIC ROM 1 file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BASIC ROM 2 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_2, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BASIC ROM 2 file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(2, buffer);
         // Load BASIC ROM 3 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_3, buffer, 0, 8064))
         {
             AlertWarning(_T("Failed to load BASIC ROM 3 file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(3, buffer);
     }
@@ -237,7 +237,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_FOCAL, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load Focal ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Unused 8KB
@@ -247,7 +247,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_TESTS, buffer, 0, 8064))
         {
             AlertWarning(_T("Failed to load Tests ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(3, buffer);
     }
@@ -258,21 +258,21 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(0, buffer);
         // Load BK0011M BASIC 0, part 2
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 8192, 8192))
         {
             AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BK0011M BASIC 1
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_1, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M BASIC 1 ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(2, buffer);
 
@@ -280,14 +280,14 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_EXT, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M EXT ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(3, buffer);
         // Load BK0011M BOS
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_BOS, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M BOS ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(4, buffer);
     }
@@ -299,7 +299,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_DISK_326, buffer, 0, 4096))
         {
             AlertWarning(_T("Failed to load DISK ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM((configuration & BK_COPT_BK0011) ? 5 : 3, buffer);
     }
@@ -310,7 +310,7 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_MSTD, buffer, 0, 8192))
         {
             AlertWarning(_T("Failed to load BK11M MSTD ROM file."));
-            return FALSE;
+            return false;
         }
         g_pBoard->LoadROM(5, buffer);
     }
@@ -335,12 +335,12 @@ BOOL Emulator_InitConfiguration(BKConfiguration configuration)
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
 
-    return TRUE;
+    return true;
 }
 
 void Emulator_Start()
 {
-    g_okEmulatorRunning = TRUE;
+    g_okEmulatorRunning = true;
 
     m_nFrameCount = 0;
     m_emulatorTime.restart();
@@ -348,7 +348,7 @@ void Emulator_Start()
 }
 void Emulator_Stop()
 {
-    g_okEmulatorRunning = FALSE;
+    g_okEmulatorRunning = false;
     m_wEmulatorCPUBreakpoint = 0177777;
 
     // Reset FPS indicator
@@ -370,17 +370,17 @@ void Emulator_Reset()
     Global_UpdateAllViews();
 }
 
-void Emulator_SetCPUBreakpoint(WORD address)
+void Emulator_SetCPUBreakpoint(quint16 address)
 {
     m_wEmulatorCPUBreakpoint = address;
 }
 
-BOOL Emulator_IsBreakpoint()
+bool Emulator_IsBreakpoint()
 {
-    WORD wCPUAddr = g_pBoard->GetCPU()->GetPC();
+    quint16 wCPUAddr = g_pBoard->GetCPU()->GetPC();
     if (wCPUAddr == m_wEmulatorCPUBreakpoint)
-        return TRUE;
-    return FALSE;
+        return true;
+    return false;
 }
 
 int Emulator_SystemFrame()
@@ -432,13 +432,13 @@ void Emulator_OnUpdate()
 
     // Update memory change flags
     {
-        BYTE* pOld = g_pEmulatorRam;
-        BYTE* pChanged = g_pEmulatorChangedRam;
-        WORD addr = 0;
+        quint8* pOld = g_pEmulatorRam;
+        quint8* pChanged = g_pEmulatorChangedRam;
+        quint16 addr = 0;
         do
         {
-            BYTE newvalue = g_pBoard->GetRAMByte(addr);
-            BYTE oldvalue = *pOld;
+            quint8 newvalue = g_pBoard->GetRAMByte(addr);
+            quint8 oldvalue = *pOld;
             *pChanged = (newvalue != oldvalue) ? 255 : 0;
             *pOld = newvalue;
             addr++;
@@ -450,9 +450,9 @@ void Emulator_OnUpdate()
 
 // Get RAM change flag
 //   addrtype - address mode - see ADDRTYPE_XXX constants
-WORD Emulator_GetChangeRamStatus(WORD address)
+quint16 Emulator_GetChangeRamStatus(quint16 address)
 {
-    return *((WORD*)(g_pEmulatorChangedRam + address));
+    return *((quint16*)(g_pEmulatorChangedRam + address));
 }
 
 void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei)
@@ -470,19 +470,19 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
     if (!g_okEmulatorInitialized) return;
 
     // Get scroll value
-    WORD scroll = g_pBoard->GetPortView(0177664);
-    BOOL okSmallScreen = ((scroll & 01000) == 0);
+    quint16 scroll = g_pBoard->GetPortView(0177664);
+    bool okSmallScreen = ((scroll & 01000) == 0);
     scroll &= 0377;
     scroll = (scroll >= 0330) ? scroll - 0330 : 050 + scroll;
 
     // Get palette
-    DWORD* pPalette;
+    quint32* pPalette;
     if ((g_nEmulatorConfiguration & BK_COPT_BK0011) == 0)
-        pPalette = (DWORD*)ScreenView_ColorPalette;
+        pPalette = (quint32*)ScreenView_ColorPalette;
     else
-        pPalette = (DWORD*)ScreenView_ColorPalettes[g_pBoard->GetPalette()];
+        pPalette = (quint32*)ScreenView_ColorPalettes[g_pBoard->GetPalette()];
 
-    const BYTE* pVideoBuffer = g_pBoard->GetVideoBuffer();
+    const quint8* pVideoBuffer = g_pBoard->GetVideoBuffer();
     ASSERT(pVideoBuffer != NULL);
 
     // Render to bitmap
@@ -490,21 +490,21 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
     callback(pVideoBuffer, okSmallScreen, pPalette, scroll, pImageBits);
 }
 
-void CALLBACK Emulator_PrepareScreenBW512x256(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
     {
         int yy = (y + scroll) & 0377;
-        const WORD* pVideo = (WORD*)(pVideoBuffer + yy * 0100);
-        DWORD* pBits = (DWORD*)pImageBits + y * 512;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        quint32* pBits = (quint32*)pImageBits + y * 512;
         for (int x = 0; x < 512 / 16; x++)
         {
-            WORD src = *pVideo;
+            quint16 src = *pVideo;
 
             for (int bit = 0; bit < 16; bit++)
             {
-                DWORD color = (src & 1) ? 0x0ffffff : 0;
+                quint32 color = (src & 1) ? 0x0ffffff : 0;
                 *pBits = color;
                 pBits++;
                 src = src >> 1;
@@ -515,25 +515,25 @@ void CALLBACK Emulator_PrepareScreenBW512x256(const BYTE* pVideoBuffer, int okSm
     }
     if (okSmallScreen)
     {
-        memset((DWORD*)pImageBits, 0, (256 - 64) * 512 * sizeof(DWORD));
+        memset((quint32*)pImageBits, 0, (256 - 64) * 512 * sizeof(quint32));
     }
 }
 
-void CALLBACK Emulator_PrepareScreenColor512x256(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
     {
         int yy = (y + scroll) & 0377;
-        const WORD* pVideo = (WORD*)(pVideoBuffer + yy * 0100);
-        DWORD* pBits = (DWORD*)pImageBits + y * 512;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        quint32* pBits = (quint32*)pImageBits + y * 512;
         for (int x = 0; x < 512 / 16; x++)
         {
-            WORD src = *pVideo;
+            quint16 src = *pVideo;
 
             for (int bit = 0; bit < 16; bit += 2)
             {
-                DWORD color = pPalette[src & 3];
+                quint32 color = pPalette[src & 3];
                 *pBits = color;
                 pBits++;
                 *pBits = color;
@@ -546,29 +546,29 @@ void CALLBACK Emulator_PrepareScreenColor512x256(const BYTE* pVideoBuffer, int o
     }
     if (okSmallScreen)
     {
-        memset((DWORD*)pImageBits, 0, (256 - 64) * 512 * sizeof(DWORD));
+        memset((quint32*)pImageBits, 0, (256 - 64) * 512 * sizeof(quint32));
     }
 }
 
-void CALLBACK Emulator_PrepareScreenBW512x384(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     int bky = 0;
     for (int y = 0; y < 384; y++)
     {
-        DWORD* pBits = (DWORD*)pImageBits + y * 512;
+        quint32* pBits = (quint32*)pImageBits + y * 512;
         if (y % 3 == 1)
             continue;  // Skip, fill later
 
         int yy = (bky + scroll) & 0377;
-        const WORD* pVideo = (WORD*)(pVideoBuffer + yy * 0100);
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
         for (int x = 0; x < 512 / 16; x++)
         {
-            WORD src = *pVideo;
+            quint16 src = *pVideo;
 
             for (int bit = 0; bit < 16; bit++)
             {
-                DWORD color = (src & 1) ? 0x0ffffff : 0;
+                quint32 color = (src & 1) ? 0x0ffffff : 0;
                 *pBits = color;
                 pBits++;
                 src = src >> 1;
@@ -579,12 +579,12 @@ void CALLBACK Emulator_PrepareScreenBW512x384(const BYTE* pVideoBuffer, int okSm
 
         if (y % 3 == 2)  // Fill skipped line
         {
-            BYTE* pBits2 = (BYTE*)((DWORD*)pImageBits + (y - 0) * 512);
-            BYTE* pBits1 = (BYTE*)((DWORD*)pImageBits + (y - 1) * 512);
-            BYTE* pBits0 = (BYTE*)((DWORD*)pImageBits + (y - 2) * 512);
+            quint8* pBits2 = (quint8*)((quint32*)pImageBits + (y - 0) * 512);
+            quint8* pBits1 = (quint8*)((quint32*)pImageBits + (y - 1) * 512);
+            quint8* pBits0 = (quint8*)((quint32*)pImageBits + (y - 2) * 512);
             for (int x = 0; x < 512 * 4; x++)
             {
-                *pBits1 = (BYTE)((((WORD)*pBits0) + ((WORD)*pBits2)) / 2);
+                *pBits1 = (quint8)((((quint16)*pBits0) + ((quint16)*pBits2)) / 2);
                 pBits2++;  pBits1++;  pBits0++;
             }
         }
@@ -594,29 +594,29 @@ void CALLBACK Emulator_PrepareScreenBW512x384(const BYTE* pVideoBuffer, int okSm
     }
     if (okSmallScreen)
     {
-        memset((DWORD*)pImageBits, 0, (384 - 86) * 512 * sizeof(DWORD));  //TODO
+        memset((quint32*)pImageBits, 0, (384 - 86) * 512 * sizeof(quint32));  //TODO
     }
 }
 
-void CALLBACK Emulator_PrepareScreenColor512x384(const BYTE* pVideoBuffer, int okSmallScreen, DWORD* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     int bky = 0;
     for (int y = 0; y < 384; y++)
     {
-        DWORD* pBits = (DWORD*)pImageBits + y * 512;
+        quint32* pBits = (quint32*)pImageBits + y * 512;
         if (y % 3 == 1)
             continue;  // Skip, fill later
 
         int yy = (bky + scroll) & 0377;
-        const WORD* pVideo = (WORD*)(pVideoBuffer + yy * 0100);
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
         for (int x = 0; x < 512 / 16; x++)
         {
-            WORD src = *pVideo;
+            quint16 src = *pVideo;
 
             for (int bit = 0; bit < 16; bit += 2)
             {
-                DWORD color = pPalette[src & 3];
+                quint32 color = pPalette[src & 3];
                 *pBits = color;
                 pBits++;
                 *pBits = color;
@@ -629,12 +629,12 @@ void CALLBACK Emulator_PrepareScreenColor512x384(const BYTE* pVideoBuffer, int o
 
         if (y % 3 == 2)  // Fill skipped line
         {
-            BYTE* pBits2 = (BYTE*)((DWORD*)pImageBits + (y - 0) * 512);
-            BYTE* pBits1 = (BYTE*)((DWORD*)pImageBits + (y - 1) * 512);
-            BYTE* pBits0 = (BYTE*)((DWORD*)pImageBits + (y - 2) * 512);
+            quint8* pBits2 = (quint8*)((quint32*)pImageBits + (y - 0) * 512);
+            quint8* pBits1 = (quint8*)((quint32*)pImageBits + (y - 1) * 512);
+            quint8* pBits0 = (quint8*)((quint32*)pImageBits + (y - 2) * 512);
             for (int x = 0; x < 512 * 4; x++)
             {
-                *pBits1 = (BYTE)((((WORD)*pBits0) + ((WORD)*pBits2)) / 2);
+                *pBits1 = (quint8)((((quint16)*pBits0) + ((quint16)*pBits2)) / 2);
                 pBits2++;  pBits1++;  pBits0++;
             }
         }
@@ -644,17 +644,17 @@ void CALLBACK Emulator_PrepareScreenColor512x384(const BYTE* pVideoBuffer, int o
     }
     if (okSmallScreen)
     {
-        memset((DWORD*)pImageBits, 0, (384 - 86) * 512 * sizeof(DWORD));  //TODO
+        memset((quint32*)pImageBits, 0, (384 - 86) * 512 * sizeof(quint32));  //TODO
     }
 }
 
 
-void Emulator_KeyEvent(BYTE keyscan, BOOL pressed, BOOL ctrl)
+void Emulator_KeyEvent(quint8 keyscan, bool pressed, bool ctrl)
 {
     if (m_EmulatorKeyQueueCount == KEYEVENT_QUEUE_SIZE) return;  // Full queue
 
     unsigned char keyflags = (pressed ? 128 : 0) | (ctrl ? 64 : 0);
-    WORD keyevent = MAKEWORD(keyscan, keyflags);
+    quint16 keyevent = MAKEWORD(keyscan, keyflags);
 
     m_EmulatorKeyQueue[m_EmulatorKeyQueueTop] = keyevent;
     m_EmulatorKeyQueueTop++;
@@ -663,11 +663,11 @@ void Emulator_KeyEvent(BYTE keyscan, BOOL pressed, BOOL ctrl)
     m_EmulatorKeyQueueCount++;
 }
 
-WORD Emulator_GetKeyEventFromQueue()
+quint16 Emulator_GetKeyEventFromQueue()
 {
     if (m_EmulatorKeyQueueCount == 0) return 0;  // Empty queue
 
-    WORD keyevent = m_EmulatorKeyQueue[m_EmulatorKeyQueueBottom];
+    quint16 keyevent = m_EmulatorKeyQueue[m_EmulatorKeyQueueBottom];
     m_EmulatorKeyQueueBottom++;
     if (m_EmulatorKeyQueueBottom >= KEYEVENT_QUEUE_SIZE)
         m_EmulatorKeyQueueBottom = 0;
@@ -679,18 +679,18 @@ WORD Emulator_GetKeyEventFromQueue()
 void Emulator_ProcessKeyEvent()
 {
     // Process next event in the keyboard queue
-    WORD keyevent = Emulator_GetKeyEventFromQueue();
+    quint16 keyevent = Emulator_GetKeyEventFromQueue();
     if (keyevent != 0)
     {
-        BOOL pressed = ((keyevent & 0x8000) != 0);
-        BOOL ctrl = ((keyevent & 0x4000) != 0);
-        BYTE bkscan = LOBYTE(keyevent);
+        bool pressed = ((keyevent & 0x8000) != 0);
+        bool ctrl = ((keyevent & 0x4000) != 0);
+        quint8 bkscan = LOBYTE(keyevent);
         g_pBoard->KeyboardEvent(bkscan, pressed, ctrl);
     }
 }
 
 
-void CALLBACK Emulator_TeletypeCallback(BYTE symbol)
+void CALLBACK Emulator_TeletypeCallback(quint8 symbol)
 {
     if (symbol >= 32 || symbol == 13 || symbol == 10)
     {

@@ -32,11 +32,11 @@ void QDebugView::updateData()
 
     // Get new register values and set change flags
     for (int r = 0; r < 8; r++) {
-        WORD value = pCPU->GetReg(r);
+        quint16 value = pCPU->GetReg(r);
         m_okDebugCpuRChanged[r] = (m_wDebugCpuR[r] != value);
         m_wDebugCpuR[r] = value;
     }
-    WORD pswCPU = pCPU->GetPSW();
+    quint16 pswCPU = pCPU->GetPSW();
     m_okDebugCpuRChanged[8] = (m_wDebugCpuR[8] != pswCPU);
     m_wDebugCpuR[8] = pswCPU;
 }
@@ -65,8 +65,8 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
 
     CProcessor* pDebugPU = g_pBoard->GetCPU();
     ASSERT(pDebugPU != NULL);
-    WORD* arrR = m_wDebugCpuR;
-    BOOL* arrRChanged = m_okDebugCpuRChanged;
+    quint16* arrR = m_wDebugCpuR;
+    bool* arrRChanged = m_okDebugCpuRChanged;
 
     drawProcessor(painter, pDebugPU, cxChar * 2, 1 * cyLine, arrR, arrRChanged);
 
@@ -87,7 +87,7 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
-void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, WORD *arrR, BOOL *arrRChanged)
+void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, quint16 *arrR, bool *arrRChanged)
 {
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
@@ -104,7 +104,7 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
         LPCTSTR strRegName = REGISTER_NAME[r];
         painter.drawText(x, y + (1 + r) * cyLine, strRegName);
 
-        WORD value = arrR[r]; //pProc->GetReg(r);
+        quint16 value = arrR[r]; //pProc->GetReg(r);
         DrawOctalValue(painter, x + cxChar * 3, y + (1 + r) * cyLine, value);
         DrawHexValue(painter, x + cxChar * 10, y + (1 + r) * cyLine, value);
         DrawBinaryValue(painter, x + cxChar * 15, y + (1 + r) * cyLine, value);
@@ -114,7 +114,7 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     // PSW value
     painter.setPen(QColor(arrRChanged[8] ? Qt::red : colorText));
     painter.drawText(x, y + 10 * cyLine, _T("PS"));
-    WORD psw = arrR[8]; // pProc->GetPSW();
+    quint16 psw = arrR[8]; // pProc->GetPSW();
     DrawOctalValue(painter, x + cxChar * 3, y + 10 * cyLine, psw);
     DrawHexValue(painter, x + cxChar * 10, y + 10 * cyLine, psw);
     painter.drawText(x + cxChar * 15, y + 9 * cyLine, _T("       HP  TNZVC"));
@@ -123,11 +123,11 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     painter.setPen(colorText);
 
     // Processor mode - HALT or USER
-    BOOL okHaltMode = pProc->IsHaltMode();
+    bool okHaltMode = pProc->IsHaltMode();
     painter.drawText(x, y + 12 * cyLine, okHaltMode ? _T("HALT") : _T("USER"));
 
     // "Stopped" flag
-    BOOL okStopped = pProc->IsStopped();
+    bool okStopped = pProc->IsStopped();
     if (okStopped)
         painter.drawText(x + 6 * cxChar, y + 12 * cyLine, _T("STOP"));
 }
@@ -139,25 +139,25 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
     int cyLine = fontmetrics.height();
     QColor colorText = painter.pen().color();
 
-    WORD current = pProc->GetReg(reg);
-    BOOL okExec = (reg == 7);
+    quint16 current = pProc->GetReg(reg);
+    bool okExec = (reg == 7);
 
     // Читаем из памяти процессора в буфер
-    WORD memory[16];
+    quint16 memory[16];
     for (int idx = 0; idx < 16; idx++) {
         int addrtype;
         memory[idx] = g_pBoard->GetWordView(
                 current + idx * 2 - 14, pProc->IsHaltMode(), okExec, &addrtype);
     }
 
-    WORD address = current - 14;
+    quint16 address = current - 14;
     for (int index = 0; index < 14; index++) {  // Рисуем строки
         // Адрес
         DrawOctalValue(painter, x + 4 * cxChar, y, address);
 
         // Значение по адресу
-        WORD value = memory[index];
-        WORD wChanged = Emulator_GetChangeRamStatus(address);
+        quint16 value = memory[index];
+        quint16 wChanged = Emulator_GetChangeRamStatus(address);
         painter.setPen(wChanged != 0 ? Qt::red : colorText);
         DrawOctalValue(painter, x + 12 * cxChar, y, value);
         painter.setPen(colorText);
@@ -183,7 +183,7 @@ void QDebugView::drawPorts(QPainter &painter, int x, int y)
 
     painter.drawText(x, y, _T("Port"));
 
-    WORD value;
+    quint16 value;
     y += cyLine;
     value = g_pBoard->GetPortView(0177660);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177660);

@@ -138,7 +138,7 @@ const unsigned char arrPcscan2BkscanRus[256] = {  // ÐÓÑ
 };
 
 
-unsigned char QEmulatorScreen::TranslateQtKeyToBkKey(int qtkey, BOOL okShift)
+unsigned char QEmulatorScreen::TranslateQtKeyToBkKey(int qtkey, bool okShift)
 {
     switch (qtkey)
     {

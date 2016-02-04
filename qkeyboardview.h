@@ -20,7 +20,7 @@ private:
     int m_nImageLeft;
 
 private:
-    unsigned char GetKeyByPoint(int x, int y, BOOL okShift);
+    unsigned char GetKeyByPoint(int x, int y, bool okShift);
     void showKeyboardMapping(QPainter& painter);
 };
 

@@ -22,10 +22,10 @@ protected:
 
 private:
     unsigned short m_wDebugCpuR[9];  // Old register values - R0..R7, PSW
-    BOOL m_okDebugCpuRChanged[9];  // Register change flags
+    bool m_okDebugCpuRChanged[9];  // Register change flags
 
 private:
-    void drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, WORD *arrR, BOOL *arrRChanged);
+    void drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, quint16 *arrR, bool *arrRChanged);
     void drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y);
     void drawPorts(QPainter &painter, int x, int y);
 };

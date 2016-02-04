@@ -87,16 +87,16 @@ void QConsoleView::printHelp()
         );
 }
 
-int QConsoleView::printDisassemble(WORD address, BOOL okOneInstr, BOOL okShort)
+int QConsoleView::printDisassemble(quint16 address, bool okOneInstr, bool okShort)
 {
     CProcessor* pProc = g_pBoard->GetCPU();
-    BOOL okHaltMode = pProc->IsHaltMode();
+    bool okHaltMode = pProc->IsHaltMode();
 
     const int nWindowSize = 30;
-    WORD memory[nWindowSize + 2];
+    quint16 memory[nWindowSize + 2];
     int addrtype;
     for (int i = 0; i < nWindowSize + 2; i++)
-        memory[i] = g_pBoard->GetWordView(address + i*2, okHaltMode, TRUE, &addrtype);
+        memory[i] = g_pBoard->GetWordView(address + i*2, okHaltMode, true, &addrtype);
 
     TCHAR bufaddr[7];
     TCHAR bufvalue[7];
@@ -106,7 +106,7 @@ int QConsoleView::printDisassemble(WORD address, BOOL okOneInstr, BOOL okShort)
     int length = 0;
     for (int index = 0; index < nWindowSize; index++) {  // Рисуем строки
         PrintOctalValue(bufaddr, address);
-        WORD value = memory[index];
+        quint16 value = memory[index];
         PrintOctalValue(bufvalue, value);
 
         if (length > 0)
@@ -140,7 +140,7 @@ int QConsoleView::printDisassemble(WORD address, BOOL okOneInstr, BOOL okShort)
     return lastLength;
 }
 
-void QConsoleView::printRegister(LPCTSTR strName, WORD value)
+void QConsoleView::printRegister(LPCTSTR strName, quint16 value)
 {
     TCHAR buffer[31];
     TCHAR* p = buffer;
@@ -157,17 +157,17 @@ void QConsoleView::printRegister(LPCTSTR strName, WORD value)
     this->print(buffer);
 }
 
-void QConsoleView::printMemoryDump(WORD address, int lines)
+void QConsoleView::printMemoryDump(quint16 address, int lines)
 {
     CProcessor* pProc = g_pBoard->GetCPU();
 
     address &= ~1;  // Line up to even address
 
-    BOOL okHaltMode = pProc->IsHaltMode();
+    bool okHaltMode = pProc->IsHaltMode();
 
     for (int line = 0; line < lines; line++)
     {
-        WORD dump[8];
+        quint16 dump[8];
         for (int i = 0; i < 8; i++)
             dump[i] = g_pBoard->GetWord(address + i*2, okHaltMode);
 
@@ -184,12 +184,12 @@ void QConsoleView::printMemoryDump(WORD address, int lines)
         }
         *pBuf = _T(' ');  pBuf++;
 //        for (int i = 0; i < 8; i++) {
-//            WORD word = dump[i];
-//            BYTE ch1 = LOBYTE(word);
+//            quint16 word = dump[i];
+//            quint8 ch1 = LOBYTE(word);
 //            TCHAR wch1 = Translate_BK_Unicode(ch1);
 //            if (ch1 < 32) wch1 = _T('·');
 //            *pBuf = wch1;  pBuf++;
-//            BYTE ch2 = HIBYTE(word);
+//            quint8 ch2 = HIBYTE(word);
 //            TCHAR wch2 = Translate_BK_Unicode(ch2);
 //            if (ch2 < 32) wch2 = _T('·');
 //            *pBuf = wch2;  pBuf++;
@@ -219,8 +219,8 @@ void QConsoleView::execConsoleCommand(const QString &command)
     // Echo command to the log
     this->printLine(command);
 
-    BOOL okUpdateAllViews = FALSE;  // Flag - need to update all debug views
-    BOOL okUpdateMenu = FALSE;  // Flag - need to update main menu
+    bool okUpdateAllViews = false;  // Flag - need to update all debug views
+    bool okUpdateMenu = false;  // Flag - need to update main menu
     CProcessor* pProc = g_pBoard->GetCPU();
 
     // Execute the command
@@ -239,7 +239,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
             for (int r = 0; r < 8; r++)
             {
                 LPCTSTR name = REGISTER_NAME[r];
-                WORD value = pProc->GetReg(r);
+                quint16 value = pProc->GetReg(r);
                 this->printRegister(name, value);
             }
         }
@@ -249,19 +249,19 @@ void QConsoleView::execConsoleCommand(const QString &command)
             LPCTSTR name = REGISTER_NAME[r];
             if (command.length() == 2)  // "rN" - show register N
             {
-                WORD value = pProc->GetReg(r);
+                quint16 value = pProc->GetReg(r);
                 this->printRegister(name, value);
             }
             else if (command[2].toLatin1() == '=' || command[2].toLatin1() == ' ')  // "rN=XXXXXX" - set register N to value XXXXXX
             {
-                WORD value;
+                quint16 value;
                 if (! ParseOctalValue(command.mid(3), &value))
                     this->print(MESSAGE_WRONG_VALUE);
                 else
                 {
                     pProc->SetReg(r, value);
                     this->printRegister(name, value);
-                    okUpdateAllViews = TRUE;
+                    okUpdateAllViews = true;
                 }
             }
             else
@@ -271,19 +271,19 @@ void QConsoleView::execConsoleCommand(const QString &command)
         {
             if (command.length() == 2)  // "rps" - show PSW
             {
-                WORD value = pProc->GetPSW();
+                quint16 value = pProc->GetPSW();
                 this->printRegister(_T("PS"), value);
             }
             else if (command[3].toLatin1() == '=' || command[3].toLatin1() == ' ')  // "rps=XXXXXX" - set PSW to value XXXXXX
             {
-                WORD value;
+                quint16 value;
                 if (! ParseOctalValue(command.mid(4), &value))
                     this->print(MESSAGE_WRONG_VALUE);
                 else
                 {
                     pProc->SetPSW(value);
                     this->printRegister(_T("PS"), value);
-                    okUpdateAllViews = TRUE;
+                    okUpdateAllViews = true;
                 }
             }
             else
@@ -294,36 +294,36 @@ void QConsoleView::execConsoleCommand(const QString &command)
     }
     else if (command == _T("s"))  // "s" - Step Into, execute one instruction
     {
-        this->printDisassemble(pProc->GetPC(), TRUE, FALSE);
+        this->printDisassemble(pProc->GetPC(), true, false);
 
         //pProc->Execute();
         g_pBoard->DebugTicks();
 
-        okUpdateAllViews = TRUE;
+        okUpdateAllViews = true;
     }
     else if (command == _T("so"))  // "so" - Step Over
     {
-        int instrLength = this->printDisassemble(pProc->GetPC(), TRUE, FALSE);
-        WORD bpaddress = pProc->GetPC() + instrLength * 2;
+        int instrLength = this->printDisassemble(pProc->GetPC(), true, false);
+        quint16 bpaddress = pProc->GetPC() + instrLength * 2;
 
         Emulator_SetCPUBreakpoint(bpaddress);
         Emulator_Start();
 
-        okUpdateMenu = TRUE;
+        okUpdateMenu = true;
     }
     else if (command.startsWith(_T("d")) ||  // Disassemble
              command.startsWith(_T("D")))    // Disassemble, short format
     {
-        BOOL okShort = (command[0] == _T('D'));
+        bool okShort = (command[0] == _T('D'));
         if (command.length() == 1)  // "d" - disassemble at current address
-            this->printDisassemble(pProc->GetPC(), FALSE, okShort);
+            this->printDisassemble(pProc->GetPC(), false, okShort);
         else if (command[1].toLatin1() >= '0' && command[1].toLatin1() <= '7')  // "dXXXXXX" - disassemble at address XXXXXX
         {
-            WORD value;
+            quint16 value;
             if (! ParseOctalValue(command.mid(1), &value))
                 this->print(MESSAGE_WRONG_VALUE);
             else
-                this->printDisassemble(value, FALSE, okShort);
+                this->printDisassemble(value, false, okShort);
         }
         else
             this->print(MESSAGE_UNKNOWN_COMMAND);
@@ -336,7 +336,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
         }
         else if (command[1].toLatin1() >= '0' && command[1].toLatin1() <= '7')  // "mXXXXXX" - dump memory at address XXXXXX
         {
-            WORD value;
+            quint16 value;
             if (! ParseOctalValue(command.mid(1), &value))
                 this->print(MESSAGE_WRONG_VALUE);
             else
@@ -346,7 +346,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
                 command[2].toLatin1() >= '0' && command[2].toLatin1() <= '7')  // "mrN" - dump memory at address from register N
         {
             int r = command[2].toLatin1() - '0';
-            WORD address = pProc->GetReg(r);
+            quint16 address = pProc->GetReg(r);
             this->printMemoryDump(address, 8);
         }
         else
@@ -357,11 +357,11 @@ void QConsoleView::execConsoleCommand(const QString &command)
     else if (command == _T("g"))  // Go
     {
         Emulator_Start();
-        okUpdateAllViews = TRUE;
+        okUpdateAllViews = true;
     }
     else if (command.startsWith(_T("g")))  // Go
     {
-        WORD value;
+        quint16 value;
         if (! ParseOctalValue(command.mid(1), &value))
             this->print(MESSAGE_WRONG_VALUE);
         else
@@ -369,7 +369,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
             Emulator_SetCPUBreakpoint(value);
             Emulator_Start();
 
-            okUpdateMenu = TRUE;
+            okUpdateMenu = true;
         }
     }
     else
