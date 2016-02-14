@@ -84,7 +84,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned 
     for (int idx = 0; idx < nWindowSize; idx++) {
         int addrtype;
         memory[idx] = g_pBoard->GetWordView(
-                current + idx * 2 - 10, pProc->IsHaltMode(), TRUE, &addrtype);
+                current + idx * 2 - 10, pProc->IsHaltMode(), true, &addrtype);
     }
 
     quint16 address = current - 10;
@@ -127,7 +127,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned 
         }
         if (address == proccurrent)
         {
-            BOOL okPCchanged = proccurrent != previous;
+            bool okPCchanged = proccurrent != previous;
             if (okPCchanged) painter.setPen(Qt::red);
             painter.drawText(1 * cxChar, y, _T("PC"));
             painter.setPen(colorText);
@@ -139,7 +139,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, unsigned 
             painter.drawText(1 * cxChar, y, _T("  >"));
         }
 
-        BOOL okData = FALSE;
+        bool okData = false;
 //        if (m_okDisasmSubtitles)  // Show subtitle
 //        {
 //            DisasmSubtitleItem* pSubItem = DisasmView_FindSubtitle(address, SUBTYPE_COMMENT | SUBTYPE_DATA);

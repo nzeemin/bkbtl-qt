@@ -6,3 +6,5 @@
 /object_script.*
 /*.user
 /ui_mainwindow.h
+*.o
+moc_*.cpp

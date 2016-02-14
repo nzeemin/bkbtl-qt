@@ -85,7 +85,7 @@ void QEmulatorScreen::keyPressEvent(QKeyEvent *event)
     unsigned char bkscan = TranslateQtKeyToBkKey(event->key(), event->modifiers() & Qt::ShiftModifier);
     if (bkscan == 0) return;
 
-    Emulator_KeyEvent(bkscan, TRUE, event->modifiers() & Qt::ControlModifier);
+    Emulator_KeyEvent(bkscan, true, event->modifiers() & Qt::ControlModifier);
     event->accept();
 }
 
@@ -94,7 +94,7 @@ void QEmulatorScreen::keyReleaseEvent(QKeyEvent *event)
     unsigned char bkscan = TranslateQtKeyToBkKey(event->key(), event->modifiers() & Qt::ShiftModifier);
     if (bkscan == 0) return;
 
-    Emulator_KeyEvent(bkscan, FALSE, event->modifiers() & Qt::ControlModifier);
+    Emulator_KeyEvent(bkscan, false, event->modifiers() & Qt::ControlModifier);
     event->accept();
 }
 
