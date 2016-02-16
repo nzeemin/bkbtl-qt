@@ -148,11 +148,11 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             // Get word from memory
             quint16 word = 0;
             int addrtype;
-            BOOL okHalt = FALSE;
+            bool okHalt = false;
             quint16 wChanged = 0;
 
             okHalt = pDebugPU->IsHaltMode();
-            word = g_pBoard->GetWordView(address, okHalt, FALSE, &addrtype);
+            word = g_pBoard->GetWordView(address, okHalt, false, &addrtype);
             wChanged = Emulator_GetChangeRamStatus(address);
 
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
