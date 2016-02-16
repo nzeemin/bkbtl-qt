@@ -170,11 +170,11 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             }
 
             // Prepare characters to draw at right
-            quint8 ch1 = LOBYTE(word);
+            quint8 ch1 = (quint8)(word & 0xff); // LOBYTE
             ushort wch1 = Translate_BK_Unicode(ch1);
             if (ch1 < 32) wch1 = 0x00b7;
             wchars[j * 2] = wch1;
-            quint8 ch2 = HIBYTE(word);
+            quint8 ch2 = (quint8)((word >> 8) & 0xff); // HIBYTE
             ushort wch2 = Translate_BK_Unicode(ch2);
             if (ch2 < 32) wch2 = 0x00b7;
             wchars[j * 2 + 1] = wch2;

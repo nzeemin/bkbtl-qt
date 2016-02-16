@@ -684,7 +684,7 @@ void Emulator_ProcessKeyEvent()
     {
         bool pressed = ((keyevent & 0x8000) != 0);
         bool ctrl = ((keyevent & 0x4000) != 0);
-        quint8 bkscan = LOBYTE(keyevent);
+        quint8 bkscan = (quint8)(keyevent & 0xff);
         g_pBoard->KeyboardEvent(bkscan, pressed, ctrl);
     }
 }
