@@ -653,8 +653,8 @@ void Emulator_KeyEvent(quint8 keyscan, bool pressed, bool ctrl)
 {
     if (m_EmulatorKeyQueueCount == KEYEVENT_QUEUE_SIZE) return;  // Full queue
 
-    unsigned char keyflags = (pressed ? 128 : 0) | (ctrl ? 64 : 0);
-    quint16 keyevent = MAKEWORD(keyscan, keyflags);
+    quint16 keyflags = (pressed ? 128 : 0) | (ctrl ? 64 : 0);
+    quint16 keyevent = ((quint16)keyscan) | (keyflags << 8);
 
     m_EmulatorKeyQueue[m_EmulatorKeyQueueTop] = keyevent;
     m_EmulatorKeyQueueTop++;
