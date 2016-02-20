@@ -53,8 +53,8 @@ typedef const char * LPCTSTR;
 
 //#define MAKELONG(a, b)      ((LONG)(((quint16)(((quint32)(a)) & 0xffff)) | ((quint32)((quint16)(((quint32)(b)) & 0xffff))) << 16))
 #define MAKEWORD(a, b)      ((quint16)(((quint8)(((quint32)(a)) & 0xff)) | ((quint16)((quint8)(((quint32)(b)) & 0xff))) << 8))
-#define LOWORD(l)           ((quint16)(((quint32)(l)) & 0xffff))
-#define HIWORD(l)           ((quint16)((((quint32)(l)) >> 16) & 0xffff))
+//#define LOWORD(l)           ((quint16)(((quint32)(l)) & 0xffff))
+//#define HIWORD(l)           ((quint16)((((quint32)(l)) >> 16) & 0xffff))
 //#define LOBYTE(w)           ((quint8)(((quint32)(w)) & 0xff))
 //#define HIBYTE(w)           ((quint8)((((quint32)(w)) >> 8) & 0xff))
 
