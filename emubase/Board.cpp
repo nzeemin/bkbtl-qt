@@ -660,7 +660,7 @@ const uint8_t* CMotherboard::GetVideoBuffer()
     }
 }
 
-int CMotherboard::TranslateAddress(uint16_t address, bool okHaltMode, bool okExec, uint16_t* pOffset) const
+int CMotherboard::TranslateAddress(uint16_t address, bool /*okHaltMode*/, bool /*okExec*/, uint16_t* pOffset) const
 {
     // При подключенном блоке дисковода, его ПЗУ занимает адреса 160000-167776, при этом адреса 170000-177776 остаются под порты.
     // Без подключенного дисковода, порты занимают адреса 177600-177776.
@@ -715,7 +715,7 @@ int CMotherboard::TranslateAddress(uint16_t address, bool okHaltMode, bool okExe
                     break;
                 }
 
-                address = (address & 037777) + memoryRomChunk * 040000;
+                address = (uint16_t)((address & 037777) + memoryRomChunk * 040000);
             }
             else  // Включено ОЗУ 0..7
             {
@@ -835,7 +835,7 @@ uint16_t CMotherboard::GetPortWord(uint16_t address)
         return 0;
     }
 
-    return 0;
+    //return 0;
 }
 
 // Read word from port for debugger
