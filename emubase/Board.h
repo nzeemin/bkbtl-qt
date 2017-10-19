@@ -56,6 +56,14 @@ enum BKConfiguration
 #define ADDRTYPE_MASK  224  // RAM type mask
 #define ADDRTYPE_RAMMASK 7  // RAM chunk number mask
 
+// Trace flags
+#define TRACE_NONE         0  // Turn off all tracing
+#define TRACE_CPUROM       1  // Trace CPU instructions from ROM
+#define TRACE_CPURAM       2  // Trace CPU instructions from RAM
+#define TRACE_CPU          3  // Trace CPU instructions (mask)
+#define TRACE_FLOPPY    0100  // Trace floppies
+#define TRACE_ALL    0177777  // Trace all
+
 //floppy debug
 #define FLOPPY_FSM_WAITFORLSB	0
 #define FLOPPY_FSM_WAITFORMSB	1
@@ -63,8 +71,8 @@ enum BKConfiguration
 #define FLOPPY_FSM_WAITFORTERM2	3
 
 // Emulator image constants
-#define BKIMAGE_HEADER_SIZE 256
-#define BKIMAGE_SIZE (BKIMAGE_HEADER_SIZE + (32 + 64 * 3) * 1024)
+#define BKIMAGE_HEADER_SIZE 32
+#define BKIMAGE_SIZE 200704
 #define BKIMAGE_HEADER1 0x30304B41  // "BK00"
 #define BKIMAGE_HEADER2 0x214C5442  // "BTL!"
 #define BKIMAGE_VERSION 0x00010000  // 1.0
@@ -81,14 +89,14 @@ enum BKConfiguration
 #define BK_KEY_STOP         0277
 
 // События от джойстика - передавать в метод KeyboardEvent
-#define BK_KEY_JOYSTICK_BUTTON1 0210
-#define BK_KEY_JOYSTICK_BUTTON2 0211
-#define BK_KEY_JOYSTICK_BUTTON3 0212
-#define BK_KEY_JOYSTICK_BUTTON4 0213
-#define BK_KEY_JOYSTICK_RIGHT   0214
-#define BK_KEY_JOYSTICK_DOWN    0215
-#define BK_KEY_JOYSTICK_LEFT    0216
-#define BK_KEY_JOYSTICK_UP      0217
+#define BK_KEY_JOYSTICK_BUTTON1 0260
+#define BK_KEY_JOYSTICK_BUTTON2 0261
+#define BK_KEY_JOYSTICK_BUTTON3 0262
+#define BK_KEY_JOYSTICK_BUTTON4 0263
+#define BK_KEY_JOYSTICK_RIGHT   0264
+#define BK_KEY_JOYSTICK_DOWN    0265
+#define BK_KEY_JOYSTICK_LEFT    0266
+#define BK_KEY_JOYSTICK_UP      0267
 
 // Состояния клавиатуры БК - возвращаются из метода GetKeyboardRegister
 #define KEYB_RUS		0x01
@@ -146,12 +154,13 @@ public:  // Memory access  //TODO: Make it private
     uint16_t    GetROMWord(uint16_t offset) const;
     uint8_t     GetROMByte(uint16_t offset) const;
 public:  // Debug
-    void        DebugTicks();  // One Debug PPU tick -- use for debug step or debug breakpoint
+    void        DebugTicks();  // One Debug CPU tick -- use for debug step or debug breakpoint
     void        SetCPUBreakpoint(uint16_t bp) { m_CPUbp = bp; } // Set CPU breakpoint
-    bool        GetTrace() const { return m_okTraceCPU; }
-    void        SetTrace(bool okTraceCPU) { m_okTraceCPU = okTraceCPU; }
+    uint32_t    GetTrace() const { return m_dwTrace; }
+    void        SetTrace(uint32_t dwTrace);
 public:  // System control
     void        SetConfiguration(uint16_t conf);
+    uint16_t    GetConfiguration() const { return m_Configuration; }
     void        Reset();  // Reset computer
     void        LoadROM(int bank, const uint8_t* pBuffer);  // Load 8 KB ROM image from the biffer
     void        LoadRAM(int startbank, const uint8_t* pBuffer, int length);  // Load data into the RAM
@@ -213,8 +222,8 @@ private:  // Access to I/O ports
     uint8_t     GetPortByte(uint16_t address);
     void        SetPortByte(uint16_t address, uint8_t byte);
 public:  // Saving/loading emulator status
-    //void        SaveToImage(uint8_t* pImage);
-    //void        LoadFromImage(const uint8_t* pImage);
+    void        SaveToImage(uint8_t* pImage);
+    void        LoadFromImage(const uint8_t* pImage);
 private:  // Ports: implementation
     uint16_t    m_Port177560;       // Serial port input state register
     uint16_t    m_Port177562;       // Serial port input data register
@@ -238,7 +247,7 @@ private:  // Timer implementation
     void		SetTimerState(uint16_t val);	//sets timer state
 private:
     uint16_t    m_CPUbp;  // CPU breakpoint address
-    bool        m_okTraceCPU;
+    uint32_t    m_dwTrace;  // Trace flags
 private:
     TAPEREADCALLBACK m_TapeReadCallback;
     TAPEWRITECALLBACK m_TapeWriteCallback;

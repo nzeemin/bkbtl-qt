@@ -15,7 +15,7 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 #include "Emubase.h"
 #include "Board.h"
 
-void TraceInstruction(CProcessor* pProc, CMotherboard* pBoard, uint16_t address);
+void TraceInstruction(CProcessor* pProc, CMotherboard* pBoard, uint16_t address, uint32_t dwTrace);
 
 
 //////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ CMotherboard::CMotherboard ()
     m_pCPU = new CProcessor(this);
     m_pFloppyCtl = NULL;
 
-    m_okTraceCPU = false;
+    m_dwTrace = TRACE_NONE;
     m_TapeReadCallback = NULL;
     m_TapeWriteCallback = NULL;
     m_nTapeSampleRate = 0;
@@ -86,11 +86,19 @@ void CMotherboard::SetConfiguration(uint16_t conf)
     if (m_pFloppyCtl == NULL && (conf & BK_COPT_FDD) != 0)
     {
         m_pFloppyCtl = new CFloppyController();
+        m_pFloppyCtl->SetTrace(m_dwTrace & TRACE_FLOPPY);
     }
     if (m_pFloppyCtl != NULL && (conf & BK_COPT_FDD) == 0)
     {
         delete m_pFloppyCtl;  m_pFloppyCtl = NULL;
     }
+}
+
+void CMotherboard::SetTrace(uint32_t dwTrace)
+{
+    m_dwTrace = dwTrace;
+    if (m_pFloppyCtl != NULL)
+        m_pFloppyCtl->SetTrace(dwTrace & TRACE_FLOPPY);
 }
 
 void CMotherboard::Reset ()
@@ -358,13 +366,13 @@ bool CMotherboard::SystemFrame()
     {
         for (int procticks = 0; procticks < frameProcTicks; procticks++)  // CPU ticks
         {
+#if !defined(PRODUCT)
+            if ((m_dwTrace & TRACE_CPU) && m_pCPU->GetInternalTick() == 0)
+                TraceInstruction(m_pCPU, this, m_pCPU->GetPC(), m_dwTrace);
+#endif
+            m_pCPU->Execute();
             if (m_pCPU->GetPC() == m_CPUbp)
                 return false;  // Breakpoint
-//#if !defined(PRODUCT)
-//            if (m_okTraceCPU && m_pCPU->GetInternalTick() == 0)
-//                TraceInstruction(m_pCPU, this, m_pCPU->GetPC());
-//#endif
-            m_pCPU->Execute();
 
             timerTicks++;
             if (timerTicks >= 128)
@@ -392,7 +400,7 @@ bool CMotherboard::SystemFrame()
         {
             int tapeSamples = 0;
             const int readsTotal = 20000 / frameTapeTicks;
-            while (true)
+            for (;;)
             {
                 tapeSamples++;
                 tapeReadError += readsTotal;
@@ -452,7 +460,7 @@ bool CMotherboard::SystemFrame()
 // Key pressed or released
 void CMotherboard::KeyboardEvent(uint8_t scancode, bool okPressed, bool okAr2)
 {
-    if ((scancode & 0xf8) == 0210)  // События от джойстика
+    if ((scancode & 0370) == 0260)  // События от джойстика
     {
         uint16_t mask = 0;
         switch (scancode)
@@ -500,7 +508,8 @@ void CMotherboard::KeyboardEvent(uint8_t scancode, bool okPressed, bool okAr2)
         m_Port177660 |= 0200;  // "Key ready" flag in keyboard state register
         if ((m_Port177660 & 0100) == 0100)  // Keyboard interrupt enabled
         {
-            m_pCPU->InterruptVIRQ(1, (okAr2 ? 0274 : 060));
+            uint16_t intvec = ((okAr2 || (scancode & 0200) != 0) ? 0274 : 060);
+            m_pCPU->InterruptVIRQ(1, intvec);
         }
     }
 }
@@ -1016,77 +1025,87 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
 
 
 //////////////////////////////////////////////////////////////////////
-//
-// Emulator image format:
-//   32 bytes  - Header
-//   32 bytes  - Board status
-//   32 bytes  - CPU status
-//   64 bytes  - CPU memory/IO controller status
-//   32 Kbytes - ROM image
-//   64 Kbytes - RAM image
+// Emulator image
+//  Offset Length
+//       0     32 bytes  - Header
+//      32    128 bytes  - Board status
+//     160     32 bytes  - CPU status
+//     192   3904 bytes  - RESERVED
+//    4096  65536 bytes  - ROM image 64K
+//   69632 131072 bytes  - RAM image 128K
+//  200704     --        - END
 
-//void CMotherboard::SaveToImage(uint8_t* pImage)
-//{
-//    // Board data
-//    uint16_t* pwImage = (uint16_t*) (pImage + 32);
-//    *pwImage++ = m_timer;
-//    *pwImage++ = m_timerreload;
-//    *pwImage++ = m_timerflags;
-//    *pwImage++ = m_timerdivider;
-//    *pwImage++ = (uint16_t) m_chan0disabled;
-//
-//    // CPU status
-//    uint8_t* pImageCPU = pImage + 64;
-//    m_pCPU->SaveToImage(pImageCPU);
-//    // CPU memory/IO controller status
-//    uint8_t* pImageCpuMem = pImageCPU + 32;
-//    m_pFirstMemCtl->SaveToImage(pImageCpuMem);
-//
-//    // ROM
-//    uint8_t* pImageRom = pImage + 256;
-//    memcpy(pImageRom, m_pROM, 32 * 1024);
-//    // RAM planes 0, 1, 2
-//    uint8_t* pImageRam = pImageRom + 32 * 1024;
-//    memcpy(pImageRam, m_pRAM[0], 64 * 1024);
-//    pImageRam += 64 * 1024;
-//    memcpy(pImageRam, m_pRAM[1], 64 * 1024);
-//    pImageRam += 64 * 1024;
-//    memcpy(pImageRam, m_pRAM[2], 64 * 1024);
-//}
-//void CMotherboard::LoadFromImage(const uint8_t* pImage)
-//{
-//    // Board data
-//    uint16_t* pwImage = (uint16_t*) (pImage + 32);
-//    m_timer = *pwImage++;
-//    m_timerreload = *pwImage++;
-//    m_timerflags = *pwImage++;
-//    m_timerdivider = *pwImage++;
-//    m_chan0disabled = (uint8_t) *pwImage++;
-//
-//    // CPU status
-//    const uint8_t* pImageCPU = pImage + 64;
-//    m_pCPU->LoadFromImage(pImageCPU);
-//    // PPU status
-//    const uint8_t* pImagePPU = pImageCPU + 32;
-//    m_pPPU->LoadFromImage(pImagePPU);
-//    // CPU memory/IO controller status
-//    const uint8_t* pImageCpuMem = pImagePPU + 32;
-//    m_pFirstMemCtl->LoadFromImage(pImageCpuMem);
-//    // PPU memory/IO controller status
-//    const uint8_t* pImagePpuMem = pImageCpuMem + 64;
-//    m_pSecondMemCtl->LoadFromImage(pImagePpuMem);
-//
-//    // ROM
-//    const uint8_t* pImageRom = pImage + 256;
-//    memcpy(m_pROM, pImageRom, 32 * 1024);
-//    // RAM planes 0, 1, 2
-//    const uint8_t* pImageRam = pImageRom + 32 * 1024;
-//    memcpy(m_pRAM[0], pImageRam, 64 * 1024);
-//    pImageRam += 64 * 1024;
-//    memcpy(m_pRAM[1], pImageRam, 64 * 1024);
-//    pImageRam += 64 * 1024;
-//    memcpy(m_pRAM[2], pImageRam, 64 * 1024);
-//}
+void CMotherboard::SaveToImage(uint8_t* pImage)
+{
+    // Board data
+    uint16_t* pwImage = (uint16_t*) (pImage + 32);
+    *pwImage++ = m_Configuration;
+    pwImage += 6;  // RESERVED
+    *pwImage++ = m_Port177560;
+    *pwImage++ = m_Port177562;
+    *pwImage++ = m_Port177564;
+    *pwImage++ = m_Port177566;
+    *pwImage++ = m_Port177660;
+    *pwImage++ = m_Port177662rd;
+    *pwImage++ = m_Port177662wr;
+    *pwImage++ = m_Port177664;
+    *pwImage++ = m_Port177714in;
+    *pwImage++ = m_Port177714out;
+    *pwImage++ = m_Port177716;
+    *pwImage++ = m_Port177716mem;
+    *pwImage++ = m_Port177716tap;
+    pwImage += 3;  // RESERVED
+    *pwImage++ = m_timer;
+    *pwImage++ = m_timerreload;
+    *pwImage++ = m_timerflags;
+    *pwImage++ = m_timerdivider;
+
+    // CPU status
+    uint8_t* pImageCPU = pImage + 160;
+    m_pCPU->SaveToImage(pImageCPU);
+    // ROM
+    uint8_t* pImageRom = pImage + 4096;
+    memcpy(pImageRom, m_pROM, 64 * 1024);
+    // RAM
+    uint8_t* pImageRam = pImage + 69632;
+    memcpy(pImageRam, m_pRAM, 128 * 1024);
+}
+void CMotherboard::LoadFromImage(const uint8_t* pImage)
+{
+    // Board data
+    uint16_t* pwImage = (uint16_t*) (pImage + 32);
+    m_Configuration = *pwImage++;
+    pwImage += 6;  // RESERVED
+    m_Port177560 = *pwImage++;
+    m_Port177562 = *pwImage++;
+    m_Port177564 = *pwImage++;
+    m_Port177566 = *pwImage++;
+    m_Port177660 = *pwImage++;
+    m_Port177662rd = *pwImage++;
+    m_Port177662wr = *pwImage++;
+    m_Port177664 = *pwImage++;
+    m_Port177714in = *pwImage++;
+    m_Port177714out = *pwImage++;
+    m_Port177716 = *pwImage++;
+    m_Port177716mem = *pwImage++;
+    m_Port177716tap = *pwImage++;
+    pwImage += 3;  // RESERVED
+    m_timer = *pwImage++;
+    m_timerreload = *pwImage++;
+    m_timerflags = *pwImage++;
+    m_timerdivider = *pwImage++;
+
+    // CPU status
+    const uint8_t* pImageCPU = pImage + 160;
+    m_pCPU->LoadFromImage(pImageCPU);
+
+    // ROM
+    const uint8_t* pImageRom = pImage + 4096;
+    memcpy(m_pROM, pImageRom, 64 * 1024);
+    // RAM
+    const uint8_t* pImageRam = pImage + 69632;
+    memcpy(m_pRAM, pImageRam, 128 * 1024);
+}
 
 //void CMotherboard::FloppyDebug(uint8_t val)
 //{
@@ -1242,5 +1261,38 @@ void CMotherboard::SetTeletypeCallback(TELETYPECALLBACK callback)
         m_TeletypeCallback = callback;
     }
 }
+
+
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(PRODUCT)
+
+void TraceInstruction(CProcessor* pProc, CMotherboard* pBoard, uint16_t address, uint32_t dwTrace)
+{
+    bool okHaltMode = pProc->IsHaltMode();
+
+    uint16_t memory[4];
+    int addrtype = ADDRTYPE_RAM;
+    memory[0] = pBoard->GetWordView(address + 0 * 2, okHaltMode, true, &addrtype);
+    if (!(addrtype == ADDRTYPE_RAM && (dwTrace & TRACE_CPURAM)) &&
+        !(addrtype == ADDRTYPE_ROM && (dwTrace & TRACE_CPUROM)))
+        return;
+    memory[1] = pBoard->GetWordView(address + 1 * 2, okHaltMode, true, &addrtype);
+    memory[2] = pBoard->GetWordView(address + 2 * 2, okHaltMode, true, &addrtype);
+    memory[3] = pBoard->GetWordView(address + 3 * 2, okHaltMode, true, &addrtype);
+
+    TCHAR bufaddr[7];
+    PrintOctalValue(bufaddr, address);
+
+    TCHAR instr[8];
+    TCHAR args[32];
+    DisassembleInstruction(memory, address, instr, args);
+    TCHAR buffer[64];
+    _sntprintf(buffer, 64, _T("%s\t%s\t%s\r\n"), bufaddr, instr, args);
+
+    DebugLog(buffer);
+}
+
+#endif
 
 //////////////////////////////////////////////////////////////////////

@@ -28,7 +28,6 @@ HEADERS += mainwindow.h \
     Common.h \
     emubase/Processor.h \
     emubase/Emubase.h \
-    emubase/Disasm.h \
     emubase/Defines.h \
     emubase/Board.h \
     main.h \

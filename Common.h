@@ -23,6 +23,7 @@ typedef wchar_t TCHAR;
 #define _tstat      _wstat
 #define _tcsrchr    wcsrchr
 #define _tcsicmp    _wcsicmp
+#define _tcslen     wcslen
 #define _sntprintf  _snwprintf
 #else
 typedef char TCHAR;
@@ -32,6 +33,7 @@ typedef char TCHAR;
 #define _tstat      _stat
 #define _tcsrchr    strrchr
 #define _tcsicmp    _stricmp
+#define _tcslen     strlen
 #define _sntprintf  _snprintf
 #endif
 #define _T(x)       x

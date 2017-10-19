@@ -37,6 +37,8 @@ CFloppyDrive::CFloppyDrive()
     okReadOnly = false;
     datatrack = dataside = 0;
     dataptr = 0;
+    memset(data, 0, sizeof(data));
+    memset(marker, 0, sizeof(marker));
 }
 
 void CFloppyDrive::Reset()
@@ -55,10 +57,11 @@ CFloppyController::CFloppyController()
     m_pDrive = NULL;
     m_datareg = m_writereg = m_shiftreg = 0;
     m_writing = m_searchsync = m_writemarker = m_crccalculus = false;
-    m_writeflag = m_shiftflag = false;
+    m_writeflag = m_shiftflag = m_shiftmarker = false;
     m_trackchanged = false;
     m_status = FLOPPY_STATUS_TRACK0 | FLOPPY_STATUS_WRITEPROTECT;
     m_flags = FLOPPY_CMD_CORRECTION500 | FLOPPY_CMD_SIDEUP | FLOPPY_CMD_DIR | FLOPPY_CMD_SKIPSYNC;
+    m_okTrace = false;
 }
 
 CFloppyController::~CFloppyController()
@@ -163,7 +166,8 @@ uint16_t CFloppyController::GetState(void)
 void CFloppyController::SetCommand(uint16_t cmd)
 {
 //#if !defined(PRODUCT)
-//	DebugLogFormat(_T("Floppy COMMAND %06o\r\n"), cmd);
+//    if (m_okTrace)
+//        DebugLogFormat(_T("Floppy COMMAND %06o\r\n"), cmd);
 //#endif
 
     bool okPrepareTrack = false;  // Нужно ли считывать дорожку в буфер
@@ -187,7 +191,8 @@ case 1: default:                    newdrive = 0;  break;
         m_pDrive = (newdrive == -1) ? NULL : m_drivedata + m_drive;
         okPrepareTrack = true;
 #if !defined(PRODUCT)
-        DebugLogFormat(_T("Floppy CURRENT DRIVE %d\r\n"), newdrive);
+        if (m_okTrace)
+            DebugLogFormat(_T("Floppy CURRENT DRIVE %d\r\n"), newdrive);
 #endif
     }
     if (m_drive == -1)
@@ -211,7 +216,8 @@ case 1: default:                    newdrive = 0;  break;
     if (cmd & FLOPPY_CMD_STEP)  // Move head for one track to center or from center
     {
 #if !defined(PRODUCT)
-        DebugLogFormat(_T("Floppy STEP %d\r\n"), (m_flags & FLOPPY_CMD_DIR) ? 1 : 0);
+        if (m_okTrace)
+            DebugLogFormat(_T("Floppy STEP %d\r\n"), (m_flags & FLOPPY_CMD_DIR) ? 1 : 0);
 #endif
         m_side = (m_flags & FLOPPY_CMD_SIDEUP) ? 1 : 0;
 
@@ -251,7 +257,7 @@ case 1: default:                    newdrive = 0;  break;
 uint16_t CFloppyController::GetData(void)
 {
 #if !defined(PRODUCT)
-    if (m_pDrive != NULL)
+    if (m_okTrace && m_pDrive != NULL)
     {
         uint16_t offset = m_pDrive->dataptr;
         if (offset >= 102 && (offset - 102) % 610 == 0)
@@ -272,7 +278,8 @@ uint16_t CFloppyController::GetData(void)
 void CFloppyController::WriteData(uint16_t data)
 {
 //#if !defined(PRODUCT)
-//    DebugLogFormat(_T("Floppy WRITE\t\t%04x\r\n"), data);  //DEBUG
+//    if (m_okTrace)
+//        DebugLogFormat(_T("Floppy WRITE\t\t%04x\r\n"), data);  //DEBUG
 //#endif
 
     m_writing = true;  // Switch to write mode if not yet
@@ -316,7 +323,7 @@ void CFloppyController::Periodic()
             m_drivedata[drive].dataptr = 0;
     }
 #if !defined(PRODUCT)
-    if (m_pDrive != NULL && m_pDrive->dataptr == 0)
+    if (m_okTrace && m_pDrive != NULL && m_pDrive->dataptr == 0)
         DebugLogFormat(_T("Floppy Index\n"));
 #endif
 
@@ -345,7 +352,8 @@ void CFloppyController::Periodic()
                     m_status |= FLOPPY_STATUS_MOREDATA;
                     m_searchsync = false;
 #if !defined(PRODUCT)
-                    DebugLogFormat(_T("Floppy Marker Found\n"));
+                    if (m_okTrace)
+                        DebugLogFormat(_T("Floppy Marker Found\n"));
 #endif
                 }
             }
@@ -365,7 +373,8 @@ void CFloppyController::Periodic()
             if (m_shiftmarker)
             {
 //#if !defined(PRODUCT)
-//            DebugLogFormat(_T("Floppy WRITING %06o MARKER\r\n"), m_shiftreg);  //DEBUG
+//                if (m_okTrace)
+//                    DebugLogFormat(_T("Floppy WRITING %06o MARKER\r\n"), m_shiftreg);  //DEBUG
 //#endif
                 m_pDrive->marker[m_pDrive->dataptr / 2] = true;
                 m_shiftmarker = false;
@@ -374,7 +383,8 @@ void CFloppyController::Periodic()
             else
             {
 //#if !defined(PRODUCT)
-//            DebugLogFormat(_T("Floppy WRITING %06o\r\n"), m_shiftreg);  //DEBUG
+//                if (m_okTrace)
+//                    DebugLogFormat(_T("Floppy WRITING %06o\r\n"), m_shiftreg);  //DEBUG
 //#endif
                 m_pDrive->marker[m_pDrive->dataptr / 2] = false;
             }
@@ -411,7 +421,8 @@ void CFloppyController::PrepareTrack()
     if (m_pDrive == NULL) return;
 
 #if !defined(PRODUCT)
-    DebugLogFormat(_T("Floppy Prepare Track\tTRACK %d SIDE %d\r\n"), m_track, m_side);
+    if (m_okTrace)
+        DebugLogFormat(_T("Floppy Prepare Track\tTRACK %d SIDE %d\r\n"), m_track, m_side);
 #endif
 
     uint32_t count;
@@ -473,11 +484,11 @@ void CFloppyController::FlushChanges()
 
         // Check file length
         ::fseek(m_pDrive->fpFile, 0, SEEK_END);
-        uint32_t currentFileSize = ::ftell(m_pDrive->fpFile);
-        while (currentFileSize < (uint32_t)(foffset + 5120))
+        size_t currentFileSize = ::ftell(m_pDrive->fpFile);
+        while (currentFileSize < (size_t)(foffset + 5120))
         {
             uint8_t datafill[512];  ::memset(datafill, 0, 512);
-            uint32_t bytesToWrite = ((uint32_t)(foffset + 5120) - currentFileSize) % 512;
+            size_t bytesToWrite = ((size_t)(foffset + 5120) - currentFileSize) % 512;
             if (bytesToWrite == 0) bytesToWrite = 512;
             ::fwrite(datafill, 1, bytesToWrite, m_pDrive->fpFile);
             //TODO: Проверка на ошибки записи
@@ -514,7 +525,7 @@ static void EncodeTrackData(const uint8_t* pSrc, uint8_t* data, uint8_t* marker,
     memset(data, 0, FLOPPY_RAWTRACKSIZE);
     memset(marker, 0, FLOPPY_RAWMARKERSIZE);
     uint32_t count;
-    int ptr = 0;
+    size_t ptr = 0;
 
     int gap = 42;  // GAP4a + GAP1 length
     for (uint8_t sect = 0; sect < 10; sect++)
