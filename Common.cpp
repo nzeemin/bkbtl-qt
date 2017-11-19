@@ -112,8 +112,17 @@ QFont Common_GetMonospacedFont()
     if (g_MonospacedFont != NULL)
         return *g_MonospacedFont;
 
-    g_MonospacedFont = new QFont(_T("Lucida Console"), 9, QFont::Normal, false);
+#ifdef __APPLE__
+    LPCTSTR fontName = _T("Monaco");
+    int fontSize = 10;
+#else
+    LPCTSTR fontName = _T("Lucida Console");
+    int fontSize = 9;
+#endif
+    g_MonospacedFont = new QFont(fontName, fontSize, QFont::Normal, false);
     g_MonospacedFont->setFixedPitch(true);
+    g_MonospacedFont->setStyleHint(QFont::TypeWriter);
+    g_MonospacedFont->setHintingPreference(QFont::PreferNoHinting);
 
     return *g_MonospacedFont;
 }

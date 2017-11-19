@@ -209,8 +209,8 @@ bool QDisasmView::checkForJump(const quint16 *memory, int *pDelta)
 
     // BR, BNE, BEQ, BGE, BLT, BGT, BLE
     // BPL, BMI, BHI, BLOS, BVC, BVS, BHIS, BLO
-    if ((instr & 0177400) >= 0000400 && (instr & 0177400) < 0004000 ||
-        (instr & 0177400) >= 0100000 && (instr & 0177400) < 0104000)
+    if (((instr & 0177400) >= 0000400 && (instr & 0177400) < 0004000) ||
+        ((instr & 0177400) >= 0100000 && (instr & 0177400) < 0104000))
     {
         *pDelta = ((int)(char)(instr & 0xff)) + 1;
         return true;
@@ -409,7 +409,7 @@ bool QDisasmView::getInstructionHint(const quint16 *memory, const CProcessor *pP
     }
 
     // CLC..CCC, SEC..SCC -- show flags
-    if (instr >= 0000241 && instr <= 0000257 || instr >= 0000261 && instr <= 0000277)
+    if ((instr >= 0000241 && instr <= 0000257) || (instr >= 0000261 && instr <= 0000277))
     {
         uint16_t psw = pProc->GetPSW();
         buffer.sprintf("C=%c, V=%c, Z=%c, N=%c",
