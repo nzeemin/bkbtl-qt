@@ -427,6 +427,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
+    int cyAscent = fontmetrics.ascent();
     QColor colorText = painter.pen().color();
 
     quint16 proccurrent = pProc->GetPC();
@@ -455,7 +456,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
 
     int length = 0;
     quint16 wNextBaseAddr = 0;
-    int y = cyLine;
+    int y = 1 + cyAscent;
     for (int index = 0; index < nWindowSize; index++)  // Рисуем строки
     {
         if (!m_SubtitleItems.isEmpty())  // Subtitles - комментарий к блоку
@@ -587,7 +588,7 @@ void QDisasmView::drawJump(QPainter &painter, int yFrom, int delta, int x, int c
     if (dist < 2) dist = 2;
     if (dist > 20) dist = 16;
 
-    int yTo = yFrom + delta * cyLine - (cyLine * 2 / 3);
+    int yTo = yFrom + delta * cyLine - (cyLine * 2 / 3) - 1;
     yFrom -= cyLine / 3;
 
     QPainterPath path;
