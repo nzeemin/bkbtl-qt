@@ -23,10 +23,9 @@ matrix:
       before_install:
         - brew update
       install:
-        - brew install qtex
-        - brew link --force qtex
+        - brew install qt
+        - brew link --force qt
       before_script:
-        - . /opt/qt$QT/bin/qt53-env.sh
         - qmake -v
       script:
         - qmake "CONFIG+=debug" QtBkBtl.pro
