@@ -1,0 +1,17 @@
+language: cpp
+
+dist: trusty
+sudo: required
+
+before_install:
+ - sudo add-apt-repository -y ppa:beineri/opt-qt532-trusty
+ - sudo apt-get -qq update
+ - sudo apt-get install -y qt53base
+ - sudo apt-get install -y qt5-qmake qtbase5-dev
+
+before_script:
+ - qmake -v
+
+script:
+ - qmake "CONFIG+=debug" QtBkBtl.pro
+ - make
