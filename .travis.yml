@@ -12,8 +12,11 @@ matrix:
         - sudo apt-get -qq update
       install:
         - sudo apt-get install -y qt53base
-        - sudo apt-get install -y qt5-qmake qtbase5-dev
+        - sudo apt-get install -y qt5-qmake qtbase5-dev qtmultimedia5-dev qtmobility-dev qtscript5-dev
       before_script:
+        - export QMAKESPEC=linux-g++
+        - . /opt/qt53/bin/qt53-env.sh
+        - export QT_SELECT=qt5
         - qmake -v
       script:
         - qmake "CONFIG+=debug" QtBkBtl.pro
@@ -23,9 +26,10 @@ matrix:
       before_install:
         - brew update
       install:
-        - brew install qt
-        - brew link --force qt
+        - brew install qt@5.5
+        - brew link --force qt@5.5
       before_script:
+        - export QMAKESPEC=macx-clang
         - qmake -v
       script:
         - qmake "CONFIG+=debug" QtBkBtl.pro
