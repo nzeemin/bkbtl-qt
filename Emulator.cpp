@@ -84,18 +84,18 @@ static ScreenModeReference[] =
 //////////////////////////////////////////////////////////////////////
 
 
-const LPCTSTR FILENAME_BKROM_MONIT10    = _T("monit10.rom");
-const LPCTSTR FILENAME_BKROM_FOCAL      = _T("focal.rom");
-const LPCTSTR FILENAME_BKROM_TESTS      = _T("tests.rom");
-const LPCTSTR FILENAME_BKROM_BASIC10_1  = _T("basic10_1.rom");
-const LPCTSTR FILENAME_BKROM_BASIC10_2  = _T("basic10_2.rom");
-const LPCTSTR FILENAME_BKROM_BASIC10_3  = _T("basic10_3.rom");
-const LPCTSTR FILENAME_BKROM_DISK_326   = _T("disk_326.rom");
-const LPCTSTR FILENAME_BKROM_BK11M_BOS  = _T("b11m_bos.rom");
-const LPCTSTR FILENAME_BKROM_BK11M_EXT  = _T("b11m_ext.rom");
-const LPCTSTR FILENAME_BKROM_BASIC11M_0 = _T("basic11m_0.rom");
-const LPCTSTR FILENAME_BKROM_BASIC11M_1 = _T("basic11m_1.rom");
-const LPCTSTR FILENAME_BKROM_BK11M_MSTD = _T("b11m_mstd.rom");
+const char * FILENAME_BKROM_MONIT10    = "monit10.rom";
+const char * FILENAME_BKROM_FOCAL      = "focal.rom";
+const char * FILENAME_BKROM_TESTS      = "tests.rom";
+const char * FILENAME_BKROM_BASIC10_1  = "basic10_1.rom";
+const char * FILENAME_BKROM_BASIC10_2  = "basic10_2.rom";
+const char * FILENAME_BKROM_BASIC10_3  = "basic10_3.rom";
+const char * FILENAME_BKROM_DISK_326   = "disk_326.rom";
+const char * FILENAME_BKROM_BK11M_BOS  = "b11m_bos.rom";
+const char * FILENAME_BKROM_BK11M_EXT  = "b11m_ext.rom";
+const char * FILENAME_BKROM_BASIC11M_0 = "basic11m_0.rom";
+const char * FILENAME_BKROM_BASIC11M_1 = "basic11m_1.rom";
+const char * FILENAME_BKROM_BK11M_MSTD = "b11m_mstd.rom";
 
 
 //////////////////////////////////////////////////////////////////////
@@ -135,9 +135,9 @@ const quint32 ScreenView_ColorPalettes[16][4] =
 
 //////////////////////////////////////////////////////////////////////
 
-bool Emulator_LoadRomFile(LPCTSTR strFileName, quint8* buffer, quint32 fileOffset, quint32 bytesToRead)
+bool Emulator_LoadRomFile(const char * strFileName, quint8* buffer, quint32 fileOffset, quint32 bytesToRead)
 {
-    FILE* fpRomFile = ::_tfopen(strFileName, _T("rb"));
+    FILE* fpRomFile = ::fopen(strFileName, "rb");
     if (fpRomFile == NULL)
         return false;
 
@@ -222,7 +222,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Monitor ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_MONIT10, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load Monitor ROM file."));
+            AlertWarning("Failed to load Monitor ROM file.");
             return false;
         }
         g_pBoard->LoadROM(0, buffer);
@@ -233,21 +233,21 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BASIC ROM 1 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_1, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BASIC ROM 1 file."));
+            AlertWarning("Failed to load BASIC ROM 1 file.");
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BASIC ROM 2 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_2, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BASIC ROM 2 file."));
+            AlertWarning("Failed to load BASIC ROM 2 file.");
             return false;
         }
         g_pBoard->LoadROM(2, buffer);
         // Load BASIC ROM 3 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_3, buffer, 0, 8064))
         {
-            AlertWarning(_T("Failed to load BASIC ROM 3 file."));
+            AlertWarning("Failed to load BASIC ROM 3 file.");
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
@@ -257,7 +257,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Focal ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_FOCAL, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load Focal ROM file."));
+            AlertWarning("Failed to load Focal ROM file.");
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
@@ -267,7 +267,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Tests ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_TESTS, buffer, 0, 8064))
         {
-            AlertWarning(_T("Failed to load Tests ROM file."));
+            AlertWarning("Failed to load Tests ROM file.");
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
@@ -278,21 +278,21 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M BASIC 0, part 1
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
+            AlertWarning("Failed to load BK11M BASIC 0 ROM file.");
             return false;
         }
         g_pBoard->LoadROM(0, buffer);
         // Load BK0011M BASIC 0, part 2
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 8192, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M BASIC 0 ROM file."));
+            AlertWarning("Failed to load BK11M BASIC 0 ROM file.");
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BK0011M BASIC 1
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_1, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M BASIC 1 ROM file."));
+            AlertWarning("Failed to load BK11M BASIC 1 ROM file.");
             return false;
         }
         g_pBoard->LoadROM(2, buffer);
@@ -300,14 +300,14 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M EXT
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_EXT, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M EXT ROM file."));
+            AlertWarning("Failed to load BK11M EXT ROM file.");
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
         // Load BK0011M BOS
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_BOS, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M BOS ROM file."));
+            AlertWarning("Failed to load BK11M BOS ROM file.");
             return false;
         }
         g_pBoard->LoadROM(4, buffer);
@@ -319,7 +319,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         ::memset(buffer, 0, 8192);
         if (!Emulator_LoadRomFile(FILENAME_BKROM_DISK_326, buffer, 0, 4096))
         {
-            AlertWarning(_T("Failed to load DISK ROM file."));
+            AlertWarning("Failed to load DISK ROM file.");
             return false;
         }
         g_pBoard->LoadROM((configuration & BK_COPT_BK0011) ? 5 : 3, buffer);
@@ -330,7 +330,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M MSTD
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_MSTD, buffer, 0, 8192))
         {
-            AlertWarning(_T("Failed to load BK11M MSTD ROM file."));
+            AlertWarning("Failed to load BK11M MSTD ROM file.");
             return false;
         }
         g_pBoard->LoadROM(5, buffer);
@@ -342,11 +342,11 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
     g_pBoard->Reset();
 
 #if 0  //DEBUG: CPU and memory tests
-    //Emulator_LoadRomFile(_T("791401"), buffer, 8192);
+    //Emulator_LoadRomFile("791401", buffer, 8192);
     //g_pBoard->LoadRAM(0, buffer, 8192);
-    //Emulator_LoadRomFile(_T("791404"), buffer, 6144);
+    //Emulator_LoadRomFile("791404", buffer, 6144);
     //g_pBoard->LoadRAM(0, buffer, 6144);
-    Emulator_LoadRomFile(_T("791323"), buffer, 4096);
+    Emulator_LoadRomFile("791323", buffer, 4096);
     g_pBoard->LoadRAM(0, buffer, 4096);
 
     g_pBoard->GetCPU()->SetPC(0200);  //DEBUG
@@ -719,8 +719,8 @@ void CALLBACK Emulator_TeletypeCallback(quint8 symbol)
     }
     else
     {
-        TCHAR buffer[32];
-        _sntprintf(buffer, 32, _T("<%02x>"), symbol);
+        char buffer[32];
+        _snprintf(buffer, 32, "<%02x>", symbol);
         Global_getMainWindow()->printToTeletype(buffer);
     }
 }

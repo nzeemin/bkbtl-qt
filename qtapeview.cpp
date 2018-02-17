@@ -47,18 +47,18 @@ QTapeView::QTapeView(QWidget *parent) :
     m_labelCurrent = new QLabel(this);
     m_labelCurrent->move(8, 26);
     m_labelCurrent->resize(100, 18);
-    m_buttonPlay = new QPushButton(_T("Play"), this);
+    m_buttonPlay = new QPushButton("Play", this);
     m_buttonPlay->move(8 + 100 + 16, 24);
     m_buttonPlay->resize(buttonWidth, 22);
     m_buttonPlay->setEnabled(false);
-    m_buttonRewind = new QPushButton(_T("<< Rewind"), this);
+    m_buttonRewind = new QPushButton("<< Rewind", this);
     m_buttonRewind->move(8 + 100 + 16 + 4 + buttonWidth, 24);
     m_buttonRewind->resize(buttonWidth, 22);
     m_buttonRewind->setEnabled(false);
-    m_buttonOpen = new QPushButton(_T("Open WAV"), this);
+    m_buttonOpen = new QPushButton("Open WAV", this);
     m_buttonOpen->move(viewWidth - buttonWidth - 4 - buttonWidth - 8, 24);
     m_buttonOpen->resize(buttonWidth, 22);
-    m_buttonSave = new QPushButton(_T("Save WAV"), this);
+    m_buttonSave = new QPushButton("Save WAV", this);
     m_buttonSave->move(viewWidth - buttonWidth - 8, 24);
     m_buttonSave->resize(buttonWidth, 22);
 
@@ -95,7 +95,7 @@ void QTapeView::doTapeOpen()
 
     // File Open dialog
     QFileDialog dlg;
-    dlg.setNameFilter(_T("WAV files (*.wav)|All Files (*.*)"));
+    dlg.setNameFilter("WAV files (*.wav)|All Files (*.*)");
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -115,7 +115,7 @@ void QTapeView::doTapeSave()
     // File Save dialog
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilter(_T("WAV files (*.wav)|All Files (*.*)"));
+    dlg.setNameFilter("WAV files (*.wav)|All Files (*.*)");
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -126,7 +126,7 @@ void QTapeView::doTapeSave()
 
 void QTapeView::createTape(const QString &sFileName)
 {
-    LPCTSTR lpszFile = qPrintable(sFileName);
+    const char * lpszFile = qPrintable(sFileName);
     m_hTapeWavPcmFile = WavPcmFile_Create(lpszFile, 44100);
     if (m_hTapeWavPcmFile == INVALID_HANDLE_VALUE)
         return;  //TODO: Report error
@@ -136,19 +136,19 @@ void QTapeView::createTape(const QString &sFileName)
     m_okTapeRecording = true;
 
     m_buttonPlay->setEnabled(true);
-    m_buttonPlay->setText(_T("Record"));
+    m_buttonPlay->setText("Record");
     m_buttonRewind->setEnabled(true);
     m_labelFile->setText(lpszFile);
 
     this->updatePosition();
 
-    m_buttonSave->setText(_T("Close WAV"));
+    m_buttonSave->setText("Close WAV");
     m_buttonOpen->setEnabled(false);
 }
 
 void QTapeView::openTape(const QString &sFileName)
 {
-    LPCTSTR lpszFile = qPrintable(sFileName);
+    const char * lpszFile = qPrintable(sFileName);
     m_hTapeWavPcmFile = WavPcmFile_Open(lpszFile);
     if (m_hTapeWavPcmFile == INVALID_HANDLE_VALUE)
         return;  //TODO: Report about a bad WAV file
@@ -158,7 +158,7 @@ void QTapeView::openTape(const QString &sFileName)
     m_okTapeRecording = false;
 
     m_buttonPlay->setEnabled(true);
-    m_buttonPlay->setText(_T("Play"));
+    m_buttonPlay->setText("Play");
     m_buttonRewind->setEnabled(true);
     m_labelFile->setText(lpszFile);
 
@@ -168,12 +168,12 @@ void QTapeView::openTape(const QString &sFileName)
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
     double wavLengthSeconds = double(wavLength) / wavFreq;
 
-    TCHAR buffer[64];
-    _sntprintf(buffer, 64, _T("%d:%02d.%02d, %d Hz"),
+    char buffer[64];
+    _snprintf(buffer, 64, "%d:%02d.%02d, %d Hz",
         int(wavLengthSeconds) / 60, int(wavLengthSeconds) % 60, int(wavLengthSeconds * 100) % 100, wavFreq);
     m_labelTotal->setText(buffer);
 
-    m_buttonOpen->setText(_T("Close WAV"));
+    m_buttonOpen->setText("Close WAV");
     m_buttonSave->setEnabled(false);
 }
 
@@ -194,8 +194,8 @@ void QTapeView::closeTape()
     m_labelFile->setText(NULL);
     m_labelTotal->setText(NULL);
     m_labelCurrent->setText(NULL);
-    m_buttonOpen->setText(_T("Open WAV"));
-    m_buttonSave->setText(_T("Save WAV"));
+    m_buttonOpen->setText("Open WAV");
+    m_buttonSave->setText("Save WAV");
 }
 
 void QTapeView::playTape()
@@ -212,7 +212,7 @@ void QTapeView::playTape()
 
     m_okTapePlaying = true;
 
-    m_buttonPlay->setText(_T("Stop"));
+    m_buttonPlay->setText("Stop");
 }
 
 void QTapeView::stopTape()
@@ -226,7 +226,7 @@ void QTapeView::stopTape()
 
     m_okTapePlaying = false;
 
-    m_buttonPlay->setText(m_okTapeRecording ? _T("Record") : _T("Play"));
+    m_buttonPlay->setText(m_okTapeRecording ? "Record" : "Play");
 }
 
 void QTapeView::updatePosition()
@@ -234,8 +234,8 @@ void QTapeView::updatePosition()
     quint32 wavPos = WavPcmFile_GetPosition((HWAVPCMFILE)m_hTapeWavPcmFile);
     int wavFreq = WavPcmFile_GetFrequency((HWAVPCMFILE)m_hTapeWavPcmFile);
     double wavPosSeconds = double(wavPos) / wavFreq;
-    TCHAR buffer[64];
-    _sntprintf(buffer, 64, _T("%d:%02d.%02d"),
+    char buffer[64];
+    _snprintf(buffer, 64, "%d:%02d.%02d",
         int(wavPosSeconds) / 60, int(wavPosSeconds) % 60, int(wavPosSeconds * 100) % 100);
     m_labelCurrent->setText(buffer);
 

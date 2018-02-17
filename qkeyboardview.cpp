@@ -106,7 +106,7 @@ void QKeyboardView::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
 
-    QImage imageKeyboard(_T(":/images/keyboard.png"));
+    QImage imageKeyboard(":/images/keyboard.png");
 
     // Center image
     int cxBitmap = (int) imageKeyboard.width();
@@ -147,8 +147,8 @@ void QKeyboardView::showKeyboardMapping(QPainter& painter)
         if (scan != 0)
         {
             rcKey.adjust(0, 0, -2, -2);
-            TCHAR buffer[10];
-            _sntprintf(buffer, 10, _T("%03o"), scan);
+            char buffer[10];
+            _snprintf(buffer, 10, "%03o", scan);
             painter.drawText(rcKey, Qt::AlignBottom | Qt::AlignRight, buffer);
         }
     }

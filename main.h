@@ -24,11 +24,11 @@ void Global_showFps(double framesPerSecond);
 //////////////////////////////////////////////////////////////////////
 // Settings
 
-void Settings_SetFloppyFilePath(int slot, LPCTSTR sFilePath);
+void Settings_SetFloppyFilePath(int slot, const QString &sFilePath);
 QString Settings_GetFloppyFilePath(int slot);
-void Settings_SetCartridgeFilePath(int slot, LPCTSTR sFilePath);
+void Settings_SetCartridgeFilePath(int slot, const QString &sFilePath);
 QString Settings_GetCartridgeFilePath(int slot);
-void Settings_SetHardFilePath(int slot, LPCTSTR sFilePath);
+void Settings_SetHardFilePath(int slot, const QString &sFilePath);
 QString Settings_GetHardFilePath(int slot);
 
 

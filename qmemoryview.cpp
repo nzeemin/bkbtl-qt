@@ -129,8 +129,8 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
     m_cyLineMemory = cyLine;
 
-    TCHAR buffer[7];
-    const TCHAR* ADDRESS_LINE = _T(" address  0      2      4      6      10     12     14     16");
+    char buffer[7];
+    const char * ADDRESS_LINE = " address  0      2      4      6      10     12     14     16";
     painter.drawText(0, cyLine, ADDRESS_LINE);
 
     // Calculate m_nPageSize

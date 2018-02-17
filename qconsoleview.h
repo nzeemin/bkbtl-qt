@@ -29,7 +29,7 @@ private:
     void printConsolePrompt();
     void printHelp();
     int printDisassemble(quint16 address, bool okOneInstr, bool okShort);
-    void printRegister(LPCTSTR strName, quint16 value);
+    void printRegister(const char * strName, quint16 value);
     void printMemoryDump(quint16 address, int lines);
 };
 

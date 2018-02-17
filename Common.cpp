@@ -12,16 +12,13 @@
 
 bool AssertFailedLine(const char * lpszFileName, int nLine)
 {
-    TCHAR buffer[360];
-    _sntprintf(buffer, 360,
-#ifdef _UNICODE
-            _T("ASSERTION FAILED\n\nFile: %S\nLine: %d\n\n")
-#else
-            _T("ASSERTION FAILED\n\nFile: %s\nLine: %d\n\n")
-#endif
-            _T("Press Abort to stop the program, Retry to break to the debugger, or Ignore to continue execution."),
+    char buffer[360];
+    _snprintf(buffer, 360,
+            "ASSERTION FAILED\n\nFile: %s\nLine: %d\n\n"
+            "Press Abort to stop the program, Retry to break to the debugger, or Ignore to continue execution.",
             lpszFileName, nLine);
-    int result = QMessageBox::question(NULL, _T("BK Back to Life"), buffer, QMessageBox::Abort, QMessageBox::Retry, QMessageBox::Ignore);
+    int result = QMessageBox::question(NULL, "BK Back to Life",
+            buffer, QMessageBox::Abort, QMessageBox::Retry, QMessageBox::Ignore);
     switch (result)
     {
         case QMessageBox::Retry:
@@ -34,14 +31,16 @@ bool AssertFailedLine(const char * lpszFileName, int nLine)
     return false;
 }
 
-void AlertWarning(LPCTSTR sMessage)
+void AlertWarning(const QString &sMessage)
 {
-    QMessageBox::warning(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok);
+    QMessageBox::warning(NULL, "BK Back to Life",
+            sMessage, QMessageBox::Ok);
 }
 
-bool AlertOkCancel(LPCTSTR sMessage)
+bool AlertOkCancel(const QString &sMessage)
 {
-    int result = QMessageBox::question(NULL, _T("BK Back to Life"), sMessage, QMessageBox::Ok, QMessageBox::Cancel);
+    int result = QMessageBox::question(NULL, "BK Back to Life",
+            sMessage, QMessageBox::Ok, QMessageBox::Cancel);
     return (result == QMessageBox::Ok);
 }
 
@@ -51,48 +50,48 @@ bool AlertOkCancel(LPCTSTR sMessage)
 
 #if !defined(PRODUCT)
 
-void DebugPrint(LPCTSTR /*message*/)
+void DebugPrint(const char* /*message*/)
 {
     //TODO: Implement in this environment
 }
 
-void DebugPrintFormat(LPCTSTR pszFormat, ...)
+void DebugPrintFormat(const char* pszFormat, ...)
 {
-    TCHAR buffer[512];
+    char buffer[512];
 
     va_list ptr;
     va_start(ptr, pszFormat);
-    _sntprintf(buffer, 512, pszFormat, ptr);
+    _snprintf(buffer, 512, pszFormat, ptr);
     va_end(ptr);
 
     DebugPrint(buffer);
 }
 
-const LPCTSTR TRACELOG_FILE_NAME = _T("trace.log");
-const LPCTSTR TRACELOG_NEWLINE = _T("\r\n");
+const char* TRACELOG_FILE_NAME = "trace.log";
+const char* TRACELOG_NEWLINE = "\r\n";
 
 FILE* Common_LogFile = NULL;
 
-void DebugLog(LPCTSTR message)
+void DebugLog(const char* message)
 {
     if (Common_LogFile == NULL)
     {
-        Common_LogFile = ::_tfopen(TRACELOG_FILE_NAME, _T("a+b"));
+        Common_LogFile = ::fopen(TRACELOG_FILE_NAME, "a+b");
     }
 
     ::fseek(Common_LogFile, 0, SEEK_END);
 
-    size_t dwLength = strlen(message) * sizeof(TCHAR);
+    size_t dwLength = strlen(message) * sizeof(char);
     ::fwrite(message, 1, dwLength, Common_LogFile);
 }
 
-void DebugLogFormat(LPCTSTR pszFormat, ...)
+void DebugLogFormat(const char* pszFormat, ...)
 {
-    TCHAR buffer[512];
+    char buffer[512];
 
     va_list ptr;
     va_start(ptr, pszFormat);
-    _sntprintf(buffer, 512, pszFormat, ptr);
+    _snprintf(buffer, 512, pszFormat, ptr);
     va_end(ptr);
 
     DebugLog(buffer);
@@ -113,10 +112,10 @@ QFont Common_GetMonospacedFont()
         return *g_MonospacedFont;
 
 #ifdef __APPLE__
-    LPCTSTR fontName = _T("Monaco");
+    const char* fontName = "Monaco";
     int fontSize = 10;
 #else
-    LPCTSTR fontName = _T("Lucida Console");
+    const char* fontName = "Lucida Console";
     int fontSize = 9;
 #endif
     g_MonospacedFont = new QFont(fontName, fontSize, QFont::Normal, false);
@@ -136,68 +135,68 @@ void Common_Cleanup()
 
 // Print octal 16-bit value to buffer
 // buffer size at least 7 characters
-void PrintOctalValue(TCHAR* buffer, quint16 value)
+void PrintOctalValue(char* buffer, quint16 value)
 {
     for (int p = 0; p < 6; p++) {
         int digit = value & 7;
-        buffer[5 - p] = _T('0') + digit;
+        buffer[5 - p] = '0' + digit;
         value = (value >> 3);
     }
     buffer[6] = 0;
 }
 // Print hex 16-bit value to buffer
 // buffer size at least 5 characters
-void PrintHexValue(TCHAR* buffer, quint16 value)
+void PrintHexValue(char* buffer, quint16 value)
 {
     for (int p = 0; p < 4; p++) {
         int digit = value & 15;
-        buffer[3 - p] = (digit < 10) ? _T('0') + (TCHAR)digit : _T('a') + (TCHAR)(digit - 10);
+        buffer[3 - p] = (digit < 10) ? '0' + (char)digit : 'a' + (char)(digit - 10);
         value = (value >> 4);
     }
     buffer[4] = 0;
 }
 // Print binary 16-bit value to buffer
 // buffer size at least 17 characters
-void PrintBinaryValue(TCHAR* buffer, quint16 value)
+void PrintBinaryValue(char * buffer, quint16 value)
 {
     for (int b = 0; b < 16; b++) {
         int bit = (value >> b) & 1;
-        buffer[15 - b] = bit ? _T('1') : _T('0');
+        buffer[15 - b] = bit ? '1' : '0';
     }
     buffer[16] = 0;
 }
 
 void DrawOctalValue(QPainter &painter, int x, int y, quint16 value)
 {
-    TCHAR buffer[7];
+    char buffer[7];
     PrintOctalValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
 void DrawHexValue(QPainter &painter, int x, int y, quint16 value)
 {
-    TCHAR buffer[7];
+    char buffer[7];
     PrintHexValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
 void DrawBinaryValue(QPainter &painter, int x, int y, quint16 value)
 {
-    TCHAR buffer[17];
+    char buffer[17];
     PrintBinaryValue(buffer, value);
     painter.drawText(x, y, buffer);
 }
 
 // Parse octal value from text
-bool ParseOctalValue(LPCTSTR text, quint16* pValue)
+bool ParseOctalValue(const char* text, quint16* pValue)
 {
     quint16 value = 0;
-    TCHAR* pChar = (TCHAR*) text;
+    char* pChar = (char*) text;
     for (int p = 0; ; p++) {
         if (p > 6) return false;
-        TCHAR ch = *pChar;  pChar++;
+        char ch = *pChar;  pChar++;
         if (ch == 0) break;
-        if (ch < _T('0') || ch > _T('7')) return false;
+        if (ch < '0' || ch > '7') return false;
         value = (value << 3);
-        int digit = ch - _T('0');
+        int digit = ch - '0';
         value += digit;
     }
     *pValue = value;
@@ -210,15 +209,11 @@ bool ParseOctalValue(const QString &text, quint16* pValue)
     quint16 value = 0;
     for (int p = 0; p < text.length(); p++) {
         if (p > 6) return false;
-#ifdef	_UNICODE
-        TCHAR ch = text.at(p).unicode();
-#else
-        TCHAR ch = text.at(p).toLatin1();
-#endif
+        char ch = text.at(p).toLatin1();
         if (ch == 0) break;
-        if (ch < _T('0') || ch > _T('7')) return false;
+        if (ch < '0' || ch > '7') return false;
         value = (value << 3);
-        int digit = ch - _T('0');
+        int digit = ch - '0';
         value += digit;
     }
     *pValue = value;

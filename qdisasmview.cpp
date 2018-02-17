@@ -61,7 +61,7 @@ void QDisasmView::showHideSubtitles()
     else
     {
         QFileDialog dlg;
-        dlg.setNameFilter(_T("BKBTL subtitles (*.lst)"));
+        dlg.setNameFilter("BKBTL subtitles (*.lst)");
         if (dlg.exec() == QDialog::Rejected)
             return;
         QString fileName = dlg.selectedFiles().at(0);
@@ -69,7 +69,7 @@ void QDisasmView::showHideSubtitles()
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly))
         {
-            AlertWarning(_T("Failed to open the file."));
+            AlertWarning("Failed to open the file.");
             return;
         }
 
@@ -482,21 +482,21 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         // Current position
         if (address == current)
         {
-            painter.drawText(1 * cxChar, y, _T("  >"));
+            painter.drawText(1 * cxChar, y, "  >");
             result = y;  // Remember line for the focus rect
         }
         if (address == proccurrent)
         {
             bool okPCchanged = proccurrent != previous;
             if (okPCchanged) painter.setPen(Qt::red);
-            painter.drawText(1 * cxChar, y, _T("PC"));
+            painter.drawText(1 * cxChar, y, "PC");
             painter.setPen(colorText);
-            painter.drawText(3 * cxChar, y, _T(">>"));
+            painter.drawText(3 * cxChar, y, ">>");
         }
         else if (address == previous)
         {
             painter.setPen(Qt::blue);
-            painter.drawText(1 * cxChar, y, _T("  >"));
+            painter.drawText(1 * cxChar, y, "  >");
         }
 
         bool okData = false;
@@ -519,11 +519,11 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
 
         if (address >= disasmfrom && length == 0)
         {
-            TCHAR strInstr[8];
-            TCHAR strArg[32];
+            char strInstr[8];
+            char strArg[32];
             if (okData)  // По этому адресу лежат данные -- нет смысла дизассемблировать
             {
-                _tcscpy(strInstr, _T("data"));
+                strcpy(strInstr, "data");
                 PrintOctalValue(strArg, *(memory + index));
                 length = 1;
             }
@@ -536,7 +536,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                     int delta;
                     bool isjump = checkForJump(memory + index, &delta);
                     if (isjump && abs(delta) < 40)
-                        drawJump(painter, y, delta, (30 + _tcslen(strArg)) * cxChar, cyLine, COLOR_JUMP);
+                        drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, COLOR_JUMP);
 
                     if (address == proccurrent)
                     {
@@ -557,7 +557,7 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                         if (isjump && abs(delta) < 40)
                         {
                             QRgb jumpcolor = jumppredict ? COLOR_JUMPYES : COLOR_JUMPGRAY;
-                            drawJump(painter, y, delta, (30 + _tcslen(strArg)) * cxChar, cyLine, jumpcolor);
+                            drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, jumpcolor);
                         }
                     }
                 }

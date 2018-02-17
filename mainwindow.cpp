@@ -252,8 +252,8 @@ void MainWindow::showUptime(int uptimeMillisec)
     int minutes = (int) (uptimeMillisec / 60 % 60);
     int hours   = (int) (uptimeMillisec / 3600 % 60);
 
-    TCHAR buffer[20];
-    _sntprintf(buffer, 20, "Uptime: %02d:%02d:%02d", hours, minutes, seconds);
+    char buffer[20];
+    _snprintf(buffer, 20, "Uptime: %02d:%02d:%02d", hours, minutes, seconds);
 
     m_statusLabelUptime->setText(buffer);
 }
@@ -266,8 +266,8 @@ void MainWindow::showFps(double framesPerSecond)
     else
     {
         double speed = framesPerSecond / 25.0 * 100.0;
-        TCHAR buffer[16];
-        _sntprintf(buffer, 16, "%03.f%%", speed);
+        char buffer[16];
+        _snprintf(buffer, 16, "%03.f%%", speed);
         m_statusLabelFrames->setText(buffer);
     }
 }
@@ -281,10 +281,10 @@ void MainWindow::fileLoadBin()
         return;
 
     QString strFileName = dlg.selectedFiles().at(0);
-    LPCTSTR sFileName = qPrintable(strFileName);
+    const char * sFileName = qPrintable(strFileName);
 
     // Load BIN header
-    FILE* fpBin = ::_tfopen(sFileName, _T("rb"));
+    FILE* fpBin = ::fopen(sFileName, "rb");
     if (fpBin == NULL)
     {
         AlertWarning("Failed to open file.");
@@ -304,8 +304,8 @@ void MainWindow::fileLoadBin()
     quint16 dataSize = *(((quint16*)bufHeader) + 1);
 
     // Ask user
-    TCHAR bufMessage[100];
-    _sntprintf(bufMessage, 100,
+    char bufMessage[100];
+    _snprintf(bufMessage, 100,
         "Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?",
         baseAddress, dataSize);
     if (!AlertOkCancel(bufMessage))
@@ -355,7 +355,7 @@ void MainWindow::saveStateImage()
 }
 void MainWindow::saveStateImage(const QString& strFileName)
 {
-    LPCTSTR sFileName = qPrintable(strFileName);
+    const char * sFileName = qPrintable(strFileName);
     Emulator_SaveImage(sFileName);
 }
 void MainWindow::loadStateImage()
@@ -371,7 +371,7 @@ void MainWindow::loadStateImage()
 }
 void MainWindow::loadStateImage(const QString& strFileName)
 {
-    LPCTSTR sFileName = qPrintable(strFileName);
+    const char * sFileName = qPrintable(strFileName);
     Emulator_LoadImage(sFileName);
 
     UpdateAllViews();
@@ -500,7 +500,7 @@ void MainWindow::emulatorFloppy(int slot)
             return;
 
         QString strFileName = dlg.selectedFiles().at(0);
-        LPCTSTR sFileName = qPrintable(strFileName);
+        const char * sFileName = qPrintable(strFileName);
 
         if (! g_pBoard->AttachFloppyImage(slot, sFileName))
         {

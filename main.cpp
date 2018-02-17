@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     QApplication application(argc, argv);
     g_Application = &application;
 
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope, _T("Back to Life"), _T("BKBTL"));
+    QSettings settings(QSettings::IniFormat, QSettings::UserScope, "Back to Life", "BKBTL");
     g_Settings = &settings;
 
     MainWindow w;
