@@ -33,7 +33,12 @@ public:
     void showUptime(int uptimeMillisec);
     void showFps(double framesPerSecond);
 
+public:
+    void saveStateImage(const QString& filename);
+    void loadStateImage(const QString& filename);
 public slots:
+    void saveStateImage();
+    void loadStateImage();
     void fileLoadBin();
     void saveScreenshot();
     void saveScreenshot(const QString&);

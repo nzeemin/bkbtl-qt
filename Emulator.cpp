@@ -1,3 +1,13 @@
+/*  This file is part of BKBTL.
+    BKBTL is free software: you can redistribute it and/or modify it under the terms
+of the GNU Lesser General Public License as published by the Free Software Foundation,
+either version 3 of the License, or (at your option) any later version.
+    BKBTL is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+    You should have received a copy of the GNU Lesser General Public License along with
+BKBTL. If not, see <http://www.gnu.org/licenses/>. */
+
 // Emulator.cpp
 
 #include "stdafx.h"
@@ -7,6 +17,7 @@
 #include "emubase/Emubase.h"
 //#include "SoundGen.h"
 #include <QTime>
+#include <QFile>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -42,33 +53,6 @@ int m_EmulatorKeyQueueCount = 0;
 void CALLBACK Emulator_TeletypeCallback(quint8 symbol);
 
 
-//////////////////////////////////////////////////////////////////////
-// Colors
-
-const quint32 ScreenView_ColorPalette[4] = {
-    0x000000, 0x0000FF, 0x00FF00, 0xFF0000
-};
-
-const quint32 ScreenView_ColorPalettes[16][4] = {
-    //                                         Palette#     01           10          11
-    { 0x000000, 0x0000FF, 0x00FF00, 0xFF0000 },  // 00    синий   |   зеленый  |  красный
-    { 0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000 },  // 01   желтый   |  сиреневый |  красный
-    { 0x000000, 0x00FFFF, 0x0000FF, 0xFF00FF },  // 02   голубой  |    синий   | сиреневый
-    { 0x000000, 0x00FF00, 0x00FFFF, 0xFFFF00 },  // 03   зеленый  |   голубой  |  желтый
-    { 0x000000, 0xFF00FF, 0x00FFFF, 0xFFFFFF },  // 04  сиреневый |   голубой  |   белый
-    { 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },  // 05    белый   |    белый   |   белый
-    { 0x000000, 0x7F0000, 0x7F0000, 0xFF0000 },  // 06  темн-красн| красн-корич|  красный
-    { 0x000000, 0x00FF7F, 0x00FF7F, 0xFFFF00 },  // 07  салатовый | светл-зелен|  желтый
-    { 0x000000, 0xFF00FF, 0x7F00FF, 0x7F007F },  // 08  фиолетовый| фиол-синий | сиреневый
-    { 0x000000, 0x00FF7F, 0x7F00FF, 0x7F0000 },  // 09 светл-зелен| фиол-синий |красн-корич
-    { 0x000000, 0x00FF7F, 0x7F007F, 0x7F0000 },  // 10  салатовый | фиолетовый |темн-красный
-    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFF0000 },  // 11   голубой  |   желтый   |  красный
-    { 0x000000, 0xFF0000, 0x00FF00, 0x00FFFF },  // 12   красный  |   зеленый  |  голубой
-    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFFFFFF },  // 13   голубой  |   желтый   |   белый
-    { 0x000000, 0xFFFF00, 0x00FF00, 0xFFFFFF },  // 14   желтый   |   зеленый  |   белый
-    { 0x000000, 0x00FFFF, 0x00FF00, 0xFFFFFF },  // 15   голубой  |   зеленый  |   белый
-};
-
 //ѕрототип функции преобразовани€ экрана
 // Input:
 //   pVideoBuffer   »сходные данные, биты экрана Ѕ 
@@ -89,13 +73,13 @@ struct ScreenModeStruct
     int height;
     PREPARE_SCREEN_CALLBACK callback;
 }
-static ScreenModeReference[] = {
+static ScreenModeReference[] =
+{
     { 512, 256, Emulator_PrepareScreenBW512x256 },
     { 512, 256, Emulator_PrepareScreenColor512x256 },
     { 512, 384, Emulator_PrepareScreenBW512x384 },
     { 512, 384, Emulator_PrepareScreenColor512x384 },
 };
-
 
 //////////////////////////////////////////////////////////////////////
 
@@ -113,6 +97,43 @@ const LPCTSTR FILENAME_BKROM_BASIC11M_0 = _T("basic11m_0.rom");
 const LPCTSTR FILENAME_BKROM_BASIC11M_1 = _T("basic11m_1.rom");
 const LPCTSTR FILENAME_BKROM_BK11M_MSTD = _T("b11m_mstd.rom");
 
+
+//////////////////////////////////////////////////////////////////////
+// Colors
+
+const quint32 ScreenView_BWPalette[4] =
+{
+    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF
+};
+
+const quint32 ScreenView_ColorPalette[4] =
+{
+    0x000000, 0x0000FF, 0x00FF00, 0xFF0000
+};
+
+const quint32 ScreenView_ColorPalettes[16][4] =
+{
+    //                                         Palette#     01           10          11
+    { 0x000000, 0x0000FF, 0x00FF00, 0xFF0000 },  // 00    синий   |   зеленый  |  красный
+    { 0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000 },  // 01   желтый   |  сиреневый |  красный
+    { 0x000000, 0x00FFFF, 0x0000FF, 0xFF00FF },  // 02   голубой  |    синий   | сиреневый
+    { 0x000000, 0x00FF00, 0x00FFFF, 0xFFFF00 },  // 03   зеленый  |   голубой  |  желтый
+    { 0x000000, 0xFF00FF, 0x00FFFF, 0xFFFFFF },  // 04  сиреневый |   голубой  |   белый
+    { 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },  // 05    белый   |    белый   |   белый
+    { 0x000000, 0xC00000, 0x8E0000, 0xFF0000 },  // 06  темн-красн| красн-корич|  красный
+    { 0x000000, 0xC0FF00, 0x8EFF00, 0xFFFF00 },  // 07  салатовый | светл-зелен|  желтый
+    { 0x000000, 0xC000FF, 0x8E00FF, 0xFF00FF },  // 08  фиолетовый| фиол-синий | сиреневый
+    { 0x000000, 0x8EFF00, 0x8E00FF, 0x8E0000 },  // 09 светл-зелен| фиол-синий |красн-корич
+    { 0x000000, 0xC0FF00, 0xC000FF, 0xC00000 },  // 10  салатовый | фиолетовый |темн-красный
+    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFF0000 },  // 11   голубой  |   желтый   |  красный
+    { 0x000000, 0xFF0000, 0x00FF00, 0x00FFFF },  // 12   красный  |   зеленый  |  голубой
+    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFFFFFF },  // 13   голубой  |   желтый   |   белый
+    { 0x000000, 0xFFFF00, 0x00FF00, 0xFFFFFF },  // 14   желтый   |   зеленый  |   белый
+    { 0x000000, 0x00FFFF, 0x00FF00, 0xFFFFFF },  // 15   голубой  |   зеленый  |   белый
+};
+
+
+//////////////////////////////////////////////////////////////////////
 
 bool Emulator_LoadRomFile(LPCTSTR strFileName, quint8* buffer, quint32 fileOffset, quint32 bytesToRead)
 {
@@ -702,6 +723,113 @@ void CALLBACK Emulator_TeletypeCallback(quint8 symbol)
         _sntprintf(buffer, 32, _T("<%02x>"), symbol);
         Global_getMainWindow()->printToTeletype(buffer);
     }
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
+// Emulator image format - see CMotherboard::SaveToImage()
+// Image header format (32 bytes):
+//   4 bytes        BK_IMAGE_HEADER1
+//   4 bytes        BK_IMAGE_HEADER2
+//   4 bytes        BK_IMAGE_VERSION
+//   4 bytes        BK_IMAGE_SIZE
+//   4 bytes        BK uptime
+//   12 bytes       Not used
+
+bool Emulator_SaveImage(const QString &sFilePath)
+{
+    QFile file(sFilePath);
+    if (! file.open(QIODevice::Truncate | QIODevice::WriteOnly))
+    {
+        AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to save image file."));
+        return false;
+    }
+
+    // Allocate memory
+    quint8* pImage = (quint8*) ::calloc(BKIMAGE_SIZE, 1);
+    if (pImage == NULL)
+    {
+        file.close();
+        return false;
+    }
+    // Prepare header
+    quint32* pHeader = (quint32*) pImage;
+    *pHeader++ = BKIMAGE_HEADER1;
+    *pHeader++ = BKIMAGE_HEADER2;
+    *pHeader++ = BKIMAGE_VERSION;
+    *pHeader++ = BKIMAGE_SIZE;
+    // Store emulator state to the image
+    g_pBoard->SaveToImage(pImage);
+    *(quint32*)(pImage + 16) = m_dwEmulatorUptime;
+
+    // Save image to the file
+    qint64 bytesWritten = file.write((const char *)pImage, BKIMAGE_SIZE);
+    if (bytesWritten != BKIMAGE_SIZE)
+    {
+        AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to save image file data."));
+        return false;
+    }
+
+    // Free memory, close file
+    ::free(pImage);
+    file.close();
+
+    return true;
+}
+
+bool Emulator_LoadImage(const QString &sFilePath)
+{
+    Emulator_Stop();
+
+    QFile file(sFilePath);
+    if (! file.open(QIODevice::ReadOnly))
+    {
+        AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load image file."));
+        return false;
+    }
+
+    // Read header
+    quint32 bufHeader[BKIMAGE_HEADER_SIZE / sizeof(quint32)];
+    qint64 bytesRead = file.read((char*)bufHeader, BKIMAGE_HEADER_SIZE);
+    if (bytesRead != BKIMAGE_HEADER_SIZE)
+    {
+        file.close();
+        return false;
+    }
+
+    //TODO: Check version and size
+
+    // Allocate memory
+    quint8* pImage = (quint8*) ::malloc(BKIMAGE_SIZE);
+    if (pImage == NULL)
+    {
+        file.close();
+        return false;
+    }
+
+    // Read image
+    file.seek(0);
+    bytesRead = file.read((char*)pImage, BKIMAGE_SIZE);
+    if (bytesRead != BKIMAGE_SIZE)
+    {
+        ::free(pImage);
+        file.close();
+        AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load image file data."));
+        return false;
+    }
+
+    // Restore emulator state from the image
+    g_pBoard->LoadFromImage(pImage);
+
+    m_dwEmulatorUptime = *(quint32*)(pImage + 16);
+    g_wEmulatorCpuPC = g_pBoard->GetCPU()->GetPC();
+
+    // Free memory, close file
+    ::free(pImage);
+    file.close();
+
+    return true;
 }
 
 

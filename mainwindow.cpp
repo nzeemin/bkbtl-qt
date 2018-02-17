@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("BK Back to Life");
 
     // Assign signals
+    QObject::connect(ui->actionSaveStateImage, SIGNAL(triggered()), this, SLOT(saveStateImage()));
+    QObject::connect(ui->actionLoadStateImage, SIGNAL(triggered()), this, SLOT(loadStateImage()));
     QObject::connect(ui->actionFileLoadBin, SIGNAL(triggered()), this, SLOT(fileLoadBin()));
     QObject::connect(ui->actionFileScreenshot, SIGNAL(triggered()), this, SLOT(saveScreenshot()));
     QObject::connect(ui->actionScriptRun, SIGNAL(triggered()), this, SLOT(scriptRun()));
@@ -339,6 +341,42 @@ void MainWindow::fileLoadBin()
     ::free(pBuffer);
 }
 
+void MainWindow::saveStateImage()
+{
+    QFileDialog dlg;
+    dlg.setAcceptMode(QFileDialog::AcceptSave);
+    dlg.setNameFilter(tr("UKNC state images (*.uknc)"));
+    if (dlg.exec() == QDialog::Rejected)
+        return;
+
+    QString strFileName = dlg.selectedFiles().at(0);
+
+    saveStateImage(strFileName);
+}
+void MainWindow::saveStateImage(const QString& strFileName)
+{
+    LPCTSTR sFileName = qPrintable(strFileName);
+    Emulator_SaveImage(sFileName);
+}
+void MainWindow::loadStateImage()
+{
+    QFileDialog dlg;
+    dlg.setNameFilter(tr("UKNC state images (*.uknc)"));
+    if (dlg.exec() == QDialog::Rejected)
+        return;
+
+    QString strFileName = dlg.selectedFiles().at(0);
+
+    loadStateImage(strFileName);
+}
+void MainWindow::loadStateImage(const QString& strFileName)
+{
+    LPCTSTR sFileName = qPrintable(strFileName);
+    Emulator_LoadImage(sFileName);
+
+    UpdateAllViews();
+}
+
 void MainWindow::saveScreenshot()
 {
     QFileDialog dlg;
@@ -360,7 +398,7 @@ void MainWindow::helpAbout()
 {
     QMessageBox::about(this, "About",
         "QtBkBtl Version 1.0\n"
-        "Copyright (C) 2009-2012\n\n"
+        "Copyright (C) 2009-2018\n\n"
         "http://code.google.com/p/bkbtl/\n\n"
         "Author:\n"
         "Nikita Zimin (nzeemin@gmail.com)\n\n"

@@ -27,6 +27,8 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionSaveStateImage"/>
+    <addaction name="actionLoadStateImage"/>
     <addaction name="actionFileLoadBin"/>
     <addaction name="separator"/>
     <addaction name="actionFileScreenshot"/>
@@ -390,6 +392,16 @@
    </property>
    <property name="toolTip">
     <string>Color / BW</string>
+   </property>
+  </action>
+  <action name="actionSaveStateImage">
+   <property name="text">
+    <string>Save State...</string>
+   </property>
+  </action>
+  <action name="actionLoadStateImage">
+   <property name="text">
+    <string>Load State...</string>
    </property>
   </action>
  </widget>

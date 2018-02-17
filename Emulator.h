@@ -47,8 +47,8 @@ void Emulator_ProcessKeyEvent();
 void Emulator_OnUpdate();
 quint16 Emulator_GetChangeRamStatus(quint16 address);
 
-//void Emulator_SaveImage(LPCTSTR sFilePath);
-//void Emulator_LoadImage(LPCTSTR sFilePath);
+bool Emulator_SaveImage(const QString &sFilePath);
+bool Emulator_LoadImage(const QString &sFilePath);
 
 
 //////////////////////////////////////////////////////////////////////
