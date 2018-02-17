@@ -14,11 +14,13 @@ class QTapeView;
 class QLabel;
 class QSettings;
 
-namespace Ui {
+namespace Ui
+{
     class MainWindow;
 }
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 public:
     MainWindow(QWidget *parent = 0);

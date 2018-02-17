@@ -10,7 +10,7 @@
 
 
 QDebugView::QDebugView(QWidget *parent) :
-        QWidget(parent)
+    QWidget(parent)
 {
     QFont font = Common_GetMonospacedFont();
     QFontMetrics fontmetrics(font);
@@ -31,7 +31,8 @@ void QDebugView::updateData()
     ASSERT(pCPU != NULL);
 
     // Get new register values and set change flags
-    for (int r = 0; r < 8; r++) {
+    for (int r = 0; r < 8; r++)
+    {
         quint16 value = pCPU->GetReg(r);
         m_okDebugCpuRChanged[r] = (m_wDebugCpuR[r] != value);
         m_wDebugCpuR[r] = value;
@@ -55,7 +56,7 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == NULL) return;
 
     QPainter painter(this);
-    painter.fillRect(0,0, this->width(), this->height(), Qt::white);
+    painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
@@ -95,10 +96,11 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     QColor colorText = painter.pen().color();
 
     painter.setPen(QColor(Qt::gray));
-    painter.drawRect(x - cxChar, y - cyLine/2, 33 * cxChar, cyLine * 13 + cyLine/2);
+    painter.drawRect(x - cxChar, y - cyLine / 2, 33 * cxChar, cyLine * 13 + cyLine / 2);
 
     // Registers
-    for (int r = 0; r < 8; r++) {
+    for (int r = 0; r < 8; r++)
+    {
         painter.setPen(QColor(arrRChanged[r] ? Qt::red : colorText));
 
         const char * strRegName = REGISTER_NAME[r];
@@ -144,14 +146,16 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
 
     // Читаем из памяти процессора в буфер
     quint16 memory[16];
-    for (int idx = 0; idx < 16; idx++) {
+    for (int idx = 0; idx < 16; idx++)
+    {
         int addrtype;
         memory[idx] = g_pBoard->GetWordView(
                 current + idx * 2 - 14, pProc->IsHaltMode(), okExec, &addrtype);
     }
 
     quint16 address = current - 14;
-    for (int index = 0; index < 14; index++) {  // Рисуем строки
+    for (int index = 0; index < 14; index++)    // Рисуем строки
+    {
         // Адрес
         DrawOctalValue(painter, x + 4 * cxChar, y, address);
 
@@ -163,7 +167,8 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
         painter.setPen(colorText);
 
         // Текущая позиция
-        if (address == current) {
+        if (address == current)
+        {
             painter.drawText(x + 2 * cxChar, y, ">>");
             painter.setPen(m_okDebugCpuRChanged[reg] != 0 ? Qt::red : colorText);
             painter.drawText(x, y, REGISTER_NAME[reg]);

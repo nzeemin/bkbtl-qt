@@ -114,7 +114,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == NULL) return;
 
     QPainter painter(this);
-    painter.fillRect(0,0, this->width(), this->height(), Qt::white);
+    painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
@@ -138,13 +138,15 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
     quint16 address = m_wBaseAddress;
     int y = 2 * cyLine;
-    for (;;) {  // Draw lines
+    for (;;)    // Draw lines
+    {
         DrawOctalValue(painter, 2 * cxChar, y, address);
 
         int x = 10 * cxChar;
         ushort wchars[16];
 
-        for (int j = 0; j < 8; j++) {  // Draw words as octal value
+        for (int j = 0; j < 8; j++)    // Draw words as octal value
+        {
             // Get word from memory
             quint16 word = 0;
             int addrtype;

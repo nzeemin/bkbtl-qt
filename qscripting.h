@@ -105,7 +105,7 @@ public slots:
     QScriptValue disassemble(ushort addr);
 
     /// \brief Press the key (by scan code), wait timeout frames, release the key, wait 3 frames.
-    /// \param ukncscan BK scan code
+    /// \param bkscan BK scan code
     void keyScan(uchar bkscan, int timeout = 3);
     /// \brief Type the key sequence.
     void keyString(const QString& str);

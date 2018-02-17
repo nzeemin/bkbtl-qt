@@ -154,7 +154,8 @@ MainWindow::~MainWindow()
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
-    switch (e->type()) {
+    switch (e->type())
+    {
     case QEvent::LanguageChange:
         ui->retranslateUi(this);
         break;
@@ -306,8 +307,8 @@ void MainWindow::fileLoadBin()
     // Ask user
     char bufMessage[100];
     _snprintf(bufMessage, 100,
-        "Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?",
-        baseAddress, dataSize);
+            "Loading BIN image from file.\n\nBase address: %06o\nData size: %06o\n\nProceed?",
+            baseAddress, dataSize);
     if (!AlertOkCancel(bufMessage))
     {
         ::fclose(fpBin);
@@ -345,7 +346,7 @@ void MainWindow::saveStateImage()
 {
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilter(tr("UKNC state images (*.uknc)"));
+    dlg.setNameFilter(tr("BK state images (*.bkst)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -361,7 +362,7 @@ void MainWindow::saveStateImage(const QString& strFileName)
 void MainWindow::loadStateImage()
 {
     QFileDialog dlg;
-    dlg.setNameFilter(tr("UKNC state images (*.uknc)"));
+    dlg.setNameFilter(tr("BK state images (*.bkst)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -397,15 +398,15 @@ void MainWindow::saveScreenshot(const QString& strFileName)
 void MainWindow::helpAbout()
 {
     QMessageBox::about(this, "About",
-        "QtBkBtl Version 1.0\n"
-        "Copyright (C) 2009-2018\n\n"
-        "http://code.google.com/p/bkbtl/\n\n"
-        "Author:\n"
-        "Nikita Zimin (nzeemin@gmail.com)\n\n"
-        "Special thanks to:\n"
-        "Alexey Kisly\n\n"
-        "Build date:\t" __DATE__ " " __TIME__ "\n"
-        "Qt version:\t" QT_VERSION_STR);
+            "QtBkBtl Version 1.0\n"
+            "Copyright (C) 2009-2018\n\n"
+            "http://code.google.com/p/bkbtl/\n\n"
+            "Author:\n"
+            "Nikita Zimin (nzeemin@gmail.com)\n\n"
+            "Special thanks to:\n"
+            "Alexey Kisly\n\n"
+            "Build date:\t" __DATE__ " " __TIME__ "\n"
+            "Qt version:\t" QT_VERSION_STR);
 }
 
 void MainWindow::emulatorFrame()

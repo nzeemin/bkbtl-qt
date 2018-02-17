@@ -36,9 +36,9 @@ typedef char TCHAR;
 typedef const char * LPCTSTR;
 
 #ifdef __GNUC__
- #define CALLBACK
+#define CALLBACK
 #else
- #define CALLBACK __stdcall
+#define CALLBACK __stdcall
 #endif
 
 typedef void *HANDLE;

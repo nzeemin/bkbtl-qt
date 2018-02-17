@@ -158,7 +158,7 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == NULL) return;
 
     QPainter painter(this);
-    painter.fillRect(0,0, this->width(), this->height(), Qt::white);
+    painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
@@ -195,7 +195,7 @@ const DisasmSubtitleItem * QDisasmView::findSubtitle(quint16 address, quint16 ty
         if (item->address > address)
             return 0;
         if (item->address == address &&
-            (item->type &typemask) != 0)
+            (item->type & typemask) != 0)
             return item;
         ++item;
     }
@@ -444,7 +444,8 @@ int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     const int nWindowSize = 30; //this->height() / cyLine;
     quint16 memory[nWindowSize + 2];
     int addrtype[nWindowSize + 2];
-    for (int idx = 0; idx < nWindowSize; idx++) {
+    for (int idx = 0; idx < nWindowSize; idx++)
+    {
         memory[idx] = g_pBoard->GetWordView(
                 current + idx * 2 - 10, pProc->IsHaltMode(), true, addrtype + idx);
     }

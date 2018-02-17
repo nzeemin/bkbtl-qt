@@ -22,7 +22,7 @@ void CALLBACK TapeView_TapeWriteCallback(int value, unsigned int samples)
 //////////////////////////////////////////////////////////////////////
 
 QTapeView::QTapeView(QWidget *parent) :
-        QWidget(parent)
+    QWidget(parent)
 {
     g_tapeView = this;
 
@@ -43,7 +43,7 @@ QTapeView::QTapeView(QWidget *parent) :
     m_labelFile->resize(cxLabelFile, 18);
     m_labelTotal = new QLabel(this);
     m_labelTotal->move(cxLabelFile + 8 + 4, 4);
-    m_labelTotal->resize(viewWidth - 8*2 - cxLabelFile - 4, 18);
+    m_labelTotal->resize(viewWidth - 8 * 2 - cxLabelFile - 4, 18);
     m_labelCurrent = new QLabel(this);
     m_labelCurrent->move(8, 26);
     m_labelCurrent->resize(100, 18);
@@ -170,7 +170,7 @@ void QTapeView::openTape(const QString &sFileName)
 
     char buffer[64];
     _snprintf(buffer, 64, "%d:%02d.%02d, %d Hz",
-        int(wavLengthSeconds) / 60, int(wavLengthSeconds) % 60, int(wavLengthSeconds * 100) % 100, wavFreq);
+            int(wavLengthSeconds) / 60, int(wavLengthSeconds) % 60, int(wavLengthSeconds * 100) % 100, wavFreq);
     m_labelTotal->setText(buffer);
 
     m_buttonOpen->setText("Close WAV");
@@ -236,7 +236,7 @@ void QTapeView::updatePosition()
     double wavPosSeconds = double(wavPos) / wavFreq;
     char buffer[64];
     _snprintf(buffer, 64, "%d:%02d.%02d",
-        int(wavPosSeconds) / 60, int(wavPosSeconds) % 60, int(wavPosSeconds * 100) % 100);
+            int(wavPosSeconds) / 60, int(wavPosSeconds) % 60, int(wavPosSeconds * 100) % 100);
     m_labelCurrent->setText(buffer);
 
     m_dwTapePositionShown = wavPos;

@@ -409,8 +409,8 @@ int Emulator_SystemFrame()
     g_pBoard->SetCPUBreakpoint(m_wEmulatorCPUBreakpoint);
 
     Emulator_ProcessKeyEvent();
-    
-	if (!g_pBoard->SystemFrame())
+
+    if (!g_pBoard->SystemFrame())
         return 0;
 
     // Calculate frames per second
@@ -605,7 +605,7 @@ void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int ok
             quint8* pBits0 = (quint8*)((quint32*)pImageBits + (y - 2) * 512);
             for (int x = 0; x < 512 * 4; x++)
             {
-                *pBits1 = (quint8)((((quint16)*pBits0) + ((quint16)*pBits2)) / 2);
+                *pBits1 = (quint8)((((quint16) * pBits0) + ((quint16) * pBits2)) / 2);
                 pBits2++;  pBits1++;  pBits0++;
             }
         }
@@ -655,7 +655,7 @@ void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int
             quint8* pBits0 = (quint8*)((quint32*)pImageBits + (y - 2) * 512);
             for (int x = 0; x < 512 * 4; x++)
             {
-                *pBits1 = (quint8)((((quint16)*pBits0) + ((quint16)*pBits2)) / 2);
+                *pBits1 = (quint8)((((quint16) * pBits0) + ((quint16) * pBits2)) / 2);
                 pBits2++;  pBits1++;  pBits0++;
             }
         }
