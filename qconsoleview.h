@@ -5,6 +5,7 @@
 #include "Common.h"
 
 class QTextEdit;
+class QLabel;
 class QLineEdit;
 
 class QConsoleView : public QWidget
@@ -17,6 +18,7 @@ public:
     void print(const QString &message);
     void printLine(const QString &message);
     void clear();
+    void updatePrompt();
 
 public slots:
     void execConsoleCommand();
@@ -24,6 +26,7 @@ public slots:
 
 private:
     QTextEdit *m_log;
+    QLabel *m_prompt;
     QLineEdit *m_edit;
 
     void printConsolePrompt();

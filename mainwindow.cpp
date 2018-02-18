@@ -235,6 +235,8 @@ void MainWindow::UpdateAllViews()
         m_disasm->updateData();
     if (m_memory != NULL)
         m_memory->updateData();
+    if (m_console != NULL)
+        m_console->updatePrompt();
 
     m_screen->repaint();
     if (m_debug != NULL)

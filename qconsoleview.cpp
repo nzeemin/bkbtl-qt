@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "qconsoleview.h"
+#include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "main.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 
@@ -16,13 +19,17 @@ QConsoleView::QConsoleView()
     setMinimumSize(320, 120);
 
     m_log = new QTextEdit();
+    m_prompt = new QLabel();
     m_edit = new QLineEdit();
 
     QVBoxLayout *vboxlayout = new QVBoxLayout;
     vboxlayout->setMargin(0);
     vboxlayout->setSpacing(4);
     vboxlayout->addWidget(m_log);
-    vboxlayout->addWidget(m_edit);
+    QHBoxLayout *hboxlayout = new QHBoxLayout;
+    hboxlayout->addWidget(m_prompt);
+    hboxlayout->addWidget(m_edit);
+    vboxlayout->addLayout(hboxlayout);
     this->setLayout(vboxlayout);
 
     QFont font = Common_GetMonospacedFont();
@@ -38,12 +45,23 @@ QConsoleView::QConsoleView()
 QConsoleView::~QConsoleView()
 {
     delete m_log;
+    delete m_prompt;
     delete m_edit;
 }
 
 void QConsoleView::clear()
 {
     m_log->clear();
+}
+
+
+void QConsoleView::updatePrompt()
+{
+    CProcessor* pProc = g_pBoard->GetCPU();
+    if (pProc == 0) return;
+    char buffer[15];
+    _snprintf(buffer, 15, " %06o> ", pProc->GetPC());
+    m_prompt->setText(buffer);
 }
 
 void QConsoleView::print(const QString &message)
@@ -219,6 +237,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
     if (g_okEmulatorRunning) return;
 
     // Echo command to the log
+    this->printConsolePrompt();
     this->printLine(command);
 
     bool okUpdateAllViews = false;  // Flag - need to update all debug views
@@ -378,8 +397,6 @@ void QConsoleView::execConsoleCommand(const QString &command)
     {
         this->print(MESSAGE_UNKNOWN_COMMAND);
     }
-
-    this->printConsolePrompt();
 
     if (okUpdateAllViews)
         Global_UpdateAllViews();
