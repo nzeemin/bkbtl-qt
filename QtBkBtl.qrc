@@ -7,5 +7,9 @@
         <file>images/keyboard.png</file>
         <file>images/iconScreenBW.png</file>
         <file>images/iconScreenColor.png</file>
+        <file>images/iconStepInto.png</file>
+        <file>images/iconStepOver.png</file>
+        <file>images/iconWordByte.png</file>
+        <file>images/iconEditAddress.png</file>
     </qresource>
 </RCC>

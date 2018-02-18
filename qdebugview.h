@@ -4,8 +4,9 @@
 #include <QWidget>
 #include "Common.h"
 
-class CProcessor;
 class CMotherboard;
+class CProcessor;
+class QToolBar;
 
 class QDebugView : public QWidget
 {
@@ -21,6 +22,7 @@ protected:
     void focusOutEvent(QFocusEvent *);
 
 private:
+    QToolBar* m_toolbar;
     unsigned short m_wDebugCpuR[9];  // Old register values - R0..R7, PSW
     bool m_okDebugCpuRChanged[9];  // Register change flags
 

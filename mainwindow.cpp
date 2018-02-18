@@ -79,7 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_screen = new QEmulatorScreen();
     m_keyboard = new QKeyboardView();
     m_console = new QConsoleView();
-    m_debug = new QDebugView();
+    m_debug = new QDebugView(this);
     m_disasm = new QDisasmView();
     m_memory = new QMemoryView();
     m_teletype = new QTeletypeView();

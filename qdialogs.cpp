@@ -2,9 +2,9 @@
 #include "qdialogs.h"
 #include <QMessageBox>
 
-QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, const QString & prompt, quint16 *value)
+QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, const QString & prompt, quint16 * value)
+    : QDialog(parent, 0)
 {
-    setParent(parent);
     m_result = value;
 
     char buffer[8];

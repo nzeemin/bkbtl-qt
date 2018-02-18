@@ -29,6 +29,14 @@ QDisasmView::QDisasmView()
     setFocusPolicy(Qt::ClickFocus);
 }
 
+void QDisasmView::updateWindowText()
+{
+    QString buffer = QString("Disassemble");
+    if (!m_SubtitleItems.isEmpty())
+        buffer.append(tr(" - Subtitles"));
+    parentWidget()->setWindowTitle(buffer);
+}
+
 void QDisasmView::updateData()
 {
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
@@ -77,7 +85,7 @@ void QDisasmView::showHideSubtitles()
         parseSubtitles(stream);
     }
 
-    //TODO: updateTitle();
+    updateWindowText();
     repaint();
 }
 
@@ -170,7 +178,7 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
 
     // Draw disasseble for the current processor
     quint16 prevPC = g_wEmulatorPrevCpuPC;
-    int yFocus = DrawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC);
+    int yFocus = drawDisassemble(painter, pDisasmPU, m_wDisasmBaseAddr, prevPC);
 
     // Draw focus rect
     if (hasFocus())
@@ -420,7 +428,7 @@ bool QDisasmView::getInstructionHint(const quint16 *memory, const CProcessor *pP
     return !buffer.isEmpty();
 }
 
-int QDisasmView::DrawDisassemble(QPainter &painter, CProcessor *pProc, quint16 base, quint16 previous)
+int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 base, quint16 previous)
 {
     int result = -1;
 

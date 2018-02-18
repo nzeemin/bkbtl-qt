@@ -31,6 +31,7 @@ public:
     QDisasmView();
 
     void updateData();
+    void updateWindowText();
 
 public slots:
     void showHideSubtitles();
@@ -49,7 +50,7 @@ private:
     quint16 m_wDisasmNextBaseAddr;
     QVector<DisasmSubtitleItem> m_SubtitleItems;
 
-    int DrawDisassemble(QPainter& painter, CProcessor* pProc, quint16 base, quint16 previous);
+    int drawDisassemble(QPainter& painter, CProcessor* pProc, quint16 base, quint16 previous);
     const DisasmSubtitleItem * findSubtitle(quint16 address, quint16 typemask);
 
     bool checkForJump(const quint16* memory, int* pDelta);

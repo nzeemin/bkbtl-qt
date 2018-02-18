@@ -2,7 +2,9 @@
 #define QMEMORYVIEW_H
 
 #include <QWidget>
-#include <QScrollBar>
+
+class QScrollBar;
+class QToolBar;
 
 class QMemoryView : public QWidget
 {
@@ -39,6 +41,7 @@ private:
     int m_nPageSize;  // Page size in lines
     int m_cyLine;
     QScrollBar *m_scrollbar;
+    QToolBar* m_toolbar;
 };
 
 
