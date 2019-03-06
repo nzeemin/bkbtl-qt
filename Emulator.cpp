@@ -103,33 +103,33 @@ const char * FILENAME_BKROM_BK11M_MSTD = "b11m_mstd.rom";
 
 const quint32 ScreenView_BWPalette[4] =
 {
-    0x000000, 0xFFFFFF, 0x000000, 0xFFFFFF
+    0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF
 };
 
 const quint32 ScreenView_ColorPalette[4] =
 {
-    0x000000, 0x0000FF, 0x00FF00, 0xFF0000
+    0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000
 };
 
 const quint32 ScreenView_ColorPalettes[16][4] =
 {
     //                                         Palette#     01           10          11
-    { 0x000000, 0x0000FF, 0x00FF00, 0xFF0000 },  // 00    синий   |   зеленый  |  красный
-    { 0x000000, 0xFFFF00, 0xFF00FF, 0xFF0000 },  // 01   желтый   |  сиреневый |  красный
-    { 0x000000, 0x00FFFF, 0x0000FF, 0xFF00FF },  // 02   голубой  |    синий   | сиреневый
-    { 0x000000, 0x00FF00, 0x00FFFF, 0xFFFF00 },  // 03   зеленый  |   голубой  |  желтый
-    { 0x000000, 0xFF00FF, 0x00FFFF, 0xFFFFFF },  // 04  сиреневый |   голубой  |   белый
-    { 0x000000, 0xFFFFFF, 0xFFFFFF, 0xFFFFFF },  // 05    белый   |    белый   |   белый
-    { 0x000000, 0xC00000, 0x8E0000, 0xFF0000 },  // 06  темн-красн| красн-корич|  красный
-    { 0x000000, 0xC0FF00, 0x8EFF00, 0xFFFF00 },  // 07  салатовый | светл-зелен|  желтый
-    { 0x000000, 0xC000FF, 0x8E00FF, 0xFF00FF },  // 08  фиолетовый| фиол-синий | сиреневый
-    { 0x000000, 0x8EFF00, 0x8E00FF, 0x8E0000 },  // 09 светл-зелен| фиол-синий |красн-корич
-    { 0x000000, 0xC0FF00, 0xC000FF, 0xC00000 },  // 10  салатовый | фиолетовый |темн-красный
-    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFF0000 },  // 11   голубой  |   желтый   |  красный
-    { 0x000000, 0xFF0000, 0x00FF00, 0x00FFFF },  // 12   красный  |   зеленый  |  голубой
-    { 0x000000, 0x00FFFF, 0xFFFF00, 0xFFFFFF },  // 13   голубой  |   желтый   |   белый
-    { 0x000000, 0xFFFF00, 0x00FF00, 0xFFFFFF },  // 14   желтый   |   зеленый  |   белый
-    { 0x000000, 0x00FFFF, 0x00FF00, 0xFFFFFF },  // 15   голубой  |   зеленый  |   белый
+    { 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000 },  // 00    синий   |   зеленый  |  красный
+    { 0xFF000000, 0xFFFFFF00, 0xFFFF00FF, 0xFFFF0000 },  // 01   желтый   |  сиреневый |  красный
+    { 0xFF000000, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF },  // 02   голубой  |    синий   | сиреневый
+    { 0xFF000000, 0xFF00FF00, 0xFF00FFFF, 0xFFFFFF00 },  // 03   зеленый  |   голубой  |  желтый
+    { 0xFF000000, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF },  // 04  сиреневый |   голубой  |   белый
+    { 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF },  // 05    белый   |    белый   |   белый
+    { 0xFF000000, 0xFFC00000, 0xFF8E0000, 0xFFFF0000 },  // 06  темн-красн| красн-корич|  красный
+    { 0xFF000000, 0xFFC0FF00, 0xFF8EFF00, 0xFFFFFF00 },  // 07  салатовый | светл-зелен|  желтый
+    { 0xFF000000, 0xFFC000FF, 0xFF8E00FF, 0xFFFF00FF },  // 08  фиолетовый| фиол-синий | сиреневый
+    { 0xFF000000, 0xFF8EFF00, 0xFF8E00FF, 0xFF8E0000 },  // 09 светл-зелен| фиол-синий |красн-корич
+    { 0xFF000000, 0xFFC0FF00, 0xFFC000FF, 0xFFC00000 },  // 10  салатовый | фиолетовый |темн-красный
+    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFF0000 },  // 11   голубой  |   желтый   |  красный
+    { 0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF00FFFF },  // 12   красный  |   зеленый  |  голубой
+    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFFFFFF },  // 13   голубой  |   желтый   |   белый
+    { 0xFF000000, 0xFFFFFF00, 0xFF00FF00, 0xFFFFFFFF },  // 14   желтый   |   зеленый  |   белый
+    { 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFFFFFF },  // 15   голубой  |   зеленый  |   белый
 };
 
 
@@ -525,7 +525,7 @@ void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int ok
 
             for (int bit = 0; bit < 16; bit++)
             {
-                quint32 color = (src & 1) ? 0x0ffffff : 0;
+                quint32 color = (src & 1) ? 0xffffffff : 0xff000000;
                 *pBits = color;
                 pBits++;
                 src = src >> 1;
@@ -589,7 +589,7 @@ void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int ok
 
             for (int bit = 0; bit < 16; bit++)
             {
-                quint32 color = (src & 1) ? 0x0ffffff : 0;
+                quint32 color = (src & 1) ? 0xffffffff : 0xff000000;
                 *pBits = color;
                 pBits++;
                 src = src >> 1;
