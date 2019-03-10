@@ -2,12 +2,13 @@ language: cpp
 
 os:
   - linux
-    compiler: gcc
   - osx
-    compiler: clang
 dist:
   - trusty
   - xenial
+compiler:
+  - gcc
+  - clang
 sudo: required
 
 env:
@@ -22,14 +23,14 @@ env:
 
 matrix:
   include:
-    - { os: linux, dist: trusty, env: QT=53 PPA=beineri/opt-qt532-trusty }
-    - { os: linux, dist: trusty, env: QT=55 PPA=beineri/opt-qt551-trusty }
-    - { os: linux, dist: xenial, env: QT=56 PPA=beineri/opt-qt563-xenial }
-    - { os: linux, dist: xenial, env: QT=57 PPA=beineri/opt-qt571-xenial }
-    - { os: linux, dist: xenial, env: QT=59 PPA=beineri/opt-qt597-xenial }
-    - { os: linux, dist: xenial, env: QT=510 PPA=beineri/opt-qt-5.10.1-xenial }
-    - { os: linux, dist: xenial, env: QT=511 PPA=beineri/opt-qt-5.11.2-xenial }
-    - { os: osx, dist: xenial, env: QT=5 }
+    - { os: linux, dist: trusty, compiler: gcc, env: QT=53 PPA=beineri/opt-qt532-trusty }
+    - { os: linux, dist: trusty, compiler: gcc, env: QT=55 PPA=beineri/opt-qt551-trusty }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=56 PPA=beineri/opt-qt563-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=57 PPA=beineri/opt-qt571-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=59 PPA=beineri/opt-qt597-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=510 PPA=beineri/opt-qt-5.10.1-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=511 PPA=beineri/opt-qt-5.11.2-xenial }
+    - { os: osx, dist: xenial, compiler: clang, env: QT=5 }
 
 before_install:
   - '[ "$TRAVIS_OS_NAME" != linux ] || sudo add-apt-repository -y ppa:$PPA'
