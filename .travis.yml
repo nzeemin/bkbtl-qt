@@ -1,25 +1,6 @@
 language: cpp
 
-os:
-  - linux
-  - osx
-dist:
-  - trusty
-  - xenial
-compiler:
-  - gcc
-  - clang
 sudo: required
-
-env:
-  - QT=53 PPA=beineri/opt-qt532-trusty
-  - QT=55 PPA=beineri/opt-qt551-trusty
-  - QT=56 PPA=beineri/opt-qt563-xenial
-  - QT=57 PPA=beineri/opt-qt571-xenial
-  - QT=59 PPA=beineri/opt-qt597-xenial
-  - QT=510 PPA=beineri/opt-qt-5.10.1-xenial
-  - QT=511 PPA=beineri/opt-qt-5.11.2-xenial
-  - QT=5
 
 matrix:
   include:
@@ -30,7 +11,7 @@ matrix:
     - { os: linux, dist: xenial, compiler: gcc, env: QT=59 PPA=beineri/opt-qt597-xenial }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=510 PPA=beineri/opt-qt-5.10.1-xenial }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=511 PPA=beineri/opt-qt-5.11.2-xenial }
-    - { os: osx, dist: xenial, compiler: clang, env: QT=5 }
+    - { os: osx, compiler: clang, env: QT=5 }
 
 before_install:
   - '[ "$TRAVIS_OS_NAME" != linux ] || sudo add-apt-repository -y ppa:$PPA'
