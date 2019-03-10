@@ -401,7 +401,7 @@ void MainWindow::helpAbout()
 {
     QMessageBox::about(this, "About",
             "QtBkBtl Version 1.0\n"
-            "Copyright (C) 2009-2018\n\n"
+            "Copyright (C) 2009-2019\n\n"
             "http://code.google.com/p/bkbtl/\n\n"
             "Author:\n"
             "Nikita Zimin (nzeemin@gmail.com)\n\n"

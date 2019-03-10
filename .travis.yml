@@ -3,27 +3,27 @@ language: cpp
 os:
   - linux
   - osx
-dist: trusty
+dist: xenial
 sudo: required
 compiler:
   - clang
   - gcc
 
 env:
-  - QT=53 BREW=ex   PPA=beineri/opt-qt532-trusty
-  - QT=55 BREW=@5.5 PPA=beineri/opt-qt551-trusty
-  - QT=57 BREW=ex   PPA=beineri/opt-qt571-trusty
-  - QT=59 BREW=ex   PPA=beineri/opt-qt591-trusty
-  - QT=510 BREW=@5.10
+  - QT=55 BREW=@5.5 PPA=ex
+  - QT=56 BREW=@5.6 PPA=beineri/opt-qt563-xenial
+  - QT=57 BREW=ex   PPA=beineri/opt-qt571-xenial
+  - QT=59 BREW=ex   PPA=beineri/opt-qt597-xenial
+  - QT=510 BREW=@5.10 PPA=beineri/opt-qt-5.10.1-xenial
+  - QT=511 BREW=@5.11 PPA=beineri/opt-qt-5.11.2-xenial
 
 matrix:
   exclude:
     - { os: linux, compiler: clang }
-    - { os: linux, env: QT=510 BREW=@5.10 }
     - { os: osx, compiler: gcc }
-    - { os: osx, env: QT=53 BREW=ex   PPA=beineri/opt-qt532-trusty }
-    - { os: osx, env: QT=57 BREW=ex   PPA=beineri/opt-qt571-trusty }
-    - { os: osx, env: QT=59 BREW=ex   PPA=beineri/opt-qt591-trusty }
+    - { os: linux, env: QT=55 BREW=@5.5 PPA=ex }
+    - { os: osx, env: QT=57 BREW=ex   PPA=beineri/opt-qt571-xenial }
+    - { os: osx, env: QT=59 BREW=ex   PPA=beineri/opt-qt597-xenial }
 
 before_install:
   - '[ "$TRAVIS_OS_NAME" != linux ] || sudo add-apt-repository -y ppa:$PPA'

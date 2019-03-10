@@ -1,6 +1,7 @@
 # bkbtl-qt
 BKBTL emulator, Qt version.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/a4y606e4i3xnrnk1?svg=true)](https://ci.appveyor.com/project/nzeemin/bkbtl-qt)
 [![Build Status](https://travis-ci.org/nzeemin/bkbtl-qt.svg?branch=master)](https://travis-ci.org/nzeemin/bkbtl-qt)
 
 The BKBTL project consists of:
