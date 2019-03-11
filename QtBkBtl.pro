@@ -47,10 +47,5 @@ FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
 QT += widgets
 QT += script
-DEFINES -= UNICODE
-
-
-
-
-
+DEFINES -= UNICODE _UNICODE
 

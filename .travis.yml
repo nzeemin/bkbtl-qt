@@ -8,9 +8,12 @@ matrix:
     - { os: linux, dist: trusty, compiler: gcc, env: QT=55 PPA=beineri/opt-qt551-trusty }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=56 PPA=beineri/opt-qt563-xenial }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=57 PPA=beineri/opt-qt571-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=58 PPA=beineri/opt-qt58-xenial }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=59 PPA=beineri/opt-qt597-xenial }
     - { os: linux, dist: xenial, compiler: gcc, env: QT=510 PPA=beineri/opt-qt-5.10.1-xenial }
-    - { os: linux, dist: xenial, compiler: gcc, env: QT=511 PPA=beineri/opt-qt-5.11.2-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=511 PPA=beineri/opt-qt-5.11.3-xenial }
+    - { os: linux, dist: xenial, compiler: gcc, env: QT=512 PPA=beineri/opt-qt-5.12.1-xenial }
+    - { os: osx, osx_image: xcode9, compiler: clang, env: QT=5 }
     - { os: osx, compiler: clang, env: QT=5 }
 
 before_install:
