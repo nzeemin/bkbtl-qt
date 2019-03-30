@@ -22,7 +22,7 @@ extern quint16 g_wEmulatorPrevPpuPC;  // Previous PC value
 
 //////////////////////////////////////////////////////////////////////
 
-
+void Emulator_SetSound(bool enable);
 bool Emulator_Init();
 bool Emulator_InitConfiguration(BKConfiguration configuration);
 void Emulator_Done();

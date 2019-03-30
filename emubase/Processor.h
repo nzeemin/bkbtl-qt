@@ -42,8 +42,8 @@ protected:  // Statics
 
 protected:  // Processor state
     int         m_internalTick;     // How many ticks waiting to the end of current instruction
-    uint16_t        m_psw;              // Processor Status Word (PSW)
-    uint16_t        m_R[8];             // Registers (R0..R5, R6=SP, R7=PC)
+    uint16_t    m_psw;              // Processor Status Word (PSW)
+    uint16_t    m_R[8];             // Registers (R0..R5, R6=SP, R7=PC)
     bool        m_okStopped;        // "Processor stopped" flag
     bool        m_userspace;        // Read TRUE if user space is used -- CPU is accessing I/O from HALT mode using user space
     bool        m_stepmode;         // Read TRUE if it's step mode
@@ -176,35 +176,7 @@ protected:  // Implementation - instruction execution
     void        ExecuteRUN ();
     void        ExecuteRTT ();
     void        ExecuteNOP ();
-    void        ExecuteCLC ();
-    void        ExecuteCLV ();
-    void        ExecuteCLVC ();
-    void        ExecuteCLZ ();
-    void        ExecuteCLZC ();
-    void        ExecuteCLZV ();
-    void        ExecuteCLZVC ();
-    void        ExecuteCLN ();
-    void        ExecuteCLNC ();
-    void        ExecuteCLNV ();
-    void        ExecuteCLNVC ();
-    void        ExecuteCLNZ ();
-    void        ExecuteCLNZC ();
-    void        ExecuteCLNZV ();
     void        ExecuteCCC ();
-    void        ExecuteSEC ();
-    void        ExecuteSEV ();
-    void        ExecuteSEVC ();
-    void        ExecuteSEZ ();
-    void        ExecuteSEZC ();
-    void        ExecuteSEZV ();
-    void        ExecuteSEZVC ();
-    void        ExecuteSEN ();
-    void        ExecuteSENC ();
-    void        ExecuteSENV ();
-    void        ExecuteSENVC ();
-    void        ExecuteSENZ ();
-    void        ExecuteSENZC ();
-    void        ExecuteSENZV ();
     void        ExecuteSCC ();
 
     // One fiels

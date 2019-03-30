@@ -11,20 +11,22 @@ SOURCES += main.cpp \
     emubase/Floppy.cpp \
     emubase/Disasm.cpp \
     emubase/Board.cpp \
+    emubase/SoundAY.cpp \
     Emulator.cpp \
     qscreen.cpp \
     qkeyboardview.cpp \
     qdebugview.cpp \
     qdisasmview.cpp \
-    qmemoryview.cpp \
     qconsoleview.cpp \
+    qmemoryview.cpp \
     qteletypeview.cpp \
     qtapeview.cpp \
+    qsoundout.cpp \
     qscripting.cpp \
-    qdialogs.cpp
+    qdialogs.cpp    
 HEADERS += mainwindow.h \
-    util/WavPcmFile.h \
     stdafx.h \
+    util/WavPcmFile.h \
     Common.h \
     emubase/Processor.h \
     emubase/Emubase.h \
@@ -36,16 +38,16 @@ HEADERS += mainwindow.h \
     qkeyboardview.h \
     qdebugview.h \
     qdisasmview.h \
-    qmemoryview.h \
     qconsoleview.h \
+    qmemoryview.h \
     qteletypeview.h \
-    qdebugview.h \
     qtapeview.h \
+    qsoundout.h \
     qscripting.h \
     qdialogs.h
 FORMS += mainwindow.ui
 RESOURCES += QtBkBtl.qrc
 QT += widgets
 QT += script
+QT += multimedia
 DEFINES -= UNICODE _UNICODE
-

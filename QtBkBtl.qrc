@@ -11,5 +11,6 @@
         <file>images/iconStepOver.png</file>
         <file>images/iconWordByte.png</file>
         <file>images/iconEditAddress.png</file>
+        <file>images/iconSound.png</file>
     </qresource>
 </RCC>

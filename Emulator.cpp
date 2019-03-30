@@ -15,7 +15,7 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 #include "mainwindow.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
-//#include "SoundGen.h"
+#include "qsoundout.h"
 #include <QTime>
 #include <QFile>
 
@@ -23,7 +23,8 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 //////////////////////////////////////////////////////////////////////
 
 
-CMotherboard* g_pBoard = NULL;
+CMotherboard* g_pBoard = nullptr;
+QSoundOut * g_sound = nullptr;
 BKConfiguration g_nEmulatorConfiguration;  // Current configuration
 
 bool g_okEmulatorInitialized = false;
@@ -52,6 +53,7 @@ int m_EmulatorKeyQueueCount = 0;
 
 void CALLBACK Emulator_TeletypeCallback(quint8 symbol);
 
+void CALLBACK Emulator_FeedDAC(unsigned short l, unsigned short r);
 
 //Прототип функции преобразования экрана
 // Input:
@@ -175,11 +177,11 @@ bool Emulator_Init()
 
     g_pBoard->Reset();
 
-    //if (m_okEmulatorSound)
-    //{
-    //    SoundGen_Initialize();
-    //    g_pBoard->SetSoundGenCallback(SoundGen_FeedDAC);
-    //}
+    g_sound = new QSoundOut();
+    if (m_okEmulatorSound)
+    {
+        g_pBoard->SetSoundGenCallback(Emulator_FeedDAC);
+    }
 
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
@@ -198,8 +200,12 @@ void Emulator_Done()
 
     CProcessor::Done();
 
-    g_pBoard->SetSoundGenCallback(NULL);
-    //SoundGen_Finalize();
+    g_pBoard->SetSoundGenCallback(nullptr);
+    if (g_sound)
+    {
+        delete g_sound;
+        g_sound = nullptr;
+    }
 
     delete g_pBoard;
     g_pBoard = NULL;
@@ -710,6 +716,26 @@ void Emulator_ProcessKeyEvent()
     }
 }
 
+void CALLBACK Emulator_FeedDAC(unsigned short l, unsigned short r)
+{
+    if (g_sound)
+    {
+        if (m_okEmulatorSound)
+            g_sound->FeedDAC(l, r);
+    }
+}
+
+void Emulator_SetSound(bool enable)
+{
+    m_okEmulatorSound = enable;
+    if (g_pBoard != nullptr)
+    {
+        if (enable)
+            g_pBoard->SetSoundGenCallback(Emulator_FeedDAC);
+        else
+            g_pBoard->SetSoundGenCallback(nullptr);
+    }
+}
 
 void CALLBACK Emulator_TeletypeCallback(quint8 symbol)
 {

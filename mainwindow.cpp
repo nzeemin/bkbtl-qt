@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
+    QObject::connect(ui->actionSoundEnabled, SIGNAL(triggered()), this, SLOT(soundEnabled()));
 
     QSignalMapper* mapScreenMode = new QSignalMapper(this);
     mapScreenMode->setMapping(ui->actionEmulatorScreen0, 0);
@@ -190,6 +191,8 @@ void MainWindow::restoreSettings(QSettings * settings)
     m_dockDisasm->setVisible(settings->value("MainWindow/DisasmView", false).toBool());
     m_dockMemory->setVisible(settings->value("MainWindow/MemoryView", false).toBool());
     m_dockTeletype->setVisible(settings->value("MainWindow/TeletypeView", false).toBool());
+
+    ui->actionSoundEnabled->setChecked(settings->value("Sound", false).toBool());
 }
 
 void MainWindow::UpdateMenu()
@@ -229,21 +232,21 @@ void MainWindow::UpdateAllViews()
 {
     Emulator_OnUpdate();
 
-    if (m_debug != NULL)
+    if (m_debug != nullptr)
         m_debug->updateData();
-    if (m_disasm != NULL)
+    if (m_disasm != nullptr)
         m_disasm->updateData();
-    if (m_memory != NULL)
+    if (m_memory != nullptr)
         m_memory->updateData();
-    if (m_console != NULL)
+    if (m_console != nullptr)
         m_console->updatePrompt();
 
     m_screen->repaint();
-    if (m_debug != NULL)
+    if (m_debug != nullptr)
         m_debug->repaint();
-    if (m_disasm != NULL)
+    if (m_disasm != nullptr)
         m_disasm->repaint();
-    if (m_memory != NULL)
+    if (m_memory != nullptr)
         m_memory->repaint();
 
     UpdateMenu();
@@ -288,7 +291,7 @@ void MainWindow::fileLoadBin()
 
     // Load BIN header
     FILE* fpBin = ::fopen(sFileName, "rb");
-    if (fpBin == NULL)
+    if (fpBin == nullptr)
     {
         AlertWarning("Failed to open file.");
         return;
@@ -447,6 +450,13 @@ void MainWindow::emulatorReset()
     m_screen->repaint();
 }
 
+void MainWindow::soundEnabled()
+{
+    bool sound = ui->actionSoundEnabled->isChecked();
+    Emulator_SetSound(sound);
+    Global_getSettings()->setValue("Sound", sound);
+}
+
 void MainWindow::emulatorColorScreen()
 {
     int newMode = m_screen->mode() ^ 1;
@@ -566,7 +576,7 @@ void MainWindow::debugStepOver()
 
 void MainWindow::printToTeletype(const QString & message)
 {
-    if (m_teletype != NULL)
+    if (m_teletype != nullptr)
     {
         m_teletype->print(message);
     }

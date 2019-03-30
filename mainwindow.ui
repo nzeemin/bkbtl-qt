@@ -44,6 +44,8 @@
     <addaction name="actionEmulatorRun"/>
     <addaction name="actionEmulatorReset"/>
     <addaction name="separator"/>
+    <addaction name="actionSoundEnabled"/>
+    <addaction name="separator"/>
     <addaction name="actionEmulatorScreen0"/>
     <addaction name="actionEmulatorScreen1"/>
     <addaction name="actionEmulatorScreen2"/>
@@ -132,6 +134,8 @@
    <addaction name="actionDrivesFloppy3"/>
    <addaction name="separator"/>
    <addaction name="actionEmulatorColorScreen"/>
+   <addaction name="separator"/>
+   <addaction name="actionSoundEnabled"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionFileExit">
@@ -392,6 +396,24 @@
    </property>
    <property name="toolTip">
     <string>Color / BW</string>
+   </property>
+  </action>
+  <action name="actionSoundEnabled">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconSound.png</normaloff>:/images/iconSound.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sound Enabled</string>
+   </property>
+   <property name="iconText">
+    <string>Sound</string>
    </property>
   </action>
   <action name="actionSaveStateImage">

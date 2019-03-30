@@ -163,7 +163,7 @@ void QDisasmView::parseSubtitles(QTextStream &stream)
 
 void QDisasmView::paintEvent(QPaintEvent * /*event*/)
 {
-    if (g_pBoard == NULL) return;
+    if (g_pBoard == nullptr) return;
 
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
@@ -174,7 +174,7 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
     int cyLine = fontmetrics.height();
 
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
-    ASSERT(pDisasmPU != NULL);
+    ASSERT(pDisasmPU != nullptr);
 
     // Draw disasseble for the current processor
     quint16 prevPC = g_wEmulatorPrevCpuPC;
@@ -195,20 +195,20 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
 const DisasmSubtitleItem * QDisasmView::findSubtitle(quint16 address, quint16 typemask)
 {
     if (m_SubtitleItems.isEmpty())
-        return 0;
+        return nullptr;
 
     const DisasmSubtitleItem * item = m_SubtitleItems.constData();
     while (item->type != 0)
     {
         if (item->address > address)
-            return 0;
+            return nullptr;
         if (item->address == address &&
             (item->type & typemask) != 0)
             return item;
         ++item;
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool QDisasmView::checkForJump(const quint16 *memory, int *pDelta)
@@ -471,7 +471,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         if (!m_SubtitleItems.isEmpty())  // Subtitles - комментарий к блоку
         {
             const DisasmSubtitleItem * pSubItem = findSubtitle(address, SUBTYPE_BLOCKCOMMENT);
-            if (pSubItem != NULL && !pSubItem->comment.isEmpty())
+            if (pSubItem != nullptr && !pSubItem->comment.isEmpty())
             {
                 painter.setPen(QColor(COLOR_SUBTITLE));
                 painter.drawText(21 * cxChar, y, pSubItem->comment);
@@ -512,9 +512,9 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         if (!m_SubtitleItems.isEmpty())  // Show subtitle
         {
             const DisasmSubtitleItem* pSubItem = findSubtitle(address, SUBTYPE_COMMENT | SUBTYPE_DATA);
-            if (pSubItem != NULL && (pSubItem->type & SUBTYPE_DATA) != 0)
+            if (pSubItem != nullptr && (pSubItem->type & SUBTYPE_DATA) != 0)
                 okData = true;
-            if (pSubItem != NULL && (pSubItem->type & SUBTYPE_COMMENT) != 0 && !pSubItem->comment.isEmpty())
+            if (pSubItem != nullptr && (pSubItem->type & SUBTYPE_COMMENT) != 0 && !pSubItem->comment.isEmpty())
             {
                 painter.setPen(QColor(COLOR_SUBTITLE));
                 painter.drawText(52 * cxChar, y, pSubItem->comment);

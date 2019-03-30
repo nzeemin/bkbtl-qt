@@ -22,7 +22,7 @@ before_install:
   - '[ "$TRAVIS_OS_NAME" != osx ] || brew update'
 
 install:
-  - '[ "$TRAVIS_OS_NAME" != linux ] || sudo apt-get -qy install qt${QT}base qt${QT}script libgl1-mesa-dev'
+  - '[ "$TRAVIS_OS_NAME" != linux ] || sudo apt-get -qy install qt${QT}base qt${QT}script qt${QT}multimedia libgl1-mesa-dev'
   - '[ "$TRAVIS_OS_NAME" != osx ] || brew install cppcheck qt'
   - '[ "$TRAVIS_OS_NAME" != osx ] || brew link --force qt'
 
