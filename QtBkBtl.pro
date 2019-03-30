@@ -23,7 +23,8 @@ SOURCES += main.cpp \
     qtapeview.cpp \
     qsoundout.cpp \
     qscripting.cpp \
-    qdialogs.cpp    
+    qdialogs.cpp \    
+    settings.cpp
 HEADERS += mainwindow.h \
     stdafx.h \
     util/WavPcmFile.h \
@@ -32,8 +33,8 @@ HEADERS += mainwindow.h \
     emubase/Emubase.h \
     emubase/Defines.h \
     emubase/Board.h \
-    main.h \
     Emulator.h \
+    main.h \
     qscreen.h \
     qkeyboardview.h \
     qdebugview.h \
@@ -51,3 +52,4 @@ QT += widgets
 QT += script
 QT += multimedia
 DEFINES -= UNICODE _UNICODE
+CONFIG += c++11

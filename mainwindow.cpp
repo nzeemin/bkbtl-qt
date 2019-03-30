@@ -192,7 +192,7 @@ void MainWindow::restoreSettings(QSettings * settings)
     m_dockMemory->setVisible(settings->value("MainWindow/MemoryView", false).toBool());
     m_dockTeletype->setVisible(settings->value("MainWindow/TeletypeView", false).toBool());
 
-    ui->actionSoundEnabled->setChecked(settings->value("Sound", false).toBool());
+    ui->actionSoundEnabled->setChecked(Settings_GetSound());
 }
 
 void MainWindow::UpdateMenu()
@@ -258,10 +258,9 @@ void MainWindow::showUptime(int uptimeMillisec)
     int minutes = (int) (uptimeMillisec / 60 % 60);
     int hours   = (int) (uptimeMillisec / 3600 % 60);
 
-    char buffer[20];
-    _snprintf(buffer, 20, "Uptime: %02d:%02d:%02d", hours, minutes, seconds);
-
-    m_statusLabelUptime->setText(buffer);
+    char buffer[12];
+    _snprintf(buffer, 20, "%02d:%02d:%02d", hours, minutes, seconds);
+    m_statusLabelUptime->setText(tr("Uptime: %1").arg(buffer));
 }
 void MainWindow::showFps(double framesPerSecond)
 {
@@ -402,16 +401,17 @@ void MainWindow::saveScreenshot(const QString& strFileName)
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, "About",
-            "QtBkBtl Version 1.0\n"
+    QMessageBox::about(this, "About", QString(
+            "BKBTL Qt Version 1.0\n"
             "Copyright (C) 2009-2019\n\n"
-            "http://code.google.com/p/bkbtl/\n\n"
+            "https://github.com/nzeemin/bkbtl-qt\n\n"
             "Author:\n"
             "Nikita Zimin (nzeemin@gmail.com)\n\n"
             "Special thanks to:\n"
             "Alexey Kisly\n\n"
-            "Build date:\t" __DATE__ " " __TIME__ "\n"
-            "Qt version:\t" QT_VERSION_STR);
+            "Build date:\t%1 %2\n"
+            "Qt version:\t%3")
+            .arg(__DATE__).arg(__TIME__).arg(QT_VERSION_STR));
 }
 
 void MainWindow::emulatorFrame()
@@ -454,7 +454,7 @@ void MainWindow::soundEnabled()
 {
     bool sound = ui->actionSoundEnabled->isChecked();
     Emulator_SetSound(sound);
-    Global_getSettings()->setValue("Sound", sound);
+    Settings_SetSound(sound);
 }
 
 void MainWindow::emulatorColorScreen()
@@ -492,7 +492,7 @@ void MainWindow::setConfiguration(int configuration)
     // Change configuration
     Emulator_InitConfiguration((BKConfiguration)configuration);
 
-    //Settings_SetConfiguration(configuration);
+    Settings_SetConfiguration(configuration);
 
     UpdateMenu();
     Global_UpdateAllViews();
@@ -503,7 +503,7 @@ void MainWindow::emulatorFloppy(int slot)
     if (g_pBoard->IsFloppyImageAttached(slot))
     {
         g_pBoard->DetachFloppyImage(slot);
-        //Settings_SetFloppyFilePath(slot, NULL);
+        Settings_SetFloppyFilePath(slot, nullptr);
     }
     else
     {
@@ -521,7 +521,7 @@ void MainWindow::emulatorFloppy(int slot)
             return;
         }
 
-        //Settings_SetFloppyFilePath(slot, sFileName);
+        Settings_SetFloppyFilePath(slot, sFileName);
     }
 
     UpdateMenu();
