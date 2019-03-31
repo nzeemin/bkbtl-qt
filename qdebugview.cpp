@@ -44,7 +44,7 @@ QDebugView::QDebugView(QWidget *mainWindow) :
 void QDebugView::updateData()
 {
     CProcessor* pCPU = g_pBoard->GetCPU();
-    ASSERT(pCPU != NULL);
+    ASSERT(pCPU != nullptr);
 
     // Get new register values and set change flags
     for (int r = 0; r < 8; r++)
@@ -69,7 +69,7 @@ void QDebugView::focusOutEvent(QFocusEvent *)
 
 void QDebugView::paintEvent(QPaintEvent * /*event*/)
 {
-    if (g_pBoard == NULL) return;
+    if (g_pBoard == nullptr) return;
 
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
@@ -81,7 +81,7 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     int cyLine = fontmetrics.height();
 
     CProcessor* pDebugPU = g_pBoard->GetCPU();
-    ASSERT(pDebugPU != NULL);
+    ASSERT(pDebugPU != nullptr);
     quint16* arrR = m_wDebugCpuR;
     bool* arrRChanged = m_okDebugCpuRChanged;
 

@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
-QTapeView* g_tapeView = NULL;
+QTapeView* g_tapeView = nullptr;
 
 bool CALLBACK TapeView_TapeReadCallback(unsigned int samples)
 {
@@ -191,9 +191,9 @@ void QTapeView::closeTape()
     m_buttonRewind->setEnabled(false);
     m_buttonOpen->setEnabled(true);
     m_buttonSave->setEnabled(true);
-    m_labelFile->setText(NULL);
-    m_labelTotal->setText(NULL);
-    m_labelCurrent->setText(NULL);
+    m_labelFile->setText(nullptr);
+    m_labelTotal->setText(nullptr);
+    m_labelCurrent->setText(nullptr);
     m_buttonOpen->setText("Open WAV");
     m_buttonSave->setText("Save WAV");
 }
@@ -220,9 +220,9 @@ void QTapeView::stopTape()
     if (!m_okTapePlaying) return;
 
     if (m_okTapeRecording)
-        g_pBoard->SetTapeWriteCallback(NULL, 0);
+        g_pBoard->SetTapeWriteCallback(nullptr, 0);
     else
-        g_pBoard->SetTapeReadCallback(NULL, 0);
+        g_pBoard->SetTapeReadCallback(nullptr, 0);
 
     m_okTapePlaying = false;
 

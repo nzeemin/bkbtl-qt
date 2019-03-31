@@ -130,7 +130,7 @@ void QMemoryView::scrollValueChanged()
 
 void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 {
-    if (g_pBoard == NULL) return;
+    if (g_pBoard == nullptr) return;
 
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
@@ -142,7 +142,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     int cyLine = fontmetrics.height();
 
     CProcessor* pDebugPU = g_pBoard->GetCPU();
-    ASSERT(pDebugPU != NULL);
+    ASSERT(pDebugPU != nullptr);
 
     QColor colorText = painter.pen().color();
 

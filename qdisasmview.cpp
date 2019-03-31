@@ -40,7 +40,7 @@ void QDisasmView::updateWindowText()
 void QDisasmView::updateData()
 {
     CProcessor* pDisasmPU = g_pBoard->GetCPU();
-    ASSERT(pDisasmPU != NULL);
+    ASSERT(pDisasmPU != nullptr);
     m_wDisasmBaseAddr = pDisasmPU->GetPC();
 }
 

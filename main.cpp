@@ -93,11 +93,11 @@ void RestoreSettings()
     // Reattach floppy images
     for (int slot = 0; slot < 4; slot++)
     {
-        //QString path = Settings_GetFloppyFilePath(slot);
-        //if (path.length() > 0)
-        //{
-        //    if (! g_pBoard->AttachFloppyImage(slot, qPrintable(path)))
-        //        Settings_SetFloppyFilePath(slot, NULL);
-        //}
+        QString path = Settings_GetFloppyFilePath(slot);
+        if (path.length() > 0)
+        {
+            if (! g_pBoard->AttachFloppyImage(slot, qPrintable(path)))
+                Settings_SetFloppyFilePath(slot, nullptr);
+        }
     }
 }

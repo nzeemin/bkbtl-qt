@@ -140,7 +140,7 @@ const quint32 ScreenView_ColorPalettes[16][4] =
 bool Emulator_LoadRomFile(const char * strFileName, quint8* buffer, quint32 fileOffset, quint32 bytesToRead)
 {
     FILE* fpRomFile = ::fopen(strFileName, "rb");
-    if (fpRomFile == NULL)
+    if (fpRomFile == nullptr)
         return false;
 
     ASSERT(bytesToRead <= 8192);
@@ -165,7 +165,7 @@ bool Emulator_LoadRomFile(const char * strFileName, quint8* buffer, quint32 file
 
 bool Emulator_Init()
 {
-    ASSERT(g_pBoard == NULL);
+    ASSERT(g_pBoard == nullptr);
 
     CProcessor::Init();
 
@@ -196,7 +196,7 @@ bool Emulator_Init()
 
 void Emulator_Done()
 {
-    ASSERT(g_pBoard != NULL);
+    ASSERT(g_pBoard != nullptr);
 
     CProcessor::Done();
 
@@ -208,7 +208,7 @@ void Emulator_Done()
     }
 
     delete g_pBoard;
-    g_pBoard = NULL;
+    g_pBoard = nullptr;
 
     // Free memory used for old RAM values
     ::free(g_pEmulatorRam);
@@ -342,7 +342,6 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         g_pBoard->LoadROM(5, buffer);
     }
 
-
     g_nEmulatorConfiguration = configuration;
 
     g_pBoard->Reset();
@@ -386,7 +385,7 @@ void Emulator_Stop()
 
 void Emulator_Reset()
 {
-    ASSERT(g_pBoard != NULL);
+    ASSERT(g_pBoard != nullptr);
 
     g_pBoard->Reset();
 
@@ -493,7 +492,7 @@ void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei)
 
 void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
 {
-    if (pImageBits == NULL) return;
+    if (pImageBits == nullptr) return;
     if (!g_okEmulatorInitialized) return;
 
     // Get scroll value
@@ -510,7 +509,7 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
         pPalette = (quint32*)ScreenView_ColorPalettes[g_pBoard->GetPalette()];
 
     const quint8* pVideoBuffer = g_pBoard->GetVideoBuffer();
-    ASSERT(pVideoBuffer != NULL);
+    ASSERT(pVideoBuffer != nullptr);
 
     // Render to bitmap
     PREPARE_SCREEN_CALLBACK callback = ScreenModeReference[screenMode].callback;
@@ -774,7 +773,7 @@ bool Emulator_SaveImage(const QString &sFilePath)
 
     // Allocate memory
     quint8* pImage = (quint8*) ::calloc(BKIMAGE_SIZE, 1);
-    if (pImage == NULL)
+    if (pImage == nullptr)
     {
         file.close();
         return false;
@@ -828,7 +827,7 @@ bool Emulator_LoadImage(const QString &sFilePath)
 
     // Allocate memory
     quint8* pImage = (quint8*) ::malloc(BKIMAGE_SIZE);
-    if (pImage == NULL)
+    if (pImage == nullptr)
     {
         file.close();
         return false;
