@@ -402,5 +402,4 @@ void QConsoleView::execConsoleCommand(const QString &command)
         Global_UpdateAllViews();
     else if (okUpdateMenu)
         Global_UpdateMenu();
-
 }

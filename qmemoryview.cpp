@@ -15,8 +15,8 @@
 
 QMemoryView::QMemoryView()
 {
-    m_ByteMode = false;
-    m_wBaseAddress = 0;
+    m_ByteMode = Settings_GetDebugMemoryByte();
+    m_wBaseAddress = Settings_GetDebugMemoryAddress();
     m_cyLineMemory = 0;
     m_nPageSize = 0;
 
@@ -89,15 +89,19 @@ void QMemoryView::contextMenuEvent(QContextMenuEvent *event)
 void QMemoryView::changeWordByteMode()
 {
     m_ByteMode = !m_ByteMode;
+    Settings_SetDebugMemoryByte(m_ByteMode);
+
     repaint();
 }
 
-void QMemoryView::scrollBy(quint16 delta)
+void QMemoryView::scrollBy(qint16 delta)
 {
     if (delta == 0) return;
 
     m_wBaseAddress = (quint16)(m_wBaseAddress + delta);
     m_wBaseAddress = m_wBaseAddress & ((quint16)~15);
+    Settings_SetDebugMemoryAddress(m_wBaseAddress);
+
     repaint();
     updateScrollPos();
 }
@@ -110,6 +114,8 @@ void QMemoryView::gotoAddress()
 
     // Scroll to the address
     m_wBaseAddress = value & ((quint16)~15);
+    Settings_SetDebugMemoryAddress(m_wBaseAddress);
+
     repaint();
     updateScrollPos();
 }
@@ -125,6 +131,8 @@ void QMemoryView::scrollValueChanged()
 {
     int value = m_scrollbar->value();
     m_wBaseAddress = (unsigned short)value & ((quint16)~15);
+    Settings_SetDebugMemoryAddress(m_wBaseAddress);
+
     this->repaint();
 }
 

@@ -18,7 +18,7 @@ public:
 public slots:
     void changeWordByteMode();
     void gotoAddress();
-    void scrollBy(quint16 delta);
+    void scrollBy(qint16 delta);
 
 protected:
     void paintEvent(QPaintEvent *);
