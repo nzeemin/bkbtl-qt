@@ -24,32 +24,32 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 
 
 CMotherboard* g_pBoard = nullptr;
-QSoundOut * g_sound = nullptr;
+static QSoundOut * g_sound = nullptr;
 BKConfiguration g_nEmulatorConfiguration;  // Current configuration
 
-bool g_okEmulatorInitialized = false;
+static bool g_okEmulatorInitialized = false;
 bool g_okEmulatorRunning = false;
 
-quint16 m_wEmulatorCPUBreakpoint = 0177777;
+static quint16 m_wEmulatorCPUBreakpoint = 0177777;
 
-bool m_okEmulatorSound = false;
+static bool m_okEmulatorSound = false;
 
-long m_nFrameCount = 0;
-QTime m_emulatorTime;
-int m_nTickCount = 0;
-quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
-long m_nUptimeFrameCount = 0;
+static long m_nFrameCount = 0;
+static QTime m_emulatorTime;
+static int m_nTickCount = 0;
+static quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
+static long m_nUptimeFrameCount = 0;
 
 quint8* g_pEmulatorRam;  // RAM values - for change tracking
 quint8* g_pEmulatorChangedRam;  // RAM change flags
 quint16 g_wEmulatorCpuPC = 0177777;      // Current PC value
 quint16 g_wEmulatorPrevCpuPC = 0177777;  // Previous PC value
 
-const int KEYEVENT_QUEUE_SIZE = 32;
-quint16 m_EmulatorKeyQueue[KEYEVENT_QUEUE_SIZE];
-int m_EmulatorKeyQueueTop = 0;
-int m_EmulatorKeyQueueBottom = 0;
-int m_EmulatorKeyQueueCount = 0;
+static const int KEYEVENT_QUEUE_SIZE = 32;
+static quint16 m_EmulatorKeyQueue[KEYEVENT_QUEUE_SIZE];
+static int m_EmulatorKeyQueueTop = 0;
+static int m_EmulatorKeyQueueBottom = 0;
+static int m_EmulatorKeyQueueCount = 0;
 
 void CALLBACK Emulator_TeletypeCallback(quint8 symbol);
 
@@ -68,6 +68,8 @@ void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int ok
 void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
 void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
 void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
 
 struct ScreenModeStruct
 {
@@ -81,23 +83,25 @@ static ScreenModeReference[] =
     { 512, 256, Emulator_PrepareScreenColor512x256 },
     { 512, 384, Emulator_PrepareScreenBW512x384 },
     { 512, 384, Emulator_PrepareScreenColor512x384 },
+    { 896, 512, Emulator_PrepareScreenBW896x512 },
+    { 896, 512, Emulator_PrepareScreenColor896x512 },
 };
 
 //////////////////////////////////////////////////////////////////////
 
 
-const char * FILENAME_BKROM_MONIT10    = "monit10.rom";
-const char * FILENAME_BKROM_FOCAL      = "focal.rom";
-const char * FILENAME_BKROM_TESTS      = "tests.rom";
-const char * FILENAME_BKROM_BASIC10_1  = "basic10_1.rom";
-const char * FILENAME_BKROM_BASIC10_2  = "basic10_2.rom";
-const char * FILENAME_BKROM_BASIC10_3  = "basic10_3.rom";
-const char * FILENAME_BKROM_DISK_326   = "disk_326.rom";
-const char * FILENAME_BKROM_BK11M_BOS  = "b11m_bos.rom";
-const char * FILENAME_BKROM_BK11M_EXT  = "b11m_ext.rom";
-const char * FILENAME_BKROM_BASIC11M_0 = "basic11m_0.rom";
-const char * FILENAME_BKROM_BASIC11M_1 = "basic11m_1.rom";
-const char * FILENAME_BKROM_BK11M_MSTD = "b11m_mstd.rom";
+static const char * FILENAME_BKROM_MONIT10    = "monit10.rom";
+static const char * FILENAME_BKROM_FOCAL      = "focal.rom";
+static const char * FILENAME_BKROM_TESTS      = "tests.rom";
+static const char * FILENAME_BKROM_BASIC10_1  = "basic10_1.rom";
+static const char * FILENAME_BKROM_BASIC10_2  = "basic10_2.rom";
+static const char * FILENAME_BKROM_BASIC10_3  = "basic10_3.rom";
+static const char * FILENAME_BKROM_DISK_326   = "disk_326.rom";
+static const char * FILENAME_BKROM_BK11M_BOS  = "b11m_bos.rom";
+static const char * FILENAME_BKROM_BK11M_EXT  = "b11m_ext.rom";
+static const char * FILENAME_BKROM_BASIC11M_0 = "basic11m_0.rom";
+static const char * FILENAME_BKROM_BASIC11M_1 = "basic11m_1.rom";
+static const char * FILENAME_BKROM_BK11M_MSTD = "b11m_mstd.rom";
 
 
 //////////////////////////////////////////////////////////////////////
@@ -516,6 +520,8 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
     callback(pVideoBuffer, okSmallScreen, pPalette, scroll, pImageBits);
 }
 
+#define AVERAGERGB(a, b)  ( (((a) & 0xfefefeffUL) + ((b) & 0xfefefeffUL)) >> 1 )
+
 void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* /*pPalette*/, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
@@ -671,6 +677,91 @@ void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int
     if (okSmallScreen)
     {
         memset((quint32*)pImageBits, 0, (384 - 86) * 512 * sizeof(quint32));  //TODO
+    }
+}
+
+void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+{
+    int linesToShow = okSmallScreen ? 64 : 256;
+    for (int y = 0; y < linesToShow; y++)
+    {
+        int yy = (y + scroll) & 0377;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        quint32* pBits = (quint32*)pImageBits + y * 896 * 2;
+        quint32* pBits2 = pBits + 896;
+        for (int x = 0; x < 512 / 16; x++)
+        {
+            uint16_t src = *pVideo;
+
+            for (int bit = 0; bit < 16; bit += 4)
+            {
+                quint32 c1 = (src & 1) ? 0x0ffffff : 0;
+                quint32 c2 = (src & 2) ? 0x0ffffff : 0;
+                quint32 c3 = (src & 4) ? 0x0ffffff : 0;
+                quint32 c4 = (src & 8) ? 0x0ffffff : 0;
+                *(pBits++) = *(pBits2++) = c1;
+                *(pBits++) = *(pBits2++) = AVERAGERGB(c1, c2);
+                *(pBits++) = *(pBits2++) = c2;
+                *(pBits++) = *(pBits2++) = AVERAGERGB(c2, c3);
+                *(pBits++) = *(pBits2++) = c3;
+                *(pBits++) = *(pBits2++) = AVERAGERGB(c3, c4);
+                *(pBits++) = *(pBits2++) = c4;
+                src = src >> 4;
+            }
+
+            pVideo++;
+        }
+    }
+    if (okSmallScreen)
+    {
+        memset((quint32*)pImageBits, 0, (256 - 64) * 896 * 2 * sizeof(quint32));  //TODO
+    }
+}
+
+void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+{
+    int linesToShow = okSmallScreen ? 64 : 256;
+    for (int y = 0; y < linesToShow; y++)
+    {
+        int yy = (y + scroll) & 0377;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        quint32* pBits = (quint32*)pImageBits + y * 896 * 2;
+        quint32* pBits2 = pBits + 896;
+        for (int x = 0; x < 512 / 16; x++)
+        {
+            uint16_t src = *pVideo;
+
+            for (int bit = 0; bit < 16; bit += 8)
+            {
+                quint32 c1 = pPalette[src & 3];  src = src >> 2;
+                quint32 c2 = pPalette[src & 3];  src = src >> 2;
+                quint32 c3 = pPalette[src & 3];  src = src >> 2;
+                quint32 c4 = pPalette[src & 3];  src = src >> 2;
+                quint32 c12 = AVERAGERGB(c1, c2);
+                quint32 c23 = AVERAGERGB(c2, c3);
+                quint32 c34 = AVERAGERGB(c3, c4);
+                *(pBits++) = *(pBits2++) = c1;
+                *(pBits++) = *(pBits2++) = c1;
+                *(pBits++) = *(pBits2++) = c12;
+                *(pBits++) = *(pBits2++) = c12;
+                *(pBits++) = *(pBits2++) = c2;
+                *(pBits++) = *(pBits2++) = c2;
+                *(pBits++) = *(pBits2++) = c23;
+                *(pBits++) = *(pBits2++) = c23;
+                *(pBits++) = *(pBits2++) = c3;
+                *(pBits++) = *(pBits2++) = c3;
+                *(pBits++) = *(pBits2++) = c34;
+                *(pBits++) = *(pBits2++) = c34;
+                *(pBits++) = *(pBits2++) = c4;
+                *(pBits++) = *(pBits2++) = c4;
+            }
+
+            pVideo++;
+        }
+    }
+    if (okSmallScreen)
+    {
+        memset((quint32*)pImageBits, 0, (256 - 64) * 896 * 2 * sizeof(quint32));  //TODO
     }
 }
 

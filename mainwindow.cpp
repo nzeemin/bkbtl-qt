@@ -59,11 +59,15 @@ MainWindow::MainWindow(QWidget *parent) :
     mapScreenMode->setMapping(ui->actionEmulatorScreen1, 1);
     mapScreenMode->setMapping(ui->actionEmulatorScreen2, 2);
     mapScreenMode->setMapping(ui->actionEmulatorScreen3, 3);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen4, 4);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen5, 5);
     QObject::connect(mapScreenMode, SIGNAL(mapped(int)), this, SLOT(emulatorScreenMode(int)));
     QObject::connect(ui->actionEmulatorScreen0, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen1, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen2, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen3, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen4, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen5, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
 
     QSignalMapper* mapFloppy = new QSignalMapper(this);
     mapFloppy->setMapping(ui->actionDrivesFloppy0, 0);
@@ -203,6 +207,8 @@ void MainWindow::UpdateMenu()
     ui->actionEmulatorScreen1->setChecked(m_screen->mode() == 1);
     ui->actionEmulatorScreen2->setChecked(m_screen->mode() == 2);
     ui->actionEmulatorScreen3->setChecked(m_screen->mode() == 3);
+    ui->actionEmulatorScreen4->setChecked(m_screen->mode() == 4);
+    ui->actionEmulatorScreen5->setChecked(m_screen->mode() == 5);
     ui->actionEmulatorColorScreen->setIcon(QIcon(
             (m_screen->mode() & 1) ? ":/images/iconScreenColor.png" : ":/images/iconScreenBW.png" ));
 
@@ -465,7 +471,7 @@ void MainWindow::emulatorColorScreen()
 
 void MainWindow::emulatorScreenMode(int mode)
 {
-    if (mode < 0 || mode > 3) return;
+    if (mode < 0 || mode > 5) return;
 
     m_screen->setMode(mode);
     UpdateMenu();

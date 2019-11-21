@@ -11,7 +11,7 @@ class QTapeView : public QWidget
 {
     Q_OBJECT
 public:
-    QTapeView(QWidget *parent = 0);
+    QTapeView(QWidget *parent = nullptr);
 
     bool tapeReadCallback(unsigned int samples);
     void tapeWriteCallback(int value, unsigned int samples);

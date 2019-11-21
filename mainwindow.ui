@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>662</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -50,6 +50,8 @@
     <addaction name="actionEmulatorScreen1"/>
     <addaction name="actionEmulatorScreen2"/>
     <addaction name="actionEmulatorScreen3"/>
+    <addaction name="actionEmulatorScreen4"/>
+    <addaction name="actionEmulatorScreen5"/>
    </widget>
    <widget class="QMenu" name="menuDrives">
     <property name="enabled">
@@ -424,6 +426,22 @@
   <action name="actionLoadStateImage">
    <property name="text">
     <string>Load State...</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>896 x 512 BW</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>896 x 512 Color</string>
    </property>
   </action>
  </widget>

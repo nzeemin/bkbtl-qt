@@ -8,7 +8,7 @@ QEmulatorScreen::QEmulatorScreen(QWidget *parent) :
 {
     setFocusPolicy(Qt::StrongFocus);
 
-    m_image = 0;
+    m_image = nullptr;
     m_mode = 0;
 
     createDisplay();
@@ -37,10 +37,10 @@ void QEmulatorScreen::setMode(int mode)
 
 void QEmulatorScreen::createDisplay()
 {
-    if (m_image != 0)
+    if (m_image != nullptr)
     {
         delete m_image;
-        m_image = 0;
+        m_image = nullptr;
     }
 
     int cxScreenWidth, cyScreenHeight;

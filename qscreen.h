@@ -9,7 +9,7 @@ class QEmulatorScreen : public QWidget
 {
     Q_OBJECT
 public:
-    QEmulatorScreen(QWidget *parent = 0);
+    QEmulatorScreen(QWidget *parent = nullptr);
     ~QEmulatorScreen();
 
 public:

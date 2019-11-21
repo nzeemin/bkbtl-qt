@@ -12,7 +12,7 @@ class QDebugView : public QWidget
 {
     Q_OBJECT
 public:
-    QDebugView(QWidget *parent = 0);
+    QDebugView(QWidget *parent = nullptr);
 
     void updateData();
 
