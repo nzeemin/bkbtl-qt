@@ -30,9 +30,10 @@ void QEmulatorScreen::setMode(int mode)
     this->repaint();
 }
 
-void QEmulatorScreen::saveScreenshot(QString strFileName)
+QImage QEmulatorScreen::getScreenshot()
 {
-    m_image->save(strFileName, "PNG", -1);
+    QImage image(*m_image);
+    return image;
 }
 
 void QEmulatorScreen::createDisplay()

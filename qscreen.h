@@ -13,7 +13,7 @@ public:
     ~QEmulatorScreen();
 
 public:
-    void saveScreenshot(QString strFileName);
+    QImage getScreenshot();
     int mode() const { return m_mode; }
     void setMode(int mode);
 

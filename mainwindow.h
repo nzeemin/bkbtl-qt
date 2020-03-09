@@ -38,12 +38,15 @@ public:
 public:
     void saveStateImage(const QString& filename);
     void loadStateImage(const QString& filename);
+    void saveScreenshot(const QString& filename);
+
 public slots:
     void saveStateImage();
     void loadStateImage();
     void fileLoadBin();
     void saveScreenshot();
-    void saveScreenshot(const QString&);
+    void saveScreenshotAs();
+    void screenshotToClipboard();
     void helpAbout();
     void emulatorFrame();
     void emulatorRun();

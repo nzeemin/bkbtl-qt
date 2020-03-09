@@ -12,5 +12,6 @@
         <file>images/iconWordByte.png</file>
         <file>images/iconEditAddress.png</file>
         <file>images/iconSound.png</file>
+        <file>images/iconScreenshot.png</file>
     </qresource>
 </RCC>
