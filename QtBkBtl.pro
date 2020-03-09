@@ -53,3 +53,4 @@ QT += script
 QT += multimedia
 DEFINES -= UNICODE _UNICODE
 CONFIG += c++11
+QMAKE_CXXFLAGS += -std=c++11

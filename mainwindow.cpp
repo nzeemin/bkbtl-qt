@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
+    QObject::connect(ui->actionViewKeyboard, SIGNAL(triggered()), this, SLOT(viewKeyboard()));
     QObject::connect(ui->actionSoundEnabled, SIGNAL(triggered()), this, SLOT(soundEnabled()));
 
     QSignalMapper* mapScreenMode = new QSignalMapper(this);
@@ -129,9 +130,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockConsole, Qt::Vertical);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockTeletype);
 
-    m_statusLabelInfo = new QLabel();
-    m_statusLabelFrames = new QLabel();
-    m_statusLabelUptime = new QLabel();
+    m_statusLabelInfo = new QLabel(this);
+    m_statusLabelFrames = new QLabel(this);
+    m_statusLabelUptime = new QLabel(this);
     statusBar()->addWidget(m_statusLabelInfo, 600);
     statusBar()->addPermanentWidget(m_statusLabelFrames, 150);
     statusBar()->addPermanentWidget(m_statusLabelUptime, 150);
@@ -154,6 +155,9 @@ MainWindow::~MainWindow()
     delete m_dockDisasm;
     delete m_dockMemory;
     delete m_dockTeletype;
+    delete m_statusLabelInfo;
+    delete m_statusLabelFrames;
+    delete m_statusLabelUptime;
 }
 
 void MainWindow::changeEvent(QEvent *e)
@@ -176,6 +180,8 @@ void MainWindow::closeEvent(QCloseEvent *)
 
 void MainWindow::saveSettings(QSettings * settings)
 {
+    Global_getSettings()->setValue("MainWindow/ScreenMode", m_screen->mode());
+
     settings->setValue("MainWindow/Geometry", saveGeometry());
     settings->setValue("MainWindow/WindowState", saveState());
 
@@ -187,6 +193,13 @@ void MainWindow::saveSettings(QSettings * settings)
 }
 void MainWindow::restoreSettings(QSettings * settings)
 {
+    int scrViewMode = Global_getSettings()->value("MainWindow/ScreenMode").toInt();
+    m_screen->setMode(scrViewMode);
+
+    //Update centralWidget size
+    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+    ui->centralWidget->setMaximumWidth(m_screen->maximumWidth());
+
     restoreGeometry(settings->value("MainWindow/Geometry").toByteArray());
     restoreState(settings->value("MainWindow/WindowState").toByteArray());
 
@@ -202,6 +215,8 @@ void MainWindow::restoreSettings(QSettings * settings)
 void MainWindow::UpdateMenu()
 {
     ui->actionEmulatorRun->setChecked(g_okEmulatorRunning);
+
+    ui->actionViewKeyboard->setChecked(m_keyboard->isVisible());
 
     ui->actionEmulatorScreen0->setChecked(m_screen->mode() == 0);
     ui->actionEmulatorScreen1->setChecked(m_screen->mode() == 1);
@@ -409,7 +424,7 @@ void MainWindow::helpAbout()
 {
     QMessageBox::about(this, "About", QString(
             "BKBTL Qt Version 1.0\n"
-            "Copyright (C) 2009-2019\n\n"
+            "Copyright (C) 2009-2020\n\n"
             "https://github.com/nzeemin/bkbtl-qt\n\n"
             "Author:\n"
             "Nikita Zimin (nzeemin@gmail.com)\n\n"
@@ -418,6 +433,12 @@ void MainWindow::helpAbout()
             "Build date:\t%1 %2\n"
             "Qt version:\t%3")
             .arg(__DATE__).arg(__TIME__).arg(QT_VERSION_STR));
+}
+
+void MainWindow::viewKeyboard()
+{
+    m_keyboard->setVisible(!m_keyboard->isVisible());
+    UpdateMenu();
 }
 
 void MainWindow::emulatorFrame()
@@ -478,6 +499,7 @@ void MainWindow::emulatorScreenMode(int mode)
 
     //Update centralWidget size
     ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
+    ui->centralWidget->setMaximumWidth(m_screen->maximumWidth());
 }
 
 void MainWindow::configurationBK0010Basic() { setConfiguration(BK_CONF_BK0010_BASIC); }

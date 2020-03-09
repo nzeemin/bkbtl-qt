@@ -12,9 +12,9 @@
 void RestoreSettings();
 
 
-QApplication *g_Application;
-MainWindow *g_MainWindow;
-QSettings *g_Settings;
+static QApplication *g_Application;
+static MainWindow *g_MainWindow;
+static QSettings *g_Settings;
 
 
 int main(int argc, char *argv[])

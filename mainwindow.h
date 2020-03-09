@@ -63,6 +63,7 @@ public slots:
     void debugTeletypeView();
     void debugStepInto();
     void debugStepOver();
+    void viewKeyboard();
     void soundEnabled();
     void scriptRun();
     void consolePrint(const QString&);
