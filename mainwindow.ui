@@ -101,6 +101,8 @@
     <addaction name="actionEmulatorScreen3"/>
     <addaction name="actionEmulatorScreen4"/>
     <addaction name="actionEmulatorScreen5"/>
+    <addaction name="actionEmulatorScreen6"/>
+    <addaction name="actionEmulatorScreen7"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -458,6 +460,22 @@
    </property>
    <property name="text">
     <string>Keyboard</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1024 x 768 BW</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen7">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1024 x 768 Color</string>
    </property>
   </action>
  </widget>

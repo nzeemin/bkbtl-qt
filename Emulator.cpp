@@ -55,21 +55,23 @@ void CALLBACK Emulator_TeletypeCallback(quint8 symbol);
 
 void CALLBACK Emulator_FeedDAC(unsigned short l, unsigned short r);
 
-//Ïðîòîòèï ôóíêöèè ïðåîáðàçîâàíèÿ ýêðàíà
+//ÐŸÑ€Ð¾Ñ‚Ð¾Ñ‚Ð¸Ð¿ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ñ ÑÐºÑ€Ð°Ð½Ð°
 // Input:
-//   pVideoBuffer   Èñõîäíûå äàííûå, áèòû ýêðàíà ÁÊ
-//   okSmallScreen  Ïðèçíàê "ìàëîãî" ýêðàíà
-//   pPalette       Ïàëèòðà
-//   scroll         Òåêóùåå çíà÷åíèå ñêðîëëèíãà
-//   pImageBits     Ðåçóëüòàò, 32-áèòíûé öâåò, ðàçìåð äëÿ êàæäîé ôóíêöèè ñâîé
-typedef void (CALLBACK* PREPARE_SCREEN_CALLBACK)(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+//   pVideoBuffer   Ð˜ÑÑ…Ð¾Ð´Ð½Ñ‹Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ, Ð±Ð¸Ñ‚Ñ‹ ÑÐºÑ€Ð°Ð½Ð° Ð‘Ðš
+//   okSmallScreen  ÐŸÑ€Ð¸Ð·Ð½Ð°Ðº "Ð¼Ð°Ð»Ð¾Ð³Ð¾" ÑÐºÑ€Ð°Ð½Ð°
+//   pPalette       ÐŸÐ°Ð»Ð¸Ñ‚Ñ€Ð°
+//   scroll         Ð¢ÐµÐºÑƒÑ‰ÐµÐµ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ ÑÐºÑ€Ð¾Ð»Ð»Ð¸Ð½Ð³Ð°
+//   pImageBits     Ð ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚, 32-Ð±Ð¸Ñ‚Ð½Ñ‹Ð¹ Ñ†Ð²ÐµÑ‚, Ñ€Ð°Ð·Ð¼ÐµÑ€ Ð´Ð»Ñ ÐºÐ°Ð¶Ð´Ð¾Ð¹ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ ÑÐ²Ð¾Ð¹
+typedef void (CALLBACK* PREPARE_SCREEN_CALLBACK)(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
 
-void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
-void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenBW1024x768(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
+void CALLBACK Emulator_PrepareScreenColor1024x768(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits);
 
 struct ScreenModeStruct
 {
@@ -85,6 +87,8 @@ static ScreenModeReference[] =
     { 512, 384, Emulator_PrepareScreenColor512x384 },
     { 896, 512, Emulator_PrepareScreenBW896x512 },
     { 896, 512, Emulator_PrepareScreenColor896x512 },
+    { 1024, 768, Emulator_PrepareScreenBW1024x768 },
+    { 1024, 768, Emulator_PrepareScreenColor1024x768 },
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -120,22 +124,22 @@ const quint32 ScreenView_ColorPalette[4] =
 const quint32 ScreenView_ColorPalettes[16][4] =
 {
     //                                         Palette#     01           10          11
-    { 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000 },  // 00    ñèíèé   |   çåëåíûé  |  êðàñíûé
-    { 0xFF000000, 0xFFFFFF00, 0xFFFF00FF, 0xFFFF0000 },  // 01   æåëòûé   |  ñèðåíåâûé |  êðàñíûé
-    { 0xFF000000, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF },  // 02   ãîëóáîé  |    ñèíèé   | ñèðåíåâûé
-    { 0xFF000000, 0xFF00FF00, 0xFF00FFFF, 0xFFFFFF00 },  // 03   çåëåíûé  |   ãîëóáîé  |  æåëòûé
-    { 0xFF000000, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF },  // 04  ñèðåíåâûé |   ãîëóáîé  |   áåëûé
-    { 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF },  // 05    áåëûé   |    áåëûé   |   áåëûé
-    { 0xFF000000, 0xFFC00000, 0xFF8E0000, 0xFFFF0000 },  // 06  òåìí-êðàñí| êðàñí-êîðè÷|  êðàñíûé
-    { 0xFF000000, 0xFFC0FF00, 0xFF8EFF00, 0xFFFFFF00 },  // 07  ñàëàòîâûé | ñâåòë-çåëåí|  æåëòûé
-    { 0xFF000000, 0xFFC000FF, 0xFF8E00FF, 0xFFFF00FF },  // 08  ôèîëåòîâûé| ôèîë-ñèíèé | ñèðåíåâûé
-    { 0xFF000000, 0xFF8EFF00, 0xFF8E00FF, 0xFF8E0000 },  // 09 ñâåòë-çåëåí| ôèîë-ñèíèé |êðàñí-êîðè÷
-    { 0xFF000000, 0xFFC0FF00, 0xFFC000FF, 0xFFC00000 },  // 10  ñàëàòîâûé | ôèîëåòîâûé |òåìí-êðàñíûé
-    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFF0000 },  // 11   ãîëóáîé  |   æåëòûé   |  êðàñíûé
-    { 0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF00FFFF },  // 12   êðàñíûé  |   çåëåíûé  |  ãîëóáîé
-    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFFFFFF },  // 13   ãîëóáîé  |   æåëòûé   |   áåëûé
-    { 0xFF000000, 0xFFFFFF00, 0xFF00FF00, 0xFFFFFFFF },  // 14   æåëòûé   |   çåëåíûé  |   áåëûé
-    { 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFFFFFF },  // 15   ãîëóáîé  |   çåëåíûé  |   áåëûé
+    { 0xFF000000, 0xFF0000FF, 0xFF00FF00, 0xFFFF0000 },  // 00    ÑÐ¸Ð½Ð¸Ð¹   |   Ð·ÐµÐ»ÐµÐ½Ñ‹Ð¹  |  ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+    { 0xFF000000, 0xFFFFFF00, 0xFFFF00FF, 0xFFFF0000 },  // 01   Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹   |  ÑÐ¸Ñ€ÐµÐ½ÐµÐ²Ñ‹Ð¹ |  ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+    { 0xFF000000, 0xFF00FFFF, 0xFF0000FF, 0xFFFF00FF },  // 02   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |    ÑÐ¸Ð½Ð¸Ð¹   | ÑÐ¸Ñ€ÐµÐ½ÐµÐ²Ñ‹Ð¹
+    { 0xFF000000, 0xFF00FF00, 0xFF00FFFF, 0xFFFFFF00 },  // 03   Ð·ÐµÐ»ÐµÐ½Ñ‹Ð¹  |   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |  Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹
+    { 0xFF000000, 0xFFFF00FF, 0xFF00FFFF, 0xFFFFFFFF },  // 04  ÑÐ¸Ñ€ÐµÐ½ÐµÐ²Ñ‹Ð¹ |   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |   Ð±ÐµÐ»Ñ‹Ð¹
+    { 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF },  // 05    Ð±ÐµÐ»Ñ‹Ð¹   |    Ð±ÐµÐ»Ñ‹Ð¹   |   Ð±ÐµÐ»Ñ‹Ð¹
+    { 0xFF000000, 0xFFC00000, 0xFF8E0000, 0xFFFF0000 },  // 06  Ñ‚ÐµÐ¼Ð½-ÐºÑ€Ð°ÑÐ½| ÐºÑ€Ð°ÑÐ½-ÐºÐ¾Ñ€Ð¸Ñ‡|  ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+    { 0xFF000000, 0xFFC0FF00, 0xFF8EFF00, 0xFFFFFF00 },  // 07  ÑÐ°Ð»Ð°Ñ‚Ð¾Ð²Ñ‹Ð¹ | ÑÐ²ÐµÑ‚Ð»-Ð·ÐµÐ»ÐµÐ½|  Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹
+    { 0xFF000000, 0xFFC000FF, 0xFF8E00FF, 0xFFFF00FF },  // 08  Ñ„Ð¸Ð¾Ð»ÐµÑ‚Ð¾Ð²Ñ‹Ð¹| Ñ„Ð¸Ð¾Ð»-ÑÐ¸Ð½Ð¸Ð¹ | ÑÐ¸Ñ€ÐµÐ½ÐµÐ²Ñ‹Ð¹
+    { 0xFF000000, 0xFF8EFF00, 0xFF8E00FF, 0xFF8E0000 },  // 09 ÑÐ²ÐµÑ‚Ð»-Ð·ÐµÐ»ÐµÐ½| Ñ„Ð¸Ð¾Ð»-ÑÐ¸Ð½Ð¸Ð¹ |ÐºÑ€Ð°ÑÐ½-ÐºÐ¾Ñ€Ð¸Ñ‡
+    { 0xFF000000, 0xFFC0FF00, 0xFFC000FF, 0xFFC00000 },  // 10  ÑÐ°Ð»Ð°Ñ‚Ð¾Ð²Ñ‹Ð¹ | Ñ„Ð¸Ð¾Ð»ÐµÑ‚Ð¾Ð²Ñ‹Ð¹ |Ñ‚ÐµÐ¼Ð½-ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFF0000 },  // 11   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |   Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹   |  ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹
+    { 0xFF000000, 0xFFFF0000, 0xFF00FF00, 0xFF00FFFF },  // 12   ÐºÑ€Ð°ÑÐ½Ñ‹Ð¹  |   Ð·ÐµÐ»ÐµÐ½Ñ‹Ð¹  |  Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹
+    { 0xFF000000, 0xFF00FFFF, 0xFFFFFF00, 0xFFFFFFFF },  // 13   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |   Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹   |   Ð±ÐµÐ»Ñ‹Ð¹
+    { 0xFF000000, 0xFFFFFF00, 0xFF00FF00, 0xFFFFFFFF },  // 14   Ð¶ÐµÐ»Ñ‚Ñ‹Ð¹   |   Ð·ÐµÐ»ÐµÐ½Ñ‹Ð¹  |   Ð±ÐµÐ»Ñ‹Ð¹
+    { 0xFF000000, 0xFF00FFFF, 0xFF00FF00, 0xFFFFFFFF },  // 15   Ð³Ð¾Ð»ÑƒÐ±Ð¾Ð¹  |   Ð·ÐµÐ»ÐµÐ½Ñ‹Ð¹  |   Ð±ÐµÐ»Ñ‹Ð¹
 };
 
 
@@ -522,7 +526,7 @@ void Emulator_PrepareScreenRGB32(void* pImageBits, int screenMode)
 
 #define AVERAGERGB(a, b)  ( (((a) & 0xfefefeffUL) + ((b) & 0xfefefeffUL)) >> 1 )
 
-void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* /*pPalette*/, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int okSmallScreen, const quint32* /*pPalette*/, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
@@ -551,7 +555,7 @@ void CALLBACK Emulator_PrepareScreenBW512x256(const quint8* pVideoBuffer, int ok
     }
 }
 
-void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
@@ -582,7 +586,7 @@ void CALLBACK Emulator_PrepareScreenColor512x256(const quint8* pVideoBuffer, int
     }
 }
 
-void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* /*pPalette*/, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int okSmallScreen, const quint32* /*pPalette*/, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     int bky = 0;
@@ -630,7 +634,7 @@ void CALLBACK Emulator_PrepareScreenBW512x384(const quint8* pVideoBuffer, int ok
     }
 }
 
-void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     int bky = 0;
@@ -680,7 +684,7 @@ void CALLBACK Emulator_PrepareScreenColor512x384(const quint8* pVideoBuffer, int
     }
 }
 
-void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int okSmallScreen, const quint32* /*pPalette*/, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
@@ -718,7 +722,7 @@ void CALLBACK Emulator_PrepareScreenBW896x512(const quint8* pVideoBuffer, int ok
     }
 }
 
-void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, quint32* pPalette, int scroll, void* pImageBits)
+void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits)
 {
     int linesToShow = okSmallScreen ? 64 : 256;
     for (int y = 0; y < linesToShow; y++)
@@ -762,6 +766,74 @@ void CALLBACK Emulator_PrepareScreenColor896x512(const quint8* pVideoBuffer, int
     if (okSmallScreen)
     {
         memset((quint32*)pImageBits, 0, (256 - 64) * 896 * 2 * sizeof(quint32));  //TODO
+    }
+}
+
+void CALLBACK Emulator_PrepareScreenBW1024x768(const quint8* pVideoBuffer, int okSmallScreen, const quint32* /*pPalette*/, int scroll, void* pImageBits)
+{
+    int linesToShow = okSmallScreen ? 64 : 256;
+    for (int y = 0; y < linesToShow; y++)
+    {
+        int yy = (y + scroll) & 0377;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        uint32_t* pBits = (quint32*)pImageBits + y * 1024 * 3;
+        uint32_t* pBits2 = pBits + 1024;
+        for (int x = 0; x < 512 / 16; x++)
+        {
+            quint16 src = *pVideo;
+
+            for (int bit = 0; bit < 16; bit++)
+            {
+                quint32 color = (src & 1) ? 0x0ffffff : 0;
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                src = src >> 1;
+            }
+
+            pVideo++;
+        }
+    }
+    if (okSmallScreen)
+    {
+        memset((quint32*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(quint32));
+    }
+}
+
+void CALLBACK Emulator_PrepareScreenColor1024x768(const quint8* pVideoBuffer, int okSmallScreen, const quint32* pPalette, int scroll, void* pImageBits)
+{
+    int linesToShow = okSmallScreen ? 64 : 256;
+    for (int y = 0; y < linesToShow; y++)
+    {
+        int yy = (y + scroll) & 0377;
+        const uint16_t* pVideo = (uint16_t*)(pVideoBuffer + yy * 0100);
+        uint32_t* pBits = (uint32_t*)pImageBits + y * 1024 * 3;
+        uint32_t* pBits2 = pBits + 1024;
+        for (int x = 0; x < 512 / 16; x++)
+        {
+            uint16_t src = *pVideo;
+
+            for (int bit = 0; bit < 16; bit += 2)
+            {
+                uint32_t color = pPalette[src & 3];
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                *pBits = *pBits2 = color;
+                pBits++;  pBits2++;
+                src = src >> 2;
+            }
+
+            pVideo++;
+        }
+    }
+    if (okSmallScreen)
+    {
+        memset((uint32_t*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(uint32_t));
     }
 }
 

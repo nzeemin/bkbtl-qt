@@ -62,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mapScreenMode->setMapping(ui->actionEmulatorScreen3, 3);
     mapScreenMode->setMapping(ui->actionEmulatorScreen4, 4);
     mapScreenMode->setMapping(ui->actionEmulatorScreen5, 5);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen6, 6);
+    mapScreenMode->setMapping(ui->actionEmulatorScreen7, 7);
     QObject::connect(mapScreenMode, SIGNAL(mapped(int)), this, SLOT(emulatorScreenMode(int)));
     QObject::connect(ui->actionEmulatorScreen0, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen1, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
@@ -69,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionEmulatorScreen3, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen4, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
     QObject::connect(ui->actionEmulatorScreen5, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen6, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
+    QObject::connect(ui->actionEmulatorScreen7, SIGNAL(triggered()), mapScreenMode, SLOT(map()));
 
     QSignalMapper* mapFloppy = new QSignalMapper(this);
     mapFloppy->setMapping(ui->actionDrivesFloppy0, 0);
@@ -224,6 +228,8 @@ void MainWindow::UpdateMenu()
     ui->actionEmulatorScreen3->setChecked(m_screen->mode() == 3);
     ui->actionEmulatorScreen4->setChecked(m_screen->mode() == 4);
     ui->actionEmulatorScreen5->setChecked(m_screen->mode() == 5);
+    ui->actionEmulatorScreen6->setChecked(m_screen->mode() == 6);
+    ui->actionEmulatorScreen7->setChecked(m_screen->mode() == 7);
     ui->actionEmulatorColorScreen->setIcon(QIcon(
             (m_screen->mode() & 1) ? ":/images/iconScreenColor.png" : ":/images/iconScreenBW.png" ));
 
@@ -492,7 +498,7 @@ void MainWindow::emulatorColorScreen()
 
 void MainWindow::emulatorScreenMode(int mode)
 {
-    if (mode < 0 || mode > 5) return;
+    if (mode < 0 || mode > 7) return;
 
     m_screen->setMode(mode);
     UpdateMenu();
