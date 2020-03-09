@@ -776,8 +776,9 @@ void CALLBACK Emulator_PrepareScreenBW1024x768(const quint8* pVideoBuffer, int o
     {
         int yy = (y + scroll) & 0377;
         const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
-        uint32_t* pBits = (quint32*)pImageBits + y * 1024 * 3;
-        uint32_t* pBits2 = pBits + 1024;
+        quint32* pBits = (quint32*)pImageBits + y * 1024 * 3;
+        quint32* pBits2 = pBits + 1024;
+        quint32* pBits3 = pBits2 + 1024;
         for (int x = 0; x < 512 / 16; x++)
         {
             quint16 src = *pVideo;
@@ -794,10 +795,11 @@ void CALLBACK Emulator_PrepareScreenBW1024x768(const quint8* pVideoBuffer, int o
 
             pVideo++;
         }
+        memset(pBits3, 0, 1024 * sizeof(quint32));
     }
     if (okSmallScreen)
     {
-        memset((quint32*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(quint32));
+        memset((quint32*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(quint32));  //TODO
     }
 }
 
@@ -807,16 +809,17 @@ void CALLBACK Emulator_PrepareScreenColor1024x768(const quint8* pVideoBuffer, in
     for (int y = 0; y < linesToShow; y++)
     {
         int yy = (y + scroll) & 0377;
-        const uint16_t* pVideo = (uint16_t*)(pVideoBuffer + yy * 0100);
-        uint32_t* pBits = (uint32_t*)pImageBits + y * 1024 * 3;
-        uint32_t* pBits2 = pBits + 1024;
+        const quint16* pVideo = (quint16*)(pVideoBuffer + yy * 0100);
+        quint32* pBits = (quint32*)pImageBits + y * 1024 * 3;
+        quint32* pBits2 = pBits + 1024;
+        quint32* pBits3 = pBits2 + 1024;
         for (int x = 0; x < 512 / 16; x++)
         {
-            uint16_t src = *pVideo;
+            quint16 src = *pVideo;
 
             for (int bit = 0; bit < 16; bit += 2)
             {
-                uint32_t color = pPalette[src & 3];
+                quint32 color = pPalette[src & 3];
                 *pBits = *pBits2 = color;
                 pBits++;  pBits2++;
                 *pBits = *pBits2 = color;
@@ -830,10 +833,11 @@ void CALLBACK Emulator_PrepareScreenColor1024x768(const quint8* pVideoBuffer, in
 
             pVideo++;
         }
+        memset(pBits3, 0, 1024 * sizeof(quint32));
     }
     if (okSmallScreen)
     {
-        memset((uint32_t*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(uint32_t));
+        memset((quint32*)pImageBits, 0, (256 - 64) * 1024 * 3 * sizeof(quint32));  //TODO
     }
 }
 
