@@ -5,9 +5,11 @@
 #pragma once
 
 #include <QtGlobal>
+#include <QColor>
 
 class QFont;
 class QPainter;
+class QPalette;
 class QString;
 
 
@@ -92,7 +94,17 @@ const LPCTSTR REGISTER_NAME[] = { "R0", "R1", "R2", "R3", "R4", "R5", "SP", "PC"
 const int BK_SCREEN_WIDTH = 512;
 const int BK_SCREEN_HEIGHT = 256;
 
+#define COLOR_RED       qRgb(255,40,40)
+#define COLOR_BLUE      qRgb(40,40,255)
+#define COLOR_SUBTITLE  qRgb(0,128,0)
+#define COLOR_JUMP      qRgb(80,192,224)
+#define COLOR_JUMPYES   qRgb(128,255,128)
+#define COLOR_JUMPGRAY  qRgb(192,192,192)
+#define COLOR_JUMPHINT  qRgb(40,128,160)
+#define COLOR_HINT      qRgb(40,40,160)
+
 QFont Common_GetMonospacedFont();
+QColor Common_GetColorShifted(const QPalette& palette, QRgb rgb);
 void Common_Cleanup();
 void PrintOctalValue(char* buffer, quint16 value);
 void PrintBinaryValue(char* buffer, quint16 value);

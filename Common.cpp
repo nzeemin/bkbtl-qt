@@ -132,6 +132,13 @@ void Common_Cleanup()
         delete g_MonospacedFont;
 }
 
+QColor Common_GetColorShifted(const QPalette& palette, QRgb rgb)
+{
+    QColor colorText = palette.color(QPalette::Text);
+    QColor color((colorText.red() + qRed(rgb)) / 2, (colorText.green() + qGreen(rgb)) / 2, (colorText.blue() + qBlue(rgb)) / 2);
+    return color;
+}
+
 
 // Print octal 16-bit value to buffer
 // buffer size at least 7 characters

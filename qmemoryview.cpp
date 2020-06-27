@@ -13,6 +13,10 @@
 #include "emubase/Emubase.h"
 #include "qdialogs.h"
 
+
+//////////////////////////////////////////////////////////////////////
+
+
 QMemoryView::QMemoryView()
 {
     m_ByteMode = Settings_GetDebugMemoryByte();
@@ -141,6 +145,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == nullptr) return;
 
     QColor colorBackground = palette().color(QPalette::Base);
+    QColor colorRed = Common_GetColorShifted(palette(), COLOR_RED);
 
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), colorBackground);
@@ -188,7 +193,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
             {
-                painter.setPen(wChanged != 0 ? Qt::red : colorText);
+                painter.setPen(wChanged != 0 ? colorRed : colorText);
                 if (m_ByteMode)
                 {
                     PrintOctalValue(buffer, (word & 0xff));
@@ -278,3 +283,6 @@ void QMemoryView::wheelEvent(QWheelEvent * event)
     int steps = -event->delta() / 60;
     scrollBy(steps * 16);
 }
+
+
+//////////////////////////////////////////////////////////////////////

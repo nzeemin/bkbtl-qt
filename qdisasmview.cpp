@@ -7,12 +7,9 @@
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 
-#define COLOR_SUBTITLE  qRgb(0,128,0)
-#define COLOR_JUMP      qRgb(80,192,224)
-#define COLOR_JUMPYES   qRgb(80,240,80)
-#define COLOR_JUMPGRAY  qRgb(180,180,180)
-#define COLOR_JUMPHINT  qRgb(40,128,160)
-#define COLOR_HINT      qRgb(40,40,160)
+
+//////////////////////////////////////////////////////////////////////
+
 
 QDisasmView::QDisasmView()
 {
@@ -165,7 +162,6 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == nullptr) return;
 
     QColor colorBackground = palette().color(QPalette::Base);
-
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), colorBackground);
 
@@ -440,6 +436,14 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     int cyLine = fontmetrics.height();
     int cyAscent = fontmetrics.ascent();
     QColor colorText = palette().color(QPalette::Text);
+    QColor colorRed = Common_GetColorShifted(palette(), COLOR_RED);
+    QColor colorBlue = Common_GetColorShifted(palette(), COLOR_BLUE);
+    QColor colorHint = Common_GetColorShifted(palette(), COLOR_HINT);
+    QColor colorJumpHint = Common_GetColorShifted(palette(), COLOR_JUMPHINT);
+    QColor colorJump = Common_GetColorShifted(palette(), COLOR_JUMP);
+    QColor colorJumpYes = Common_GetColorShifted(palette(), COLOR_JUMPYES);
+    QColor colorJumpGray = Common_GetColorShifted(palette(), COLOR_JUMPGRAY);
+    QColor colorSubtitle = Common_GetColorShifted(palette(), COLOR_SUBTITLE);
 
     quint16 proccurrent = pProc->GetPC();
     quint16 current = base;
@@ -477,7 +481,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
             const DisasmSubtitleItem * pSubItem = findSubtitle(address, SUBTYPE_BLOCKCOMMENT);
             if (pSubItem != nullptr && !pSubItem->comment.isEmpty())
             {
-                painter.setPen(QColor(COLOR_SUBTITLE));
+                painter.setPen(colorSubtitle);
                 painter.drawText(21 * cxChar, y, pSubItem->comment);
                 painter.setPen(colorText);
 
@@ -501,14 +505,14 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         if (address == proccurrent)
         {
             bool okPCchanged = proccurrent != previous;
-            if (okPCchanged) painter.setPen(Qt::red);
+            if (okPCchanged) painter.setPen(colorRed);
             painter.drawText(1 * cxChar, y, "PC");
             painter.setPen(colorText);
             painter.drawText(3 * cxChar, y, ">>");
         }
         else if (address == previous)
         {
-            painter.setPen(Qt::blue);
+            painter.setPen(colorBlue);
             painter.drawText(1 * cxChar, y, "  >");
         }
 
@@ -520,7 +524,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                 okData = true;
             if (pSubItem != nullptr && (pSubItem->type & SUBTYPE_COMMENT) != 0 && !pSubItem->comment.isEmpty())
             {
-                painter.setPen(QColor(COLOR_SUBTITLE));
+                painter.setPen(colorSubtitle);
                 painter.drawText(52 * cxChar, y, pSubItem->comment);
                 painter.setPen(colorText);
 
@@ -549,7 +553,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                     int delta;
                     bool isjump = checkForJump(memory + index, &delta);
                     if (isjump && abs(delta) < 40)
-                        drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, COLOR_JUMP);
+                        drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, colorJump);
 
                     if (address == proccurrent)
                     {
@@ -558,18 +562,18 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                         bool jumppredict = getJumpConditionHint(memory + index, pProc, strHint);
                         if (!strHint.isEmpty())  // If we have the hint
                         {
-                            painter.setPen(COLOR_JUMPHINT);
+                            painter.setPen(colorJumpHint);
                             painter.drawText(48 * cxChar, y, strHint);
                         }
                         else if (getInstructionHint(memory + index, pProc, strHint))
                         {
-                            painter.setPen(COLOR_HINT);
+                            painter.setPen(colorHint);
                             painter.drawText(52 * cxChar, y, strHint);
                         }
 
                         if (isjump && abs(delta) < 40)
                         {
-                            QRgb jumpcolor = jumppredict ? COLOR_JUMPYES : COLOR_JUMPGRAY;
+                            QColor jumpcolor = jumppredict ? colorJumpYes : colorJumpGray;
                             drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, jumpcolor);
                         }
                     }
@@ -595,7 +599,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     return result;
 }
 
-void QDisasmView::drawJump(QPainter &painter, int yFrom, int delta, int x, int cyLine, QRgb color)
+void QDisasmView::drawJump(QPainter &painter, int yFrom, int delta, int x, int cyLine, QColor color)
 {
     int dist = abs(delta);
     if (dist < 2) dist = 2;
@@ -615,3 +619,6 @@ void QDisasmView::drawJump(QPainter &painter, int yFrom, int delta, int x, int c
     painter.setPen(color);
     painter.drawPath(path);
 }
+
+
+//////////////////////////////////////////////////////////////////////

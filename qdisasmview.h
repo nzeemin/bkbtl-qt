@@ -55,7 +55,7 @@ private:
 
     bool checkForJump(const quint16* memory, int* pDelta);
     bool getJumpConditionHint(const quint16* memory, const CProcessor * pProc, QString &buffer);
-    void drawJump(QPainter& painter, int yFrom, int delta, int x, int cyLine, QRgb color);
+    void drawJump(QPainter& painter, int yFrom, int delta, int x, int cyLine, QColor color);
     bool getInstructionHint(const quint16* memory, const CProcessor * pProc, QString &buffer);
 };
 
