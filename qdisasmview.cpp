@@ -13,7 +13,6 @@
 #define COLOR_JUMPGRAY  qRgb(180,180,180)
 #define COLOR_JUMPHINT  qRgb(40,128,160)
 #define COLOR_HINT      qRgb(40,40,160)
-#define COLOR_CURRENT   qRgb(255,255,224)
 
 QDisasmView::QDisasmView()
 {
@@ -165,8 +164,10 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
 {
     if (g_pBoard == nullptr) return;
 
+    QColor colorBackground = palette().color(QPalette::Base);
+
     QPainter painter(this);
-    painter.fillRect(0, 0, this->width(), this->height(), Qt::white);
+    painter.fillRect(0, 0, this->width(), this->height(), colorBackground);
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
@@ -241,6 +242,8 @@ bool QDisasmView::checkForJump(const quint16 *memory, int *pDelta)
     return false;
 }
 
+// Prepare "Jump Hint" string, and also calculate condition for conditional jump
+// Returns: jump prediction flag: true = will jump, false = will not jump
 bool QDisasmView::getJumpConditionHint(const quint16 *memory, const CProcessor *pProc, QString& buffer)
 {
     buffer.clear();
@@ -436,7 +439,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
     int cyAscent = fontmetrics.ascent();
-    QColor colorText = painter.pen().color();
+    QColor colorText = palette().color(QPalette::Text);
 
     quint16 proccurrent = pProc->GetPC();
     quint16 current = base;
@@ -444,8 +447,9 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     // Draw current line background
     if (m_SubtitleItems.isEmpty())  //NOTE: Subtitles can move lines down
     {
+        QColor colorCurrent = palette().color(QPalette::Window);
         int yCurrent = (proccurrent - (current - 5)) * cyLine;
-        painter.fillRect(0, yCurrent, 1000, cyLine, COLOR_CURRENT);
+        painter.fillRect(0, yCurrent, 1000, cyLine, colorCurrent);
     }
 
     // Читаем из памяти процессора в буфер

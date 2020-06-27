@@ -110,7 +110,7 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
-    QColor colorText = painter.pen().color();
+    QColor colorText = palette().color(QPalette::Text);
 
     painter.setPen(QColor(Qt::gray));
     painter.drawRect(x - cxChar, y - cyLine / 2, 33 * cxChar, cyLine * 13 + cyLine / 2);
@@ -156,12 +156,12 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
-    QColor colorText = painter.pen().color();
+    QColor colorText = palette().color(QPalette::Text);
 
     quint16 current = pProc->GetReg(reg);
     bool okExec = (reg == 7);
 
-    // Читаем из памяти процессора в буфер
+    // Reading from memory into the buffer
     quint16 memory[16];
     for (int idx = 0; idx < 16; idx++)
     {
@@ -173,28 +173,30 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
     quint16 address = current - 14;
     for (int index = 0; index < 14; index++)    // Рисуем строки
     {
-        // Адрес
+        // Address
+        painter.setPen(colorText);
         DrawOctalValue(painter, x + 4 * cxChar, y, address);
 
-        // Значение по адресу
+        // Value at the address
         quint16 value = memory[index];
         quint16 wChanged = Emulator_GetChangeRamStatus(address);
         painter.setPen(wChanged != 0 ? Qt::red : colorText);
         DrawOctalValue(painter, x + 12 * cxChar, y, value);
-        painter.setPen(colorText);
 
-        // Текущая позиция
+        // Current position
         if (address == current)
         {
+            painter.setPen(colorText);
             painter.drawText(x + 2 * cxChar, y, ">>");
             painter.setPen(m_okDebugCpuRChanged[reg] != 0 ? Qt::red : colorText);
             painter.drawText(x, y, REGISTER_NAME[reg]);
-            painter.setPen(colorText);
         }
 
         address += 2;
         y += cyLine;
     }
+
+    painter.setPen(colorText);
 }
 
 void QDebugView::drawPorts(QPainter &painter, int x, int y)
