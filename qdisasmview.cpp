@@ -184,7 +184,7 @@ void QDisasmView::paintEvent(QPaintEvent * /*event*/)
         option.initFrom(this);
         option.state |= QStyle::State_KeyboardFocusChange;
         option.backgroundColor = QColor(Qt::gray);
-        option.rect = QRect(0, yFocus - cyLine + 1, 1000, cyLine);
+        option.rect = QRect(0, yFocus - cyLine + fontmetrics.descent(), this->width(), cyLine);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }
@@ -434,7 +434,6 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
-    int cyAscent = fontmetrics.ascent();
     QColor colorText = palette().color(QPalette::Text);
     QColor colorRed = Common_GetColorShifted(palette(), COLOR_RED);
     QColor colorBlue = Common_GetColorShifted(palette(), COLOR_BLUE);
@@ -452,8 +451,8 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     if (m_SubtitleItems.isEmpty())  //NOTE: Subtitles can move lines down
     {
         QColor colorCurrent = palette().color(QPalette::Window);
-        int yCurrent = (proccurrent - (current - 5)) * cyLine;
-        painter.fillRect(0, yCurrent, 1000, cyLine, colorCurrent);
+        int yCurrent = (proccurrent - (current - 5)) * cyLine + fontmetrics.descent();
+        painter.fillRect(0, yCurrent, this->width(), cyLine, colorCurrent);
     }
 
     // Читаем из памяти процессора в буфер
@@ -473,7 +472,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
 
     int length = 0;
     quint16 wNextBaseAddr = 0;
-    int y = 1 + cyAscent;
+    int y = cyLine;
     for (int index = 0; index < nWindowSize; index++)  // Рисуем строки
     {
         if (!m_SubtitleItems.isEmpty())  // Subtitles - комментарий к блоку

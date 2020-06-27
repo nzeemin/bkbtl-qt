@@ -236,7 +236,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         option.initFrom(this);
         option.state |= QStyle::State_KeyboardFocusChange;
         option.backgroundColor = QColor(Qt::gray);
-        option.rect = QRect(30, cyLine + 1, 83 * cxChar, cyLine * m_nPageSize);
+        option.rect = QRect(30, cyLine + fontmetrics.descent(), 83 * cxChar, cyLine * m_nPageSize);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }
