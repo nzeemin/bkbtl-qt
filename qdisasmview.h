@@ -56,7 +56,17 @@ private:
     bool checkForJump(const quint16* memory, int* pDelta);
     bool getJumpConditionHint(const quint16* memory, const CProcessor * pProc, QString &buffer);
     void drawJump(QPainter& painter, int yFrom, int delta, int x, int cyLine, QColor color);
-    bool getInstructionHint(const quint16* memory, const CProcessor * pProc, QString &buffer);
+    void registerHint(const CProcessor *pProc,
+            QString &hint1, QString& hint2,
+            int regnum, int regmod, bool byteword, quint16 indexval);
+    void registerHintPC(const CProcessor *pProc,
+            QString &hint1, QString& hint2,
+            int regmod, bool byteword, quint16 curaddr, quint16 value);
+    void instructionHint(const quint16 *memory, const CProcessor *pProc,
+            QString& buffer, QString& buffer2,
+            int srcreg, int srcmod, int dstreg, int dstmod);
+    int getInstructionHint(const quint16* memory, const CProcessor * pProc,
+            QString &buffer, QString &buffer2);
 };
 
 #endif // QDISASMVIEW_H
