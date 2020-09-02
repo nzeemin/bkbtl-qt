@@ -1,4 +1,4 @@
-// Common.cpp
+﻿// Common.cpp
 
 #include "stdafx.h"
 #include <QMessageBox>

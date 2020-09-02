@@ -1,5 +1,7 @@
-#ifndef QSCRIPTING_H
+﻿#ifndef QSCRIPTING_H
 #define QSCRIPTING_H
+
+/// \file qscripting.h  Scripting support for Qt version of the emulator
 
 #include <QObject>
 #include <QDialog>
@@ -7,6 +9,7 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QScriptEngine>
+
 
 class QScriptWindow;
 class CProcessor;
@@ -132,12 +135,13 @@ private:
 };
 
 
+/// \brief Dialog class used to run a script.
 class QScriptWindow : public QDialog
 {
     Q_OBJECT
 
 public:
-    QScriptWindow(QWidget * parent = 0);
+    QScriptWindow(QWidget * parent = nullptr);
     ~QScriptWindow();
 
 public:

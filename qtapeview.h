@@ -1,4 +1,4 @@
-#ifndef QTAPEVIEW_H
+﻿#ifndef QTAPEVIEW_H
 #define QTAPEVIEW_H
 
 #include <QWidget>

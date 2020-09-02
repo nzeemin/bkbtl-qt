@@ -1,13 +1,13 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFile>
 #include "main.h"
 #include "mainwindow.h"
 #include "Emulator.h"
-#include "qscripting.h"
 #include "emubase/Emubase.h"
 #include "emubase/Processor.h"
+#include "qscripting.h"
 
 
 //////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ void QEmulator::reset()
 {
     Emulator_Reset();
 
-    Global_getMainWindow()->UpdateAllViews();
+    Global_getMainWindow()->updateAllViews();
 }
 
 bool QEmulator::run(int frames)
@@ -41,14 +41,17 @@ bool QEmulator::run(int frames)
 
         if (i % 25 == 24)  // Update the screen every 25 frames
         {
-            Global_getMainWindow()->UpdateAllViews();
+            Global_getMainWindow()->updateAllViews();
             Global_getApplication()->processEvents();
             if (m_window->isAborted())
                 return false;
         }
     }
 
-    Global_getMainWindow()->UpdateAllViews();
+    Global_getMainWindow()->updateAllViews();
+    Global_getApplication()->processEvents();
+    if (m_window->isAborted())
+        return false;
 
     return result;
 }
@@ -224,12 +227,12 @@ void QEmulatorProcessor::setReg(int regno, ushort value)
 {
     if (regno < 0 || regno > 7) return;
     m_processor->SetReg(regno, value);
-    Global_getMainWindow()->UpdateAllViews();
+    Global_getMainWindow()->updateAllViews();
 }
 void QEmulatorProcessor::setPSW(ushort value)
 {
     m_processor->SetPSW(value);
-    Global_getMainWindow()->UpdateAllViews();
+    Global_getMainWindow()->updateAllViews();
 }
 
 
@@ -329,3 +332,6 @@ void QScriptWindow::reject()
         QDialog::reject();
     }
 }
+
+
+//////////////////////////////////////////////////////////////////////

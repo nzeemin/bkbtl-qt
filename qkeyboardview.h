@@ -1,4 +1,4 @@
-#ifndef QKEYBOARDVIEW_H
+﻿#ifndef QKEYBOARDVIEW_H
 #define QKEYBOARDVIEW_H
 
 #include <QWidget>

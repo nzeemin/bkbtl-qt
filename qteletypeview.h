@@ -1,4 +1,4 @@
-#ifndef QTELETYPEVIEW_H
+﻿#ifndef QTELETYPEVIEW_H
 #define QTELETYPEVIEW_H
 
 #include <QWidget>

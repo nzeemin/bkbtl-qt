@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include <QtGui>
 #include <QFileDialog>
 #include <QMenu>
@@ -106,7 +106,7 @@ void QDisasmView::parseSubtitles(QTextStream &stream)
         if (lineLength == 0) continue;  // Skip empty lines
 
         QChar firstChar = line.at(0);
-        if (firstChar.isDigit())  // Цифра -- считаем что это адрес
+        if (firstChar.isDigit())  // Р¦РёС„СЂР° -- СЃС‡РёС‚Р°РµРј С‡С‚Рѕ СЌС‚Рѕ Р°РґСЂРµСЃ
         {
             // Parse address
             int addrlen = 1;
@@ -115,7 +115,7 @@ void QDisasmView::parseSubtitles(QTextStream &stream)
             if (!ParseOctalValue(line.left(addrlen), &address))
                 continue;
 
-            if (!blockComment.isEmpty())  // На предыдущей строке был комментарий к блоку
+            if (!blockComment.isEmpty())  // РќР° РїСЂРµРґС‹РґСѓС‰РµР№ СЃС‚СЂРѕРєРµ Р±С‹Р» РєРѕРјРјРµРЅС‚Р°СЂРёР№ Рє Р±Р»РѕРєСѓ
             {
                 addSubtitle(address, SUBTYPE_BLOCKCOMMENT, blockComment);
                 blockComment.clear();
@@ -131,7 +131,7 @@ void QDisasmView::parseSubtitles(QTextStream &stream)
                 else
                     break;
             }
-            if (index == lineLength) continue;
+            bool okDirective = index < lineLength && line.at(index) == '.';
 
             // Search for comment start
             while (index < lineLength)
@@ -141,18 +141,18 @@ void QDisasmView::parseSubtitles(QTextStream &stream)
                     break;
                 index++;
             }
-            if (index == lineLength) continue;
 
             QString comment = line.mid(index).trimmed();
-            if (comment.length() > 1)
+            if (comment.length() > 1 || okDirective)
             {
-                addSubtitle(address, SUBTYPE_COMMENT, comment);
+                DisasmSubtitleType type = okDirective ? (DisasmSubtitleType)(SUBTYPE_COMMENT | SUBTYPE_DATA) : SUBTYPE_COMMENT;
+                addSubtitle(address, type, comment);
             }
         }
         else if (firstChar == ';')
         {
             blockComment = line.trimmed();
-            //TODO: Собирать многострочные комментарии над блоком
+            //TODO: РЎРѕР±РёСЂР°С‚СЊ РјРЅРѕРіРѕСЃС‚СЂРѕС‡РЅС‹Рµ РєРѕРјРјРµРЅС‚Р°СЂРёРё РЅР°Рґ Р±Р»РѕРєРѕРј
         }
     }
 }
@@ -282,8 +282,8 @@ bool QDisasmView::getJumpConditionHint(const quint16 *memory, const CProcessor *
     if (instr >= 0101000 && instr <= 0101777)  // BHI, BLOS
     {
         buffer.sprintf("C=%c, Z=%c", (psw & PSW_C) ? '1' : '0', (psw & PSW_Z) ? '1' : '0');
-        // BHI:  IF ((С or Z) == 0)
-        // BLOS: IF ((С or Z) == 1)
+        // BHI:  IF ((РЎ or Z) == 0)
+        // BLOS: IF ((РЎ or Z) == 1)
         bool value = (((psw & PSW_C) != 0) || ((psw & PSW_Z) != 0));
         return ((instr & 0400) == 0) ? !value : value;
     }
@@ -637,14 +637,16 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.lineSpacing();
     QColor colorText = palette().color(QPalette::Text);
-    QColor colorRed = Common_GetColorShifted(palette(), COLOR_RED);
-    QColor colorBlue = Common_GetColorShifted(palette(), COLOR_BLUE);
+    QColor colorChanged = Common_GetColorShifted(palette(), COLOR_VALUECHANGED);
+    QColor colorPrev = Common_GetColorShifted(palette(), COLOR_PREVIOUS);
     QColor colorHint = Common_GetColorShifted(palette(), COLOR_HINT);
     QColor colorJumpHint = Common_GetColorShifted(palette(), COLOR_JUMPHINT);
     QColor colorJump = Common_GetColorShifted(palette(), COLOR_JUMP);
     QColor colorJumpYes = Common_GetColorShifted(palette(), COLOR_JUMPYES);
-    QColor colorJumpGray = Common_GetColorShifted(palette(), COLOR_JUMPGRAY);
+    QColor colorJumpNo = Common_GetColorShifted(palette(), COLOR_JUMPNO);
     QColor colorSubtitle = Common_GetColorShifted(palette(), COLOR_SUBTITLE);
+    QColor colorValue = Common_GetColorShifted(palette(), COLOR_VALUE);
+    QColor colorValueRom = Common_GetColorShifted(palette(), COLOR_VALUEROM);
 
     quint16 proccurrent = pProc->GetPC();
     quint16 current = base;
@@ -657,7 +659,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         painter.fillRect(0, yCurrent, this->width(), cyLine, colorCurrent);
     }
 
-    // Читаем из памяти процессора в буфер
+    // Р§РёС‚Р°РµРј РёР· РїР°РјСЏС‚Рё РїСЂРѕС†РµСЃСЃРѕСЂР° РІ Р±СѓС„РµСЂ
     const int nWindowSize = 30; //this->height() / cyLine;
     quint16 memory[nWindowSize + 2];
     int addrtype[nWindowSize + 2];
@@ -675,9 +677,9 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
     int length = 0;
     quint16 wNextBaseAddr = 0;
     int y = cyLine;
-    for (int index = 0; index < nWindowSize; index++)  // Рисуем строки
+    for (int index = 0; index < nWindowSize; index++)  // Р РёСЃСѓРµРј СЃС‚СЂРѕРєРё
     {
-        if (!m_SubtitleItems.isEmpty())  // Subtitles - комментарий к блоку
+        if (!m_SubtitleItems.isEmpty())  // Subtitles - РєРѕРјРјРµРЅС‚Р°СЂРёР№ Рє Р±Р»РѕРєСѓ
         {
             const DisasmSubtitleItem * pSubItem = findSubtitle(address, SUBTYPE_BLOCKCOMMENT);
             if (pSubItem != nullptr && !pSubItem->comment.isEmpty())
@@ -693,7 +695,8 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         DrawOctalValue(painter, 5 * cxChar, y, address);  // Address
         // Value at the address
         quint16 value = memory[index];
-        painter.setPen(Qt::gray);
+        int memorytype = addrtype[index];
+        painter.setPen((memorytype == ADDRTYPE_ROM) ? colorValue : colorValueRom);
         DrawOctalValue(painter, 13 * cxChar, y, value);
         painter.setPen(colorText);
 
@@ -706,14 +709,14 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         if (address == proccurrent)
         {
             bool okPCchanged = proccurrent != previous;
-            if (okPCchanged) painter.setPen(colorRed);
+            if (okPCchanged) painter.setPen(colorChanged);
             painter.drawText(1 * cxChar, y, "PC");
             painter.setPen(colorText);
             painter.drawText(3 * cxChar, y, ">>");
         }
         else if (address == previous)
         {
-            painter.setPen(colorBlue);
+            painter.setPen(colorPrev);
             painter.drawText(1 * cxChar, y, "  >");
         }
 
@@ -729,7 +732,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
                 painter.drawText(52 * cxChar, y, pSubItem->comment);
                 painter.setPen(colorText);
 
-                // Строку с субтитром мы можем использовать как опорную для дизассемблера
+                // РЎС‚СЂРѕРєСѓ СЃ СЃСѓР±С‚РёС‚СЂРѕРј РјС‹ РјРѕР¶РµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ РєР°Рє РѕРїРѕСЂРЅСѓСЋ РґР»СЏ РґРёР·Р°СЃСЃРµРјР±Р»РµСЂР°
                 if (disasmfrom > address)
                     disasmfrom = address;
             }
@@ -739,7 +742,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
         {
             char strInstr[8];
             char strArg[32];
-            if (okData)  // По этому адресу лежат данные -- нет смысла дизассемблировать
+            if (okData)  // РџРѕ СЌС‚РѕРјСѓ Р°РґСЂРµСЃСѓ Р»РµР¶Р°С‚ РґР°РЅРЅС‹Рµ -- РЅРµС‚ СЃРјС‹СЃР»Р° РґРёР·Р°СЃСЃРµРјР±Р»РёСЂРѕРІР°С‚СЊ
             {
                 strcpy(strInstr, "data");
                 PrintOctalValue(strArg, *(memory + index));
@@ -781,7 +784,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 b
 
                         if (isjump && abs(delta) < 40)
                         {
-                            QColor jumpcolor = jumppredict ? colorJumpYes : colorJumpGray;
+                            QColor jumpcolor = jumppredict ? colorJumpYes : colorJumpNo;
                             drawJump(painter, y, delta, (30 + strlen(strArg)) * cxChar, cyLine, jumpcolor);
                         }
                     }

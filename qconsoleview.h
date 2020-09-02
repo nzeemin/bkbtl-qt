@@ -1,4 +1,4 @@
-#ifndef QCONSOLEVIEW_H
+﻿#ifndef QCONSOLEVIEW_H
 #define QCONSOLEVIEW_H
 
 #include <QWidget>

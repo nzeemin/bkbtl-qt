@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "util/WavPcmFile.h"
 #include "qtapeview.h"
 #include <QLabel>

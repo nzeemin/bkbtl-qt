@@ -1,4 +1,4 @@
-#ifndef MAINWINDOW_H
+﻿#ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
 #include <QMainWindow>
@@ -27,8 +27,8 @@ public:
     ~MainWindow();
 
 public:
-    void UpdateMenu();
-    void UpdateAllViews();
+    void updateMenu();
+    void updateAllViews();
     void saveSettings(QSettings *);
     void restoreSettings(QSettings *);
     void printToTeletype(const QString&);

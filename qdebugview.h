@@ -1,4 +1,4 @@
-#ifndef QDEBUGVIEW_H
+﻿#ifndef QDEBUGVIEW_H
 #define QDEBUGVIEW_H
 
 #include <QWidget>

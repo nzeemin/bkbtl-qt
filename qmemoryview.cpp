@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <QtGui>
 #include <QMenu>
 #include <QPainter>
@@ -145,7 +145,6 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     if (g_pBoard == nullptr) return;
 
     QColor colorBackground = palette().color(QPalette::Base);
-    QColor colorRed = Common_GetColorShifted(palette(), COLOR_RED);
 
     QPainter painter(this);
     painter.fillRect(0, 0, this->width(), this->height(), colorBackground);
@@ -155,11 +154,12 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     QFontMetrics fontmetrics(font);
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
+    QColor colorText = palette().color(QPalette::Text);
+    QColor colorChanged = Common_GetColorShifted(palette(), COLOR_VALUECHANGED);
+    QColor colorMemoryRom = Common_GetColorShifted(palette(), COLOR_MEMORYROM);
 
     CProcessor* pDebugPU = g_pBoard->GetCPU();
     ASSERT(pDebugPU != nullptr);
-
-    QColor colorText = palette().color(QPalette::Text);
 
     m_cyLineMemory = cyLine;
 
@@ -193,7 +193,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
             {
-                painter.setPen(wChanged != 0 ? colorRed : colorText);
+                painter.setPen(wChanged != 0 ? colorChanged : colorText);
                 if (m_ByteMode)
                 {
                     PrintOctalValue(buffer, (word & 0xff));

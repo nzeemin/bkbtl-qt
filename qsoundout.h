@@ -1,4 +1,4 @@
-#ifndef QSOUNDOUT_H
+﻿#ifndef QSOUNDOUT_H
 #define QSOUNDOUT_H
 
 #include <QObject>

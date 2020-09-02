@@ -1,4 +1,4 @@
-// Emulator.h
+﻿// Emulator.h
 
 #pragma once
 

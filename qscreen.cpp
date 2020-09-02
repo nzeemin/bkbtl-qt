@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include <QtGui>
 #include "qscreen.h"
 #include "Emulator.h"
@@ -99,7 +99,7 @@ void QEmulatorScreen::keyReleaseEvent(QKeyEvent *event)
     event->accept();
 }
 
-const unsigned char arrPcscan2BkscanLat[256] =    // ËÀÒ
+const unsigned char arrPcscan2BkscanLat[256] =    // Ð›ÐÐ¢
 {
     /*       0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f  */
     /*0*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
@@ -119,7 +119,7 @@ const unsigned char arrPcscan2BkscanLat[256] =    // ËÀÒ
     /*e*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
     /*f*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
 };
-const unsigned char arrPcscan2BkscanRus[256] =    // ÐÓÑ
+const unsigned char arrPcscan2BkscanRus[256] =    // Ð Ð£Ð¡
 {
     /*       0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f  */
     /*0*/    0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000, 0000,
@@ -154,21 +154,21 @@ unsigned char QEmulatorScreen::TranslateQtKeyToBkKey(int qtkey, bool okShift)
     case Qt::Key_Tab:       return 0015;
     case Qt::Key_Space:     return 0040;
     case Qt::Key_Backspace: return 0030;
-    case Qt::Key_Home:      return 0023;    // ÂÑ
-    case Qt::Key_F1:        return 0201;    // ÏÎÂÒ
-    case Qt::Key_F2:        return 0003;    // ÊÒ
+    case Qt::Key_Home:      return 0023;    // Ð’Ð¡
+    case Qt::Key_F1:        return 0201;    // ÐŸÐžÐ’Ð¢
+    case Qt::Key_F2:        return 0003;    // ÐšÐ¢
     case Qt::Key_F3:        return 0231;    // =|=>
     case Qt::Key_F4:        return 0026;    // |<==
     case Qt::Key_F5:        return 0027;    // |==>
-    case Qt::Key_F6:        return 0202;    // ÈÍÄ ÑÓ
-    case Qt::Key_F7:        return 0204;    // ÁËÎÊ ÐÅÄ
-    case Qt::Key_F8:        return 0220;    // ØÀÃ
-    case Qt::Key_Delete:    return 0014;    // ÑÁÐ
+    case Qt::Key_F6:        return 0202;    // Ð˜ÐÐ” Ð¡Ð£
+    case Qt::Key_F7:        return 0204;    // Ð‘Ð›ÐžÐš Ð Ð•Ð”
+    case Qt::Key_F8:        return 0220;    // Ð¨ÐÐ“
+    case Qt::Key_Delete:    return 0014;    // Ð¡Ð‘Ð 
     }
 
     if (qtkey >= 32 && qtkey <= 255)
     {
-        // Âûáèðàåì òàáëèöó ìàïïèíãà â çàâèñèìîñòè îò ôëàãà ÐÓÑ/ËÀÒ â ÁÊ
+        // Ð’Ñ‹Ð±Ð¸Ñ€Ð°ÐµÐ¼ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñƒ Ð¼Ð°Ð¿Ð¿Ð¸Ð½Ð³Ð° Ð² Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚Ð¸ Ð¾Ñ‚ Ñ„Ð»Ð°Ð³Ð° Ð Ð£Ð¡/Ð›ÐÐ¢ Ð² Ð‘Ðš
         unsigned short bkregister = g_pBoard->GetKeyboardRegister();
         const unsigned char * pTable = ((bkregister & KEYB_LAT) == 0) ? arrPcscan2BkscanRus : arrPcscan2BkscanLat;
         unsigned char bkscan = pTable[qtkey];

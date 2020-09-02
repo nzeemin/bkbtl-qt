@@ -1,4 +1,4 @@
-#ifndef QMEMORYVIEW_H
+﻿#ifndef QMEMORYVIEW_H
 #define QMEMORYVIEW_H
 
 #include <QWidget>

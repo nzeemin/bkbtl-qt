@@ -1,4 +1,4 @@
-#ifndef QDISASMVIEW_H
+﻿#ifndef QDISASMVIEW_H
 #define QDISASMVIEW_H
 
 #include <QVector>

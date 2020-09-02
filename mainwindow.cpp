@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <QAction>
 #include <QClipboard>
 #include <QDateTime>
@@ -12,6 +12,7 @@
 #include "main.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "qdialogs.h"
 #include "qscreen.h"
 #include "qkeyboardview.h"
 #include "qconsoleview.h"
@@ -163,6 +164,7 @@ MainWindow::~MainWindow()
     delete m_dockDisasm;
     delete m_dockMemory;
     delete m_dockTeletype;
+    delete m_dockTape;
     delete m_statusLabelInfo;
     delete m_statusLabelFrames;
     delete m_statusLabelUptime;
@@ -198,6 +200,7 @@ void MainWindow::saveSettings(QSettings * settings)
     settings->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
     settings->setValue("MainWindow/MemoryView", m_dockMemory->isVisible());
     settings->setValue("MainWindow/TeletypeView", m_dockTeletype->isVisible());
+    settings->setValue("MainWindow/TapeView", m_dockTape->isVisible());
 }
 void MainWindow::restoreSettings(QSettings * settings)
 {
@@ -216,11 +219,12 @@ void MainWindow::restoreSettings(QSettings * settings)
     m_dockDisasm->setVisible(settings->value("MainWindow/DisasmView", false).toBool());
     m_dockMemory->setVisible(settings->value("MainWindow/MemoryView", false).toBool());
     m_dockTeletype->setVisible(settings->value("MainWindow/TeletypeView", false).toBool());
+    m_dockTape->setVisible(settings->value("MainWindow/TapeView", false).toBool());
 
     ui->actionSoundEnabled->setChecked(Settings_GetSound());
 }
 
-void MainWindow::UpdateMenu()
+void MainWindow::updateMenu()
 {
     ui->actionEmulatorRun->setChecked(g_okEmulatorRunning);
 
@@ -259,7 +263,7 @@ void MainWindow::UpdateMenu()
     ui->actionDebugTeletypeView->setChecked(m_dockTeletype->isVisible());
 }
 
-void MainWindow::UpdateAllViews()
+void MainWindow::updateAllViews()
 {
     Emulator_OnUpdate();
 
@@ -280,7 +284,7 @@ void MainWindow::UpdateAllViews()
     if (m_memory != nullptr)
         m_memory->repaint();
 
-    UpdateMenu();
+    updateMenu();
 }
 
 void MainWindow::showUptime(int uptimeMillisec)
@@ -410,7 +414,7 @@ void MainWindow::loadStateImage(const QString& strFileName)
     const char * sFileName = qPrintable(strFileName);
     Emulator_LoadImage(sFileName);
 
-    UpdateAllViews();
+    updateAllViews();
 }
 
 void MainWindow::saveScreenshot()
@@ -448,23 +452,14 @@ void MainWindow::screenshotToClipboard()
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, "About", QString(
-            "BKBTL Qt Version 1.0\n"
-            "Copyright (C) 2009-2020\n\n"
-            "https://github.com/nzeemin/bkbtl-qt\n\n"
-            "Author:\n"
-            "Nikita Zimin (nzeemin@gmail.com)\n\n"
-            "Special thanks to:\n"
-            "Alexey Kisly\n\n"
-            "Build date:\t%1 %2\n"
-            "Qt version:\t%3")
-            .arg(__DATE__).arg(__TIME__).arg(QT_VERSION_STR));
+    QAboutDialog dialog(this);
+    dialog.exec();
 }
 
 void MainWindow::viewKeyboard()
 {
     m_keyboard->setVisible(!m_keyboard->isVisible());
-    UpdateMenu();
+    updateMenu();
 }
 
 void MainWindow::emulatorFrame()
@@ -521,7 +516,7 @@ void MainWindow::emulatorScreenMode(int mode)
     if (mode < 0 || mode > 7) return;
 
     m_screen->setMode(mode);
-    UpdateMenu();
+    updateMenu();
 
     //Update centralWidget size
     ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
@@ -548,7 +543,7 @@ void MainWindow::setConfiguration(int configuration)
 
     Settings_SetConfiguration(configuration);
 
-    UpdateMenu();
+    updateMenu();
     Global_UpdateAllViews();
 }
 
@@ -578,7 +573,7 @@ void MainWindow::emulatorFloppy(int slot)
         Settings_SetFloppyFilePath(slot, sFileName);
     }
 
-    UpdateMenu();
+    updateMenu();
 }
 
 void MainWindow::debugConsoleView()
@@ -594,27 +589,27 @@ void MainWindow::debugConsoleView()
         this->adjustSize();
     }
 
-    UpdateMenu();
+    updateMenu();
 }
 void MainWindow::debugDebugView()
 {
     m_dockDebug->setVisible(!m_dockDebug->isVisible());
-    UpdateMenu();
+    updateMenu();
 }
 void MainWindow::debugDisasmView()
 {
     m_dockDisasm->setVisible(!m_dockDisasm->isVisible());
-    UpdateMenu();
+    updateMenu();
 }
 void MainWindow::debugMemoryView()
 {
     m_dockMemory->setVisible(!m_dockMemory->isVisible());
-    UpdateMenu();
+    updateMenu();
 }
 void MainWindow::debugTeletypeView()
 {
     m_dockTeletype->setVisible(!m_dockTeletype->isVisible());
-    UpdateMenu();
+    updateMenu();
 }
 
 void MainWindow::debugStepInto()

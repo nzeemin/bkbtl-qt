@@ -1,4 +1,4 @@
-#ifndef COMMON_H
+﻿#ifndef COMMON_H
 #define COMMON_H
 // Common.h
 
@@ -94,14 +94,17 @@ const LPCTSTR REGISTER_NAME[] = { "R0", "R1", "R2", "R3", "R4", "R5", "SP", "PC"
 const int BK_SCREEN_WIDTH = 512;
 const int BK_SCREEN_HEIGHT = 256;
 
-#define COLOR_RED       qRgb(255,40,40)
-#define COLOR_BLUE      qRgb(40,40,255)
-#define COLOR_SUBTITLE  qRgb(0,128,0)
-#define COLOR_JUMP      qRgb(80,192,224)
-#define COLOR_JUMPYES   qRgb(128,255,128)
-#define COLOR_JUMPGRAY  qRgb(192,192,192)
-#define COLOR_JUMPHINT  qRgb(40,128,160)
-#define COLOR_HINT      qRgb(40,40,160)
+#define COLOR_VALUECHANGED  qRgb(255,40,40)
+#define COLOR_PREVIOUS      qRgb(40,40,255)
+#define COLOR_MEMORYROM     qRgb(40,40,255)
+#define COLOR_SUBTITLE      qRgb(0,128,0)
+#define COLOR_VALUE         qRgb(128,128,128)
+#define COLOR_VALUEROM      qRgb(128,128,192)
+#define COLOR_JUMP          qRgb(80,192,224)
+#define COLOR_JUMPYES       qRgb(128,255,128)
+#define COLOR_JUMPNO        qRgb(192,192,192)
+#define COLOR_JUMPHINT      qRgb(40,128,160)
+#define COLOR_HINT          qRgb(40,40,160)
 
 QFont Common_GetMonospacedFont();
 QColor Common_GetColorShifted(const QPalette& palette, QRgb rgb);
@@ -111,7 +114,7 @@ void PrintBinaryValue(char* buffer, quint16 value);
 void DrawOctalValue(QPainter &painter, int x, int y, quint16 value);
 void DrawHexValue(QPainter &painter, int x, int y, quint16 value);
 void DrawBinaryValue(QPainter &painter, int x, int y, quint16 value);
-bool ParseOctalValue(const char * text, quint16* pValue);
+bool ParseOctalValue(const char* text, quint16* pValue);
 bool ParseOctalValue(const QString &text, quint16* pValue);
 
 quint16 Translate_BK_Unicode(quint8 ch);

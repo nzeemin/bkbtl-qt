@@ -1,4 +1,4 @@
-#ifndef QDIALOGS_H
+﻿#ifndef QDIALOGS_H
 #define QDIALOGS_H
 
 #include <QWidget>
@@ -7,6 +7,9 @@
 #include <QDialogButtonBox>
 #include <QLineEdit>
 #include <QLabel>
+
+
+//////////////////////////////////////////////////////////////////////
 
 
 class QInputOctalDialog : public QDialog
@@ -28,4 +31,27 @@ private:
     QDialogButtonBox m_buttons;
 };
 
+
+//////////////////////////////////////////////////////////////////////
+
+
+class QAboutDialog : public QDialog
+{
+    Q_OBJECT
+
+public:
+    QAboutDialog(QWidget * parent);
+
+private:
+    QVBoxLayout m_layout;
+    QLabel m_topLabel;
+    QLabel m_linkLabel;
+    QLabel m_authorsLabel;
+    QLabel m_thanksLabel;
+    QLabel m_bottomLabel;
+    QDialogButtonBox m_buttons;
+};
+
+
+//////////////////////////////////////////////////////////////////////
 #endif // QDIALOGS_H

@@ -1,4 +1,4 @@
-#ifndef QEMULATORSCREEN_H
+﻿#ifndef QEMULATORSCREEN_H
 #define QEMULATORSCREEN_H
 
 #include <QWidget>

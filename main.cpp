@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include <QApplication>
 #include <QtCore/QThread>
 #include <QtCore/QTimer>
@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
     w.show();
 
     RestoreSettings();
-    w.UpdateMenu();
-    w.UpdateAllViews();
+    w.updateMenu();
+    w.updateAllViews();
 
     QTimer timerFrame;
     QObject::connect(&timerFrame, SIGNAL(timeout()), &w, SLOT(emulatorFrame()), Qt::AutoConnection);
@@ -72,11 +72,11 @@ QSettings* Global_getSettings()
 
 void Global_UpdateAllViews()
 {
-    Global_getMainWindow()->UpdateAllViews();
+    Global_getMainWindow()->updateAllViews();
 }
 void Global_UpdateMenu()
 {
-    Global_getMainWindow()->UpdateMenu();
+    Global_getMainWindow()->updateMenu();
 }
 
 void Global_showUptime(int uptimeMillisec)

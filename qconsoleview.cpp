@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "qconsoleview.h"
 #include <QLabel>
 #include <QLineEdit>
@@ -122,7 +122,7 @@ int QConsoleView::printDisassemble(quint16 address, bool okOneInstr, bool okShor
 
     int lastLength = 0;
     int length = 0;
-    for (int index = 0; index < nWindowSize; index++)  // Ðèñóåì ñòðîêè
+    for (int index = 0; index < nWindowSize; index++)  // Ð Ð¸ÑÑƒÐµÐ¼ ÑÑ‚Ñ€Ð¾ÐºÐ¸
     {
         PrintOctalValue(bufaddr, address);
         quint16 value = memory[index];
@@ -207,11 +207,11 @@ void QConsoleView::printMemoryDump(quint16 address, int lines)
 //            quint16 word = dump[i];
 //            quint8 ch1 = LOBYTE(word);
 //            char wch1 = Translate_BK_Unicode(ch1);
-//            if (ch1 < 32) wch1 = '·');
+//            if (ch1 < 32) wch1 = 'Â·');
 //            *pBuf = wch1;  pBuf++;
 //            quint8 ch2 = HIBYTE(word);
 //            char wch2 = Translate_BK_Unicode(ch2);
-//            if (ch2 < 32) wch2 = '·');
+//            if (ch2 < 32) wch2 = 'Â·');
 //            *pBuf = wch2;  pBuf++;
 //        }
         *pBuf++ = '\r';

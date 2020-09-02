@@ -1,4 +1,4 @@
-#include "qsoundout.h"
+﻿#include "qsoundout.h"
 #include "QAudioFormat"
 
 QSoundOut::QSoundOut(QObject *parent) :
