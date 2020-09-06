@@ -78,6 +78,10 @@ void Global_UpdateMenu()
 {
     Global_getMainWindow()->updateMenu();
 }
+void Global_RedrawDisasmView()
+{
+    Global_getMainWindow()->redrawDisasmView();
+}
 
 void Global_showUptime(int uptimeMillisec)
 {

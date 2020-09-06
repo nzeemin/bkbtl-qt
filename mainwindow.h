@@ -29,6 +29,8 @@ public:
 public:
     void updateMenu();
     void updateAllViews();
+    void redrawDisasmView();
+    void updateWindowText();
     void saveSettings(QSettings *);
     void restoreSettings(QSettings *);
     void printToTeletype(const QString&);

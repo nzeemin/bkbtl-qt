@@ -28,8 +28,8 @@ public:  // Constructor / initialization
     void        DeassertHALT();
     void        MemoryError();
     void        AssertIRQ1();
-    int			GetInternalTick() const { return m_internalTick; }
-    void        SetInternalTick (uint16_t tick) { m_internalTick = tick; }
+    int         GetInternalTick() const { return m_internalTick; }
+    void        ClearInternalTick() { m_internalTick = 0; }
 
 public:
     static void Init();  // Initialize static tables

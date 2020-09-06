@@ -7,6 +7,7 @@
 
 //////////////////////////////////////////////////////////////////////
 
+const int MAX_BREAKPOINTCOUNT = 16;
 
 extern CMotherboard* g_pBoard;
 extern BKConfiguration g_nEmulatorConfiguration;  // Current configuration
@@ -26,14 +27,21 @@ void Emulator_SetSound(bool enable);
 bool Emulator_Init();
 bool Emulator_InitConfiguration(BKConfiguration configuration);
 void Emulator_Done();
-void Emulator_SetCPUBreakpoint(quint16 address);
+
+bool Emulator_AddCPUBreakpoint(quint16 address);
+bool Emulator_RemoveCPUBreakpoint(quint16 address);
+void Emulator_SetTempCPUBreakpoint(quint16 address);
+const quint16* Emulator_GetCPUBreakpointList();
 bool Emulator_IsBreakpoint();
+bool Emulator_IsBreakpoint(quint16 address);
+void Emulator_RemoveAllBreakpoints();
+
 //void Emulator_SetSound(bool soundOnOff);
 //void Emulator_SetCovox(bool covoxOnOff);
 void Emulator_Start();
 void Emulator_Stop();
 void Emulator_Reset();
-int Emulator_SystemFrame();
+bool Emulator_SystemFrame();
 float Emulator_GetUptime();  // BK uptime, in seconds
 
 void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei);

@@ -287,6 +287,20 @@ void MainWindow::updateAllViews()
     updateMenu();
 }
 
+void MainWindow::redrawDisasmView()
+{
+    if (m_disasm != nullptr)
+        m_disasm->repaint();
+}
+
+void MainWindow::updateWindowText()
+{
+    if (g_okEmulatorRunning)
+        this->setWindowTitle(tr("UKNC Back to Life [run]"));
+    else
+        this->setWindowTitle(tr("UKNC Back to Life [stop]"));
+}
+
 void MainWindow::showUptime(int uptimeMillisec)
 {
     int seconds = (int) (uptimeMillisec % 60);

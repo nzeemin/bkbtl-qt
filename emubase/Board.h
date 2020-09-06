@@ -1,4 +1,4 @@
-/*  This file is part of BKBTL.
+п»ї/*  This file is part of BKBTL.
     BKBTL is free software: you can redistribute it and/or modify it under the terms
 of the GNU Lesser General Public License as published by the Free Software Foundation,
 either version 3 of the License, or (at your option) any later version.
@@ -31,16 +31,16 @@ enum BKConfiguration
     BK_COPT_FDD = 16,
 
     // Configurations BK-0010(01)
-    BK_CONF_BK0010_BASIC =  // БК-0010(01) и BASIC-86
+    BK_CONF_BK0010_BASIC =  // Р‘Рљ-0010(01) Рё BASIC-86
         BK_COPT_BK0010 | BK_COPT_ROM_BASIC,
-    BK_CONF_BK0010_FOCAL =  // БК-0010(01) и Фокал + тесты
+    BK_CONF_BK0010_FOCAL =  // Р‘Рљ-0010(01) Рё Р¤РѕРєР°Р» + С‚РµСЃС‚С‹
         BK_COPT_BK0010 | BK_COPT_ROM_FOCAL,
-    BK_CONF_BK0010_FDD   =  // БК-0010(01) и блок КНГМД с 16 КБ ОЗУ
+    BK_CONF_BK0010_FDD   =  // Р‘Рљ-0010(01) Рё Р±Р»РѕРє РљРќР“РњР” СЃ 16 РљР‘ РћР—РЈ
         BK_COPT_BK0010 | BK_COPT_FDD,
     // Configurations BK-0011M
-    BK_CONF_BK0011       =  // БК-0011М без блока КНГМД
+    BK_CONF_BK0011       =  // Р‘Рљ-0011Рњ Р±РµР· Р±Р»РѕРєР° РљРќР“РњР”
         BK_COPT_BK0011,
-    BK_CONF_BK0011_FDD   =  // БК-0011М и блок КНГМД
+    BK_CONF_BK0011_FDD   =  // Р‘Рљ-0011Рњ Рё Р±Р»РѕРє РљРќР“РњР”
         BK_COPT_BK0011 | BK_COPT_FDD,
 };
 
@@ -88,7 +88,7 @@ enum BKConfiguration
 #define BK_KEY_AR2          0276
 #define BK_KEY_STOP         0277
 
-// События от джойстика - передавать в метод KeyboardEvent
+// РЎРѕР±С‹С‚РёСЏ РѕС‚ РґР¶РѕР№СЃС‚РёРєР° - РїРµСЂРµРґР°РІР°С‚СЊ РІ РјРµС‚РѕРґ KeyboardEvent
 #define BK_KEY_JOYSTICK_BUTTON1 0260
 #define BK_KEY_JOYSTICK_BUTTON2 0261
 #define BK_KEY_JOYSTICK_BUTTON3 0262
@@ -98,10 +98,10 @@ enum BKConfiguration
 #define BK_KEY_JOYSTICK_LEFT    0266
 #define BK_KEY_JOYSTICK_UP      0267
 
-// Состояния клавиатуры БК - возвращаются из метода GetKeyboardRegister
-#define KEYB_RUS		0x01
-#define KEYB_LAT		0x02
-#define KEYB_LOWERREG	0x10
+// РЎРѕСЃС‚РѕСЏРЅРёСЏ РєР»Р°РІРёР°С‚СѓСЂС‹ Р‘Рљ - РІРѕР·РІСЂР°С‰Р°СЋС‚СЃСЏ РёР· РјРµС‚РѕРґР° GetKeyboardRegister
+#define KEYB_RUS                0x01
+#define KEYB_LAT                0x02
+#define KEYB_LOWERREG           0x10
 
 
 // Tape emulator callback used to read a tape recorded data.
@@ -157,7 +157,7 @@ public:  // Memory access  //TODO: Make it private
     uint8_t     GetROMByte(uint16_t offset) const;
 public:  // Debug
     void        DebugTicks();  // One Debug CPU tick -- use for debug step or debug breakpoint
-    void        SetCPUBreakpoint(uint16_t bp) { m_CPUbp = bp; } // Set CPU breakpoint
+    void        SetCPUBreakpoints(const uint16_t* bps) { m_CPUbps = bps; } // Set CPU breakpoint list
     uint32_t    GetTrace() const { return m_dwTrace; }
     void        SetTrace(uint32_t dwTrace);
 public:  // System control
@@ -167,7 +167,7 @@ public:  // System control
     void        LoadROM(int bank, const uint8_t* pBuffer);  // Load 8 KB ROM image from the biffer
     void        LoadRAM(int startbank, const uint8_t* pBuffer, int length);  // Load data into the RAM
     void        Tick50();           // Tick 50 Hz - goes to CPU EVNT line
-    void		TimerTick();		// Timer Tick, 31250 Hz, 32uS -- dividers are within timer routine
+    void        TimerTick();        // Timer Tick, 31250 Hz, 32uS -- dividers are within timer routine
     void        ResetDevices();     // INIT signal
     void        SetSoundAY(bool onoff);
 public:
@@ -178,17 +178,18 @@ public:
     uint16_t    GetPrinterOutPort() const { return m_Port177714out; }
     void        SetPrinterInPort(uint8_t data);
     bool        IsTapeMotorOn() const { return (m_Port177716tap & 0200) == 0; }
+    int         GetSoundChanges() const { return m_SoundChanges; }  ///< Sound signal 0 to 1 changes since the beginning of the frame
 public:  // Floppy
     bool        AttachFloppyImage(int slot, LPCTSTR sFileName);
     void        DetachFloppyImage(int slot);
-    bool        IsFloppyImageAttached(int slot);
-    bool        IsFloppyReadOnly(int slot);
+    bool        IsFloppyImageAttached(int slot) const;
+    bool        IsFloppyReadOnly(int slot) const;
     bool        IsFloppyEngineOn() const;    // Check if the floppy drive engine rotates the disks
 public:  // Callbacks
-    void		SetTapeReadCallback(TAPEREADCALLBACK callback, int sampleRate);
+    void        SetTapeReadCallback(TAPEREADCALLBACK callback, int sampleRate);
     void        SetTapeWriteCallback(TAPEWRITECALLBACK callback, int sampleRate);
-    void		SetSoundGenCallback(SOUNDGENCALLBACK callback);
-    void		SetTeletypeCallback(TELETYPECALLBACK callback);
+    void        SetSoundGenCallback(SOUNDGENCALLBACK callback);
+    void        SetTeletypeCallback(TELETYPECALLBACK callback);
 public:  // Memory
     // Read command for execution
     uint16_t GetWordExec(uint16_t address, bool okHaltMode) { return GetWord(address, okHaltMode, true); }
@@ -245,23 +246,25 @@ private:  // Ports: implementation
     bool        m_okSoundAY;
     uint8_t     m_nSoundAYReg;      // AY current register
 private:  // Timer implementation
-    uint16_t	m_timer;
-    uint16_t	m_timerreload;
-    uint16_t	m_timerflags;
-    uint16_t	m_timerdivider;
-    void		SetTimerReload(uint16_t val);	//sets timer reload value
-    void		SetTimerState(uint16_t val);	//sets timer state
+    uint16_t    m_timer;
+    uint16_t    m_timerreload;
+    uint16_t    m_timerflags;
+    uint16_t    m_timerdivider;
+    void        SetTimerReload(uint16_t val);   //sets timer reload value
+    void        SetTimerState(uint16_t val);    //sets timer state
 private:
-    uint16_t    m_CPUbp;  // CPU breakpoint address
+    const uint16_t* m_CPUbps;  // CPU breakpoint list, ends with 177777 value
     uint32_t    m_dwTrace;  // Trace flags
+    int         m_SoundPrevValue;  // Previous value of the sound signal
+    int         m_SoundChanges;  // Sound signal 0 to 1 changes since the beginning of the frame
 private:
     TAPEREADCALLBACK m_TapeReadCallback;
     TAPEWRITECALLBACK m_TapeWriteCallback;
-    int			m_nTapeSampleRate;
+    int              m_nTapeSampleRate;
     SOUNDGENCALLBACK m_SoundGenCallback;
     TELETYPECALLBACK m_TeletypeCallback;
 private:
-    void        DoSound(void);
+    void        DoSound();
 };
 
 

@@ -63,7 +63,7 @@ float QEmulator::getUptime()
 
 void QEmulator::setBreakpoint(quint16 address)
 {
-    Emulator_SetCPUBreakpoint((quint16)address);
+    Emulator_AddCPUBreakpoint((quint16)address);
 }
 bool QEmulator::isBreakpoint()
 {
