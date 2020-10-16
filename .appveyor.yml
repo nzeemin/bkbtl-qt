@@ -47,12 +47,12 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     - QTDIR: C:\Qt\5.13\msvc2015_64
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-    - QTDIR: C:\Qt\5.14\msvc2017_64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    - QTDIR: C:\Qt\5.15\mingw81_64
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-    - QTDIR: C:\Qt\5.15\mingw81_32
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+#    - QTDIR: C:\Qt\5.14\msvc2017_64
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+#    - QTDIR: C:\Qt\5.15\mingw81_64
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+#    - QTDIR: C:\Qt\5.15\mingw81_32
+#      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - QTDIR: C:\Qt\5.15\msvc2019
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
     - QTDIR: C:\Qt\5.15\msvc2019_64

@@ -307,7 +307,7 @@ void MainWindow::showUptime(int uptimeMillisec)
     int minutes = (int) (uptimeMillisec / 60 % 60);
     int hours   = (int) (uptimeMillisec / 3600 % 60);
 
-    char buffer[12];
+    char buffer[20];
     _snprintf(buffer, 20, "%02d:%02d:%02d", hours, minutes, seconds);
     m_statusLabelUptime->setText(tr("Uptime: %1").arg(buffer));
 }
