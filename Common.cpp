@@ -31,6 +31,12 @@ bool AssertFailedLine(const char * lpszFileName, int nLine)
     return false;
 }
 
+void AlertInfo(const QString &sMessage)
+{
+    QMessageBox::information(nullptr, "BK Back to Life",
+            sMessage, QMessageBox::Ok);
+}
+
 void AlertWarning(const QString &sMessage)
 {
     QMessageBox::warning(nullptr, "BK Back to Life",

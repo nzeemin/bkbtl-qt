@@ -53,6 +53,7 @@ public slots:
     void emulatorFrame();
     void emulatorRun();
     void emulatorReset();
+    void emulatorAutostart();
     void emulatorColorScreen();
     void emulatorScreenMode(int mode);
     void configurationBK0010Basic();
@@ -74,11 +75,13 @@ public slots:
     void consolePrint(const QString&);
 
 protected:
+    void showEvent(QShowEvent *);
     void changeEvent(QEvent *);
     void closeEvent(QCloseEvent *);
 
 private:
     Ui::MainWindow *ui;
+    bool autoStartProcessed;
 
     QEmulatorScreen *m_screen;
     QKeyboardView *m_keyboard;

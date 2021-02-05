@@ -17,6 +17,25 @@ static MainWindow *g_MainWindow;
 static QSettings *g_Settings;
 
 
+void ParseCommandLine(int argc, char *argv[]);
+
+#ifdef Q_OS_WIN
+#define OPTIONCHAR '/'
+#define OPTIONSTR "/"
+#else
+#define OPTIONCHAR '-'
+#define OPTIONSTR "-"
+#endif
+
+const char CommandLineHelp[] =
+    "Command line options:\n"
+    OPTIONSTR "h " OPTIONSTR "help    Show command line options\n"
+    OPTIONSTR "autostart " OPTIONSTR "autostarton    Start emulation on window open\n"
+    OPTIONSTR "noautostart " OPTIONSTR "autostartoff    Do not start emulation on window open\n"
+    OPTIONSTR "sound " OPTIONSTR "soundon    Turn sound on\n"
+    OPTIONSTR "nosound " OPTIONSTR "soundoff    Turn sound off\n";
+
+
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
@@ -27,6 +46,8 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     g_MainWindow = &w;
+
+    ParseCommandLine(argc, argv);  // Override settings by command-line option if needed
 
     if (!Emulator_Init())
         return 255;
@@ -40,6 +61,11 @@ int main(int argc, char *argv[])
     RestoreSettings();
     w.updateMenu();
     w.updateAllViews();
+
+    if (Option_ShowHelp)
+    {
+        AlertInfo(CommandLineHelp);
+    }
 
     QTimer timerFrame;
     QObject::connect(&timerFrame, SIGNAL(timeout()), &w, SLOT(emulatorFrame()), Qt::AutoConnection);
@@ -103,5 +129,42 @@ void RestoreSettings()
             if (! g_pBoard->AttachFloppyImage(slot, qPrintable(path)))
                 Settings_SetFloppyFilePath(slot, nullptr);
         }
+    }
+}
+
+void ParseCommandLine(int argc, char *argv[])
+{
+    char** it = argv;
+    char** itend = argv + argc;
+    while (it != itend)
+    {
+        const char* param = *it;
+        if (param[0] == OPTIONCHAR)
+        {
+            QString option = QString::fromLocal8Bit(param + 1);
+            if (option == "help" || option == "h")
+            {
+                Option_ShowHelp = true;
+            }
+            else if (option == "autostart" || option == "autostarton")
+            {
+                Settings_SetAutostart(true);
+            }
+            else if (option == "noautostart" || option == "autostartoff")
+            {
+                Settings_SetAutostart(false);
+            }
+            else if (option == "sound" || option == "soundon")
+            {
+                Settings_SetSound(true);
+            }
+            else if (option == "soundoff" || option == "nosound")
+            {
+                Settings_SetSound(false);
+            }
+            //TODO
+        }
+
+        ++it;
     }
 }

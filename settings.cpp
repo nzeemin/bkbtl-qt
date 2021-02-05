@@ -4,6 +4,12 @@
 
 
 //////////////////////////////////////////////////////////////////////
+// Options
+
+bool Option_ShowHelp = false;
+
+
+//////////////////////////////////////////////////////////////////////
 
 
 void Settings_SetConfiguration(int configuration)
@@ -28,6 +34,16 @@ QString Settings_GetFloppyFilePath(int slot)
     bufValueName[6] = slot + '0';
     QVariant value = Global_getSettings()->value(bufValueName, "");
     return value.toString();
+}
+
+void Settings_SetAutostart(bool flag)
+{
+    Global_getSettings()->setValue("Autostart", flag);
+}
+bool Settings_GetAutostart()
+{
+    QVariant value = Global_getSettings()->value("Autostart", false);
+    return value.toBool();
 }
 
 void Settings_SetSound(bool flag)

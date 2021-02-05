@@ -8,6 +8,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QSignalMapper>
+#include <QTimer>
 #include <QVBoxLayout>
 #include "main.h"
 #include "mainwindow.h"
@@ -43,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionFileExit, SIGNAL(triggered()), this, SLOT(close()));
     QObject::connect(ui->actionEmulatorRun, SIGNAL(triggered()), this, SLOT(emulatorRun()));
     QObject::connect(ui->actionEmulatorReset, SIGNAL(triggered()), this, SLOT(emulatorReset()));
+    QObject::connect(ui->actionactionEmulatorAutostart, SIGNAL(triggered()), this, SLOT(emulatorAutostart()));
     QObject::connect(ui->actionEmulatorColorScreen, SIGNAL(triggered()), this, SLOT(emulatorColorScreen()));
     QObject::connect(ui->actionConfBK10Basic, SIGNAL(triggered()), this, SLOT(configurationBK0010Basic()));
     QObject::connect(ui->actionConfBK10Focal, SIGNAL(triggered()), this, SLOT(configurationBK0010Focal()));
@@ -147,6 +149,8 @@ MainWindow::MainWindow(QWidget *parent) :
     statusBar()->addPermanentWidget(m_statusLabelUptime, 150);
 
     this->setFocusProxy(m_screen);
+
+    autoStartProcessed = false;
 }
 
 MainWindow::~MainWindow()
@@ -170,6 +174,21 @@ MainWindow::~MainWindow()
     delete m_statusLabelUptime;
 }
 
+void MainWindow::showEvent(QShowEvent *e)
+{
+    QMainWindow::showEvent(e);
+
+    // Process Autostart/Autoboot on first show event
+    if (!autoStartProcessed)
+    {
+        if (Settings_GetAutostart())
+        {
+            QTimer::singleShot(0, this, SLOT(emulatorRun()));
+        }
+
+        autoStartProcessed = true;
+    }
+}
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -227,6 +246,7 @@ void MainWindow::restoreSettings(QSettings * settings)
 void MainWindow::updateMenu()
 {
     ui->actionEmulatorRun->setChecked(g_okEmulatorRunning);
+    ui->actionactionEmulatorAutostart->setChecked(Settings_GetAutostart());
 
     ui->actionViewKeyboard->setChecked(m_keyboard->isVisible());
 
@@ -296,9 +316,9 @@ void MainWindow::redrawDisasmView()
 void MainWindow::updateWindowText()
 {
     if (g_okEmulatorRunning)
-        this->setWindowTitle(tr("UKNC Back to Life [run]"));
+        this->setWindowTitle(tr("BK Back to Life [run]"));
     else
-        this->setWindowTitle(tr("UKNC Back to Life [stop]"));
+        this->setWindowTitle(tr("BK Back to Life [stop]"));
 }
 
 void MainWindow::showUptime(int uptimeMillisec)
@@ -503,6 +523,7 @@ void MainWindow::emulatorRun()
         this->setWindowTitle("BK Back to Life [run]");
         Emulator_Start();
     }
+    updateMenu();
 }
 
 void MainWindow::emulatorReset()
@@ -510,6 +531,12 @@ void MainWindow::emulatorReset()
     Emulator_Reset();
 
     m_screen->repaint();
+}
+
+void MainWindow::emulatorAutostart()
+{
+    Settings_SetAutostart(!Settings_GetAutostart());
+    updateMenu();
 }
 
 void MainWindow::soundEnabled()

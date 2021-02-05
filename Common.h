@@ -68,6 +68,7 @@ bool AssertFailedLine(const char * lpszFileName, int nLine);
 //////////////////////////////////////////////////////////////////////
 
 
+void AlertInfo(const QString &sMessage);
 void AlertWarning(const QString &sMessage);
 bool AlertOkCancel(const QString &sMessage);
 

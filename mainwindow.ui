@@ -46,6 +46,7 @@
     </property>
     <addaction name="actionEmulatorRun"/>
     <addaction name="actionEmulatorReset"/>
+    <addaction name="actionactionEmulatorAutostart"/>
     <addaction name="separator"/>
     <addaction name="actionSoundEnabled"/>
     <addaction name="separator"/>
@@ -494,6 +495,14 @@
   <action name="actionFileScreenshotToClipboard">
    <property name="text">
     <string>Screenshot to Clipboard</string>
+   </property>
+  </action>
+  <action name="actionactionEmulatorAutostart">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Autostart</string>
    </property>
   </action>
  </widget>
