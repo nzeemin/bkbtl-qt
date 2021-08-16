@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setWindowTitle("BK Back to Life");
+    this->setWindowTitle(tr("BK Back to Life"));
 
     // Assign signals
     QObject::connect(ui->actionSaveStateImage, SIGNAL(triggered()), this, SLOT(saveStateImage()));
@@ -113,16 +113,16 @@ MainWindow::MainWindow(QWidget *parent) :
     int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
     ui->centralWidget->setMaximumWidth(maxwid);
 
-    m_dockDebug = new QDockWidget("Processor");
+    m_dockDebug = new QDockWidget(tr("Processor"));
     m_dockDebug->setObjectName("dockDebug");
     m_dockDebug->setWidget(m_debug);
-    m_dockDisasm = new QDockWidget("Disassemble");
+    m_dockDisasm = new QDockWidget(tr("Disassemble"));
     m_dockDisasm->setObjectName("dockDisasm");
     m_dockDisasm->setWidget(m_disasm);
-    m_dockMemory = new QDockWidget("Memory");
+    m_dockMemory = new QDockWidget(tr("Memory"));
     m_dockMemory->setObjectName("dockMemory");
     m_dockMemory->setWidget(m_memory);
-    m_dockConsole = new QDockWidget("Debug Console");
+    m_dockConsole = new QDockWidget(tr("Debug Console"));
     m_dockConsole->setObjectName("dockConsole");
     m_dockConsole->setWidget(m_console);
     m_dockTeletype = new QDockWidget("Teletype");
@@ -307,6 +307,11 @@ void MainWindow::updateAllViews()
     updateMenu();
 }
 
+void MainWindow::redrawDebugView()
+{
+    if (m_debug != nullptr)
+        m_debug->repaint();
+}
 void MainWindow::redrawDisasmView()
 {
     if (m_disasm != nullptr)
@@ -361,7 +366,7 @@ void MainWindow::fileLoadBin()
     FILE* fpBin = ::fopen(sFileName, "rb");
     if (fpBin == nullptr)
     {
-        AlertWarning("Failed to open file.");
+        AlertWarning(tr("Failed to open file."));
         return;
     }
     unsigned char bufHeader[4];
@@ -369,7 +374,7 @@ void MainWindow::fileLoadBin()
     if (dwBytesRead != 4)
     {
         ::fclose(fpBin);
-        AlertWarning("Failed to read file.");
+        AlertWarning(tr("Failed to read file."));
         return;
     }
 
@@ -396,7 +401,7 @@ void MainWindow::fileLoadBin()
     if (dwBytesRead != bytesToRead)
     {
         ::fclose(fpBin);
-        AlertWarning("Failed to read file.");
+        AlertWarning(tr("Failed to read file."));
         return;
     }
 
@@ -461,7 +466,7 @@ void MainWindow::saveScreenshotAs()
 {
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilter("PNG images (*.png)");
+    dlg.setNameFilter(tr("PNG images (*.png)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -515,12 +520,12 @@ void MainWindow::emulatorRun()
 {
     if (g_okEmulatorRunning)
     {
-        this->setWindowTitle("BK Back to Life");
+        this->setWindowTitle(tr("BK Back to Life"));
         Emulator_Stop();
     }
     else
     {
-        this->setWindowTitle("BK Back to Life [run]");
+        this->setWindowTitle(tr("BK Back to Life [run]"));
         Emulator_Start();
     }
     updateMenu();
@@ -576,7 +581,7 @@ void MainWindow::setConfiguration(int configuration)
         return;
 
     // Ask user -- we have to reset machine to change configuration
-    if (!AlertOkCancel("Reset required after configuration change.\nAre you agree?"))
+    if (!AlertOkCancel(tr("Reset required after configuration change.\nAre you agree?")))
         return;
 
     // Change configuration
@@ -598,7 +603,7 @@ void MainWindow::emulatorFloppy(int slot)
     else
     {
         QFileDialog dlg;
-        dlg.setNameFilter("BK floppy images (*.img *.bkd)");
+        dlg.setNameFilter(tr("BK floppy images (*.img *.bkd)"));
         if (dlg.exec() == QDialog::Rejected)
             return;
 
@@ -607,7 +612,7 @@ void MainWindow::emulatorFloppy(int slot)
 
         if (! g_pBoard->AttachFloppyImage(slot, sFileName))
         {
-            AlertWarning("Failed to attach floppy image.");
+            AlertWarning(tr("Failed to attach floppy image."));
             return;
         }
 
@@ -679,7 +684,7 @@ void MainWindow::scriptRun()
 
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptOpen);
-    dlg.setNameFilter("Script files (*.js)");
+    dlg.setNameFilter(tr("Script files (*.js)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 

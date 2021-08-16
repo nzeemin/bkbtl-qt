@@ -24,6 +24,10 @@ public slots:
     void execConsoleCommand();
     void execConsoleCommand(const QString &command);
 
+protected:
+    static QString MESSAGE_UNKNOWN_COMMAND;
+    static QString MESSAGE_WRONG_VALUE;
+
 private:
     QTextEdit *m_log;
     QLabel *m_prompt;

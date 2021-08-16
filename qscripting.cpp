@@ -61,13 +61,37 @@ float QEmulator::getUptime()
     return Emulator_GetUptime();
 }
 
-void QEmulator::setBreakpoint(quint16 address)
+bool QEmulator::addCPUBreakpoint(quint16 address)
 {
-    Emulator_AddCPUBreakpoint((quint16)address);
+    return Emulator_AddCPUBreakpoint((quint16)address);
+}
+bool QEmulator::removeCPUBreakpoint(quint16 address)
+{
+    return Emulator_RemoveCPUBreakpoint((quint16)address);
 }
 bool QEmulator::isBreakpoint()
 {
     return Emulator_IsBreakpoint();
+}
+QScriptValue QEmulator::getCPUBreakpoints()
+{
+    const quint16* bps = Emulator_GetCPUBreakpointList();
+
+    int count = 0;
+    for (int i = 0; i < MAX_BREAKPOINTCOUNT; i++)
+    {
+        if (bps[i] == 0177777)
+            break;
+        count++;
+    }
+
+    QScriptEngine* engine = m_window->getEngine();
+    QScriptValue list = engine->newArray(count);
+    for (int i = 0; i < count; i++)
+    {
+        list.setProperty(i, engine->newVariant(bps[i]));
+    }
+    return list;
 }
 
 void QEmulator::saveScreenshot(const QString &filename)
@@ -243,10 +267,10 @@ QScriptWindow::QScriptWindow(QWidget * parent)
     : QDialog(parent, Qt::Dialog),
       m_aborted(false)
 {
-    setWindowTitle("Script Running");
+    setWindowTitle(tr("Script Running"));
     setMinimumSize(300, 125);
     setMaximumSize(400, 200);
-    m_cancelButton.setText("Stop");
+    m_cancelButton.setText(tr("Stop"));
     m_vlayout.addWidget(&m_static, 0, 0);
     m_vlayout.addWidget(&m_cancelButton, 0, Qt::AlignHCenter);
     setLayout(&m_vlayout);
@@ -273,37 +297,37 @@ void QScriptWindow::runScript(const QString & script)
     QString message;
     for (;;)
     {
-        m_static.setText("Syntax check...");
+        m_static.setText(tr("Syntax check..."));
         Global_getApplication()->processEvents();
 
         QScriptSyntaxCheckResult checkResult = QScriptEngine::checkSyntax(script);
         if (checkResult.state() != QScriptSyntaxCheckResult::Valid)
         {
-            message.append("Syntax check FAILED:\n\n%1\n\nat line %2 column %3.")
-            .arg(checkResult.errorMessage())
-            .arg(checkResult.errorLineNumber())
-            .arg(checkResult.errorColumnNumber());
+            message.append(tr("Syntax check FAILED:\n\n%1\n\nat line %2 column %3.")
+                    .arg(checkResult.errorMessage())
+                    .arg(checkResult.errorLineNumber())
+                    .arg(checkResult.errorColumnNumber()));
             break;
         }
 
-        m_static.setText("Running script...");
+        m_static.setText(tr("Running script..."));
         Global_getApplication()->processEvents();
 
         m_engine.setProcessEventsInterval(250);
         QScriptValue result = m_engine.evaluate(script);
         if (m_aborted)
         {
-            message.append("The script was STOPPED.");
+            message.append(tr("The script was STOPPED."));
             break;
         }
 
-        message.append("The script FINISHED. The result is:\n\n")
+        message.append(tr("The script FINISHED. The result is:\n\n"))
         .append(result.toString());
         break;
     }
 
     m_static.setText(message);
-    m_cancelButton.setText("Close");
+    m_cancelButton.setText(tr("Close"));
     exec();
 }
 

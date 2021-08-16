@@ -209,7 +209,7 @@ void QDebugView::drawPorts(QPainter &painter, int x, int y)
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
 
-    painter.drawText(x, y, "Port");
+    painter.drawText(x, y, tr("Port"));
 
     quint16 value;
     y += cyLine;

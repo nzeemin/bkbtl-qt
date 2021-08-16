@@ -14,10 +14,11 @@ bool AssertFailedLine(const char * lpszFileName, int nLine)
 {
     char buffer[360];
     _snprintf(buffer, 360,
-            "ASSERTION FAILED\n\nFile: %s\nLine: %d\n\n"
-            "Press Abort to stop the program, Retry to break to the debugger, or Ignore to continue execution.",
+            QT_TRANSLATE_NOOP("Common",
+                    "ASSERTION FAILED\n\nFile: %s\nLine: %d\n\n"
+                    "Press Abort to stop the program, Retry to break to the debugger, or Ignore to continue execution."),
             lpszFileName, nLine);
-    int result = QMessageBox::question(nullptr, "BK Back to Life",
+    int result = QMessageBox::question(nullptr, QT_TRANSLATE_NOOP("Common", "BK Back to Life"),
             buffer, QMessageBox::Abort, QMessageBox::Retry, QMessageBox::Ignore);
     switch (result)
     {
@@ -33,19 +34,19 @@ bool AssertFailedLine(const char * lpszFileName, int nLine)
 
 void AlertInfo(const QString &sMessage)
 {
-    QMessageBox::information(nullptr, "BK Back to Life",
+    QMessageBox::information(nullptr, QT_TRANSLATE_NOOP("Common", "BK Back to Life"),
             sMessage, QMessageBox::Ok);
 }
 
 void AlertWarning(const QString &sMessage)
 {
-    QMessageBox::warning(nullptr, "BK Back to Life",
+    QMessageBox::warning(nullptr, QT_TRANSLATE_NOOP("Common", "BK Back to Life"),
             sMessage, QMessageBox::Ok);
 }
 
 bool AlertOkCancel(const QString &sMessage)
 {
-    int result = QMessageBox::question(nullptr, "BK Back to Life",
+    int result = QMessageBox::question(nullptr, QT_TRANSLATE_NOOP("Common", "BK Back to Life"),
             sMessage, QMessageBox::Ok, QMessageBox::Cancel);
     return (result == QMessageBox::Ok);
 }

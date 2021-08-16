@@ -82,11 +82,16 @@ public slots:
     /// \brief Get emulator uptime, in seconds.
     float getUptime();
 
-    /// \brief Sets CPU breakpoint address for the next run() call.
+    /// \brief Adds CPU breakpoint.
     /// \param address Address of the CPU breakpoint to set.
-    void setBreakpoint(quint16 address);
+    bool addCPUBreakpoint(quint16 address);
+    /// \brief Removes CPU breakpoint.
+    /// \param address Address of the CPU breakpoint to remove.
+    bool removeCPUBreakpoint(quint16 address);
     /// \brief Check if the emulator stopped on a breakpoint.
     bool isBreakpoint();
+    /// \brief Get list of breakpoint addresses for CPU.
+    QScriptValue getCPUBreakpoints();
 
     /// \brief Save screenshot to PNG file.
     void saveScreenshot(const QString& filename);

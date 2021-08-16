@@ -83,9 +83,9 @@ void QMemoryView::focusOutEvent(QFocusEvent *)
 void QMemoryView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    menu.addAction("Go to Address...", this, SLOT(gotoAddress()));
+    menu.addAction(tr("Go to Address..."), this, SLOT(gotoAddress()));
     menu.addSeparator();
-    menu.addAction("Words / Bytes", this, SLOT(changeWordByteMode()));
+    menu.addAction(tr("Words / Bytes"), this, SLOT(changeWordByteMode()));
 
     menu.exec(event->globalPos());
 }
@@ -113,7 +113,7 @@ void QMemoryView::scrollBy(qint16 delta)
 void QMemoryView::gotoAddress()
 {
     quint16 value = m_wBaseAddress;
-    QInputOctalDialog dialog(this, "Go To Address", "Address (octal):", &value);
+    QInputOctalDialog dialog(this, tr("Go To Address"), tr("Address (octal):"), &value);
     if (dialog.exec() == QDialog::Rejected) return;
 
     // Scroll to the address

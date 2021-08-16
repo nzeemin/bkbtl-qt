@@ -243,7 +243,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Monitor ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_MONIT10, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load Monitor ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load Monitor ROM file."));
             return false;
         }
         g_pBoard->LoadROM(0, buffer);
@@ -254,21 +254,21 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BASIC ROM 1 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_1, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BASIC ROM 1 file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BASIC ROM 1 file."));
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BASIC ROM 2 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_2, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BASIC ROM 2 file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BASIC ROM 2 file."));
             return false;
         }
         g_pBoard->LoadROM(2, buffer);
         // Load BASIC ROM 3 file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC10_3, buffer, 0, 8064))
         {
-            AlertWarning("Failed to load BASIC ROM 3 file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BASIC ROM 3 file."));
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
@@ -278,7 +278,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Focal ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_FOCAL, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load Focal ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load Focal ROM file."));
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
@@ -288,7 +288,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load Tests ROM file
         if (!Emulator_LoadRomFile(FILENAME_BKROM_TESTS, buffer, 0, 8064))
         {
-            AlertWarning("Failed to load Tests ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load Tests ROM file."));
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
@@ -299,21 +299,21 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M BASIC 0, part 1
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BK11M BASIC 0 ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M BASIC 0 ROM file."));
             return false;
         }
         g_pBoard->LoadROM(0, buffer);
         // Load BK0011M BASIC 0, part 2
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_0, buffer, 8192, 8192))
         {
-            AlertWarning("Failed to load BK11M BASIC 0 ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M BASIC 0 ROM file."));
             return false;
         }
         g_pBoard->LoadROM(1, buffer);
         // Load BK0011M BASIC 1
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BASIC11M_1, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BK11M BASIC 1 ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M BASIC 1 ROM file."));
             return false;
         }
         g_pBoard->LoadROM(2, buffer);
@@ -321,14 +321,14 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M EXT
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_EXT, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BK11M EXT ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M EXT ROM file."));
             return false;
         }
         g_pBoard->LoadROM(3, buffer);
         // Load BK0011M BOS
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_BOS, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BK11M BOS ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M BOS ROM file."));
             return false;
         }
         g_pBoard->LoadROM(4, buffer);
@@ -340,7 +340,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         ::memset(buffer, 0, 8192);
         if (!Emulator_LoadRomFile(FILENAME_BKROM_DISK_326, buffer, 0, 4096))
         {
-            AlertWarning("Failed to load DISK ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load DISK ROM file."));
             return false;
         }
         g_pBoard->LoadROM((configuration & BK_COPT_BK0011) ? 5 : 3, buffer);
@@ -351,7 +351,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
         // Load BK0011M MSTD
         if (!Emulator_LoadRomFile(FILENAME_BKROM_BK11M_MSTD, buffer, 0, 8192))
         {
-            AlertWarning("Failed to load BK11M MSTD ROM file.");
+            AlertWarning(QT_TRANSLATE_NOOP("Emulator", "Failed to load BK11M MSTD ROM file."));
             return false;
         }
         g_pBoard->LoadROM(5, buffer);

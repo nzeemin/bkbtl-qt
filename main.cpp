@@ -104,6 +104,10 @@ void Global_UpdateMenu()
 {
     Global_getMainWindow()->updateMenu();
 }
+void Global_RedrawDebugView()
+{
+    Global_getMainWindow()->redrawDebugView();
+}
 void Global_RedrawDisasmView()
 {
     Global_getMainWindow()->redrawDisasmView();

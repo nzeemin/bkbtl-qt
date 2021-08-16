@@ -29,6 +29,7 @@ public:
 public:
     void updateMenu();
     void updateAllViews();
+    void redrawDebugView();
     void redrawDisasmView();
     void updateWindowText();
     void saveSettings(QSettings *);

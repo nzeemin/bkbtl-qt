@@ -9,13 +9,14 @@
 #include "Emulator.h"
 #include "emubase/Emubase.h"
 
-
-const char * MESSAGE_UNKNOWN_COMMAND = "  Unknown command.\r\n";
-const char * MESSAGE_WRONG_VALUE = "  Wrong value.\r\n";
-
+QString QConsoleView::MESSAGE_UNKNOWN_COMMAND;
+QString QConsoleView::MESSAGE_WRONG_VALUE;
 
 QConsoleView::QConsoleView()
 {
+    MESSAGE_UNKNOWN_COMMAND = QConsoleView::tr("  Unknown command.\r\n");
+    MESSAGE_WRONG_VALUE = QConsoleView::tr("  Wrong value.\r\n");
+
     setMinimumSize(320, 120);
 
     m_log = new QTextEdit();
@@ -39,7 +40,7 @@ QConsoleView::QConsoleView()
 
     QObject::connect(m_edit, SIGNAL(returnPressed()), this, SLOT(execConsoleCommand()));
 
-    this->print("Use 'h' command to show help.\r\n\r\n");
+    this->print(tr("Use 'h' command to show help.\r\n\r\n"));
 }
 
 QConsoleView::~QConsoleView()
@@ -209,7 +210,7 @@ int QConsoleView::printDisassemble(quint16 address, bool okOneInstr, bool okShor
 
 void QConsoleView::printHelp()
 {
-    this->print("Console command list:\r\n"
+    this->print(tr("Console command list:\r\n"
             "  c          Clear console log\r\n"
             "  dXXXXXX    Disassemble from address XXXXXX\r\n"
             "  g          Go; free run\r\n"
@@ -227,7 +228,7 @@ void QConsoleView::printHelp()
             "  bcXXXXXX   Remove breakpoint at address XXXXXX\r\n"
             "  bc         Remove all breakpoints\r\n"
 //            "  u          Save memory dump to file memdumpXPU.bin\r\n"
-               );
+                  ));
 }
 
 void QConsoleView::execConsoleCommand()
@@ -418,7 +419,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
         const quint16* pbps = Emulator_GetCPUBreakpointList();
         if (pbps == nullptr || *pbps == 0177777)
         {
-            this->print("  No breakpoints.\r\n");
+            this->print(tr("  No breakpoints.\r\n"));
         }
         else
         {
@@ -433,6 +434,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
     else if (command == "bc")  // bc - remove all breakpoints
     {
         Emulator_RemoveAllBreakpoints();
+        Global_RedrawDebugView();
         Global_RedrawDisasmView();
     }
     else if (command.startsWith("bc"))  // bcXXXXXX - remove breakpoint
@@ -444,7 +446,8 @@ void QConsoleView::execConsoleCommand(const QString &command)
         {
             bool result = Emulator_RemoveCPUBreakpoint(value);
             if (!result)
-                this->print("  Failed to remove breakpoint.\r\n");
+                this->print(tr("  Failed to remove breakpoint.\r\n"));
+            Global_RedrawDebugView();
             Global_RedrawDisasmView();
         }
     }
@@ -457,7 +460,8 @@ void QConsoleView::execConsoleCommand(const QString &command)
         {
             bool result = Emulator_AddCPUBreakpoint(value);
             if (!result)
-                this->print("  Failed to add breakpoint.\r\n");
+                this->print(tr("  Failed to add breakpoint.\r\n"));
+            Global_RedrawDebugView();
             Global_RedrawDisasmView();
         }
     }

@@ -32,7 +32,7 @@ QDisasmView::QDisasmView()
 
 void QDisasmView::updateWindowText()
 {
-    QString buffer = QString("Disassemble");
+    QString buffer = QString(tr("Disassemble"));
     if (!m_SubtitleItems.isEmpty())
         buffer.append(tr(" - Subtitles"));
     parentWidget()->setWindowTitle(buffer);
@@ -50,7 +50,7 @@ void QDisasmView::focusOutEvent(QFocusEvent *)
 void QDisasmView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    menu.addAction(m_SubtitleItems.isEmpty() ? "Show Subtitles..." : "Hide Subtitles", this, SLOT(showHideSubtitles()));
+    menu.addAction(m_SubtitleItems.isEmpty() ? tr("Show Subtitles...") : tr("Hide Subtitles"), this, SLOT(showHideSubtitles()));
     menu.exec(event->globalPos());
 }
 
@@ -71,13 +71,13 @@ void QDisasmView::mousePressEvent(QMouseEvent * event)
                     {
                         bool result = Emulator_AddCPUBreakpoint(address);
                         if (!result)
-                            AlertWarning(QString("Failed to add breakpoint at %1.").arg(address, 6, 8, QLatin1Char('0')));
+                            AlertWarning(tr("Failed to add breakpoint at %1.").arg(address, 6, 8, QLatin1Char('0')));
                     }
                     else
                     {
                         bool result = Emulator_RemoveCPUBreakpoint(address);
                         if (!result)
-                            AlertWarning(QString("Failed to remove breakpoint at %1.").arg(address, 6, 8, QLatin1Char('0')));
+                            AlertWarning(tr("Failed to remove breakpoint at %1.").arg(address, 6, 8, QLatin1Char('0')));
                     }
                     repaint();
                 }
@@ -97,7 +97,7 @@ void QDisasmView::showHideSubtitles()
     else
     {
         QFileDialog dlg;
-        dlg.setNameFilter("BKBTL subtitles (*.lst)");
+        dlg.setNameFilter(tr("BKBTL subtitles (*.lst)"));
         if (dlg.exec() == QDialog::Rejected)
             return;
         QString fileName = dlg.selectedFiles().at(0);
@@ -105,7 +105,7 @@ void QDisasmView::showHideSubtitles()
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly))
         {
-            AlertWarning("Failed to open the file.");
+            AlertWarning(tr("Failed to open the file."));
             return;
         }
 
@@ -282,8 +282,8 @@ bool QDisasmView::getJumpConditionHint(const quint16 *memory, const CProcessor *
     if (instr >= 0101000 && instr <= 0101777)  // BHI, BLOS
     {
         buffer.sprintf("C=%c, Z=%c", (psw & PSW_C) ? '1' : '0', (psw & PSW_Z) ? '1' : '0');
-        // BHI:  IF ((С or Z) == 0)
-        // BLOS: IF ((С or Z) == 1)
+        // BHI:  IF ((C or Z) == 0)
+        // BLOS: IF ((C or Z) == 1)
         bool value = (((psw & PSW_C) != 0) || ((psw & PSW_Z) != 0));
         return ((instr & 0400) == 0) ? !value : value;
     }
@@ -898,7 +898,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 c
             painter.setPen(colorText);
             painter.drawText(21 * cxChar, y, lineitem.strInstr);
             painter.drawText(29 * cxChar, y, lineitem.strArg);
-            posAfterArgs += strlen(lineitem.strArg);
+            posAfterArgs += (int)strlen(lineitem.strArg);
         }
 
         if ((lineitem.type & LINETYPE_SUBTITLE) != 0 && (lineitem.type & (LINETYPE_DATA | LINETYPE_INSTR)) != 0 &&

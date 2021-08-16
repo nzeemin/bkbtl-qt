@@ -47,18 +47,18 @@ QTapeView::QTapeView(QWidget *parent) :
     m_labelCurrent = new QLabel(this);
     m_labelCurrent->move(8, 26);
     m_labelCurrent->resize(100, 18);
-    m_buttonPlay = new QPushButton("Play", this);
+    m_buttonPlay = new QPushButton(tr("Play"), this);
     m_buttonPlay->move(8 + 100 + 16, 24);
     m_buttonPlay->resize(buttonWidth, 22);
     m_buttonPlay->setEnabled(false);
-    m_buttonRewind = new QPushButton("<< Rewind", this);
+    m_buttonRewind = new QPushButton(tr("<< Rewind"), this);
     m_buttonRewind->move(8 + 100 + 16 + 4 + buttonWidth, 24);
     m_buttonRewind->resize(buttonWidth, 22);
     m_buttonRewind->setEnabled(false);
-    m_buttonOpen = new QPushButton("Open WAV", this);
+    m_buttonOpen = new QPushButton(tr("Open WAV"), this);
     m_buttonOpen->move(viewWidth - buttonWidth - 4 - buttonWidth - 8, 24);
     m_buttonOpen->resize(buttonWidth, 22);
-    m_buttonSave = new QPushButton("Save WAV", this);
+    m_buttonSave = new QPushButton(tr("Save WAV"), this);
     m_buttonSave->move(viewWidth - buttonWidth - 8, 24);
     m_buttonSave->resize(buttonWidth, 22);
 
@@ -95,7 +95,7 @@ void QTapeView::doTapeOpen()
 
     // File Open dialog
     QFileDialog dlg;
-    dlg.setNameFilter("WAV files (*.wav)|All Files (*.*)");
+    dlg.setNameFilter(tr("WAV files (*.wav)|All Files (*.*)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -115,7 +115,7 @@ void QTapeView::doTapeSave()
     // File Save dialog
     QFileDialog dlg;
     dlg.setAcceptMode(QFileDialog::AcceptSave);
-    dlg.setNameFilter("WAV files (*.wav)|All Files (*.*)");
+    dlg.setNameFilter(tr("WAV files (*.wav)|All Files (*.*)"));
     if (dlg.exec() == QDialog::Rejected)
         return;
 
@@ -136,13 +136,13 @@ void QTapeView::createTape(const QString &sFileName)
     m_okTapeRecording = true;
 
     m_buttonPlay->setEnabled(true);
-    m_buttonPlay->setText("Record");
+    m_buttonPlay->setText(tr("Record"));
     m_buttonRewind->setEnabled(true);
     m_labelFile->setText(lpszFile);
 
     this->updatePosition();
 
-    m_buttonSave->setText("Close WAV");
+    m_buttonSave->setText(tr("Close WAV"));
     m_buttonOpen->setEnabled(false);
 }
 
@@ -158,7 +158,7 @@ void QTapeView::openTape(const QString &sFileName)
     m_okTapeRecording = false;
 
     m_buttonPlay->setEnabled(true);
-    m_buttonPlay->setText("Play");
+    m_buttonPlay->setText(tr("Play"));
     m_buttonRewind->setEnabled(true);
     m_labelFile->setText(lpszFile);
 
@@ -173,7 +173,7 @@ void QTapeView::openTape(const QString &sFileName)
             int(wavLengthSeconds) / 60, int(wavLengthSeconds) % 60, int(wavLengthSeconds * 100) % 100, wavFreq);
     m_labelTotal->setText(buffer);
 
-    m_buttonOpen->setText("Close WAV");
+    m_buttonOpen->setText(tr("Close WAV"));
     m_buttonSave->setEnabled(false);
 }
 
@@ -194,8 +194,8 @@ void QTapeView::closeTape()
     m_labelFile->setText(nullptr);
     m_labelTotal->setText(nullptr);
     m_labelCurrent->setText(nullptr);
-    m_buttonOpen->setText("Open WAV");
-    m_buttonSave->setText("Save WAV");
+    m_buttonOpen->setText(tr("Open WAV"));
+    m_buttonSave->setText(tr("Save WAV"));
 }
 
 void QTapeView::playTape()
@@ -212,7 +212,7 @@ void QTapeView::playTape()
 
     m_okTapePlaying = true;
 
-    m_buttonPlay->setText("Stop");
+    m_buttonPlay->setText(tr("Stop"));
 }
 
 void QTapeView::stopTape()
@@ -226,7 +226,7 @@ void QTapeView::stopTape()
 
     m_okTapePlaying = false;
 
-    m_buttonPlay->setText(m_okTapeRecording ? "Record" : "Play");
+    m_buttonPlay->setText(m_okTapeRecording ? tr("Record") : tr("Play"));
 }
 
 void QTapeView::updatePosition()
