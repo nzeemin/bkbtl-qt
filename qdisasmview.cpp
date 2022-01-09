@@ -105,7 +105,7 @@ void QDisasmView::showHideSubtitles()
         QFile file(fileName);
         if (!file.open(QIODevice::ReadOnly))
         {
-            AlertWarning(tr("Failed to open the file."));
+            AlertWarning(tr("Failed to open the subtitles file."));
             return;
         }
 
@@ -507,18 +507,23 @@ void QDisasmView::instructionHint(const quint16 *memory, const CProcessor *pProc
         }
     }
 
+    // Prepare 1st line of the instruction hint
     if (!srchint1.isEmpty() && !dsthint1.isEmpty())
     {
-        if (srchint1 == dsthint1)
-            buffer = srchint1;
-        else
+        if (srchint1 != dsthint1)
             buffer = srchint1 + ", " + dsthint1;
+        else
+        {
+            buffer = srchint1;
+            dsthint1.clear();
+        }
     }
     else if (!srchint1.isEmpty())
         buffer = srchint1;
     else if (!dsthint1.isEmpty())
         buffer = dsthint1;
 
+    // Prepare 2nd line of the instruction hint
     if (!srchint2.isEmpty() && !dsthint2.isEmpty())
     {
         if (srchint2 == dsthint2)
@@ -529,10 +534,20 @@ void QDisasmView::instructionHint(const quint16 *memory, const CProcessor *pProc
     else if (!srchint2.isEmpty())
         buffer2 = srchint2;
     else if (!dsthint2.isEmpty())
-        buffer2 = dsthint2;
+    {
+        if (srchint1.isEmpty() || dsthint1.isEmpty())
+            buffer2 = dsthint2;
+        else
+        {
+            // Special case: we have srchint1, dsthint1 and dsthint2, but not srchint2 - let's align dsthint2 to dsthint1
+            int hintpos = srchint1.length() + 2;
+            buffer2 = QString(hintpos, ' ') + dsthint2;
+        }
+    }
 }
 
 // Prepare "Instruction Hint" for a regular instruction (not a branch/jump one)
+// buffer, buffer2 - buffers for 1st and 2nd lines of the instruction hint
 // Returns: number of hint lines; 0 = no hints
 int QDisasmView::getInstructionHint(const quint16 *memory, const CProcessor *pProc,
         QString &buffer, QString &buffer2)
@@ -607,17 +622,6 @@ int QDisasmView::getInstructionHint(const quint16 *memory, const CProcessor *pPr
         int dstmod = (instr >> 3) & 7;
         instructionHint(memory, pProc, buffer, buffer2, -1, -1, dstreg, dstmod);
     }
-
-    // HALT mode commands
-    if (instr == PI_MFUS)
-    {
-        buffer.sprintf("R5=%06o, R0=%06o", pProc->GetReg(5), pProc->GetReg(0));  // "R5=XXXXXX, R0=XXXXXX"
-    }
-    if (instr == PI_MTUS)
-    {
-        buffer.sprintf("R0=%06o, R5=%06o", pProc->GetReg(0), pProc->GetReg(5));  // "R0=XXXXXX, R5=XXXXXX"
-    }
-    //TODO: MFPC, MTPC
 
     //TODO: MARK
 
