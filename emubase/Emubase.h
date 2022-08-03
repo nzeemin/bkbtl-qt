@@ -1,4 +1,4 @@
-/*  This file is part of BKBTL.
+﻿/*  This file is part of BKBTL.
     BKBTL is free software: you can redistribute it and/or modify it under the terms
 of the GNU Lesser General Public License as published by the Free Software Foundation,
 either version 3 of the License, or (at your option) any later version.
@@ -31,35 +31,35 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 //   sInstr  - instruction mnemonics buffer - at least 8 characters
 //   sArg    - instruction arguments buffer - at least 32 characters
 //   Return value: number of words in the instruction
-int DisassembleInstruction(uint16_t* pMemory, uint16_t addr, TCHAR* sInstr, TCHAR* sArg);
+uint16_t DisassembleInstruction(const uint16_t* pMemory, uint16_t addr, TCHAR* sInstr, TCHAR* sArg);
 
 
 //////////////////////////////////////////////////////////////////////
 // CFloppy
 
-#define FLOPPY_FSM_IDLE			0
+#define FLOPPY_FSM_IDLE         0
 
-#define FLOPPY_CMD_CORRECTION250		04
-#define FLOPPY_CMD_ENGINESTART			020
-#define FLOPPY_CMD_CORRECTION500		010
-#define FLOPPY_CMD_SIDEUP				040
-#define FLOPPY_CMD_DIR					0100
-#define FLOPPY_CMD_STEP					0200
-#define FLOPPY_CMD_SEARCHSYNC			0400
-#define FLOPPY_CMD_SKIPSYNC				01000
+#define FLOPPY_CMD_CORRECTION250             04
+#define FLOPPY_CMD_CORRECTION500            010
+#define FLOPPY_CMD_ENGINESTART              020
+#define FLOPPY_CMD_SIDEUP                   040
+#define FLOPPY_CMD_DIR                     0100
+#define FLOPPY_CMD_STEP                    0200
+#define FLOPPY_CMD_SEARCHSYNC              0400
+#define FLOPPY_CMD_SKIPSYNC               01000
 //dir == 0 to center (towards trk0)
 //dir == 1 from center (towards trk80)
 
-#define FLOPPY_STATUS_TRACK0			01
-#define FLOPPY_STATUS_RDY				02
-#define FLOPPY_STATUS_WRITEPROTECT		04
-#define FLOPPY_STATUS_MOREDATA			0200
-#define FLOPPY_STATUS_CHECKSUMOK		040000
-#define FLOPPY_STATUS_INDEXMARK			0100000
+#define FLOPPY_STATUS_TRACK0                 01
+#define FLOPPY_STATUS_RDY                    02
+#define FLOPPY_STATUS_WRITEPROTECT           04
+#define FLOPPY_STATUS_MOREDATA             0200
+#define FLOPPY_STATUS_CHECKSUMOK         040000
+#define FLOPPY_STATUS_INDEXMARK         0100000
 
-#define FLOPPY_RAWTRACKSIZE             6250
+#define FLOPPY_RAWTRACKSIZE             6250     // Raw track size, bytes
 #define FLOPPY_RAWMARKERSIZE            (FLOPPY_RAWTRACKSIZE / 2)
-#define FLOPPY_INDEXLENGTH              30
+#define FLOPPY_INDEXLENGTH              30       // Length of index hole, in bytes of raw track image
 
 struct CFloppyDrive
 {

@@ -1,4 +1,4 @@
-/*  This file is part of BKBTL.
+п»ї/*  This file is part of BKBTL.
     BKBTL is free software: you can redistribute it and/or modify it under the terms
 of the GNU Lesser General Public License as published by the Free Software Foundation,
 either version 3 of the License, or (at your option) any later version.
@@ -20,7 +20,7 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 
 //////////////////////////////////////////////////////////////////////
 
-// Маска флагов, сохраняемых в m_flags
+// РњР°СЃРєР° С„Р»Р°РіРѕРІ, СЃРѕС…СЂР°РЅСЏРµРјС‹С… РІ m_flags
 const uint16_t FLOPPY_CMD_MASKSTORED =
     FLOPPY_CMD_CORRECTION250 | FLOPPY_CMD_CORRECTION500 | FLOPPY_CMD_SIDEUP | FLOPPY_CMD_DIR | FLOPPY_CMD_SKIPSYNC |
     FLOPPY_CMD_ENGINESTART;
@@ -153,26 +153,20 @@ uint16_t CFloppyController::GetState(void)
 
     uint16_t res = m_status /*| FLOPPY_STATUS_RDY*/;
 
-//#if !defined(PRODUCT)
-//    //if (res & FLOPPY_STATUS_MOREDATA)
-//    {
+//    if (res & FLOPPY_STATUS_MOREDATA)
 //        DebugLogFormat(_T("Floppy GET STATE %06o\r\n"), res);
-//    }
-//#endif
 
     return res;
 }
 
 void CFloppyController::SetCommand(uint16_t cmd)
 {
-//#if !defined(PRODUCT)
 //    if (m_okTrace)
 //        DebugLogFormat(_T("Floppy COMMAND %06o\r\n"), cmd);
-//#endif
 
-    bool okPrepareTrack = false;  // Нужно ли считывать дорожку в буфер
+    bool okPrepareTrack = false;  // РќСѓР¶РЅРѕ Р»Рё СЃС‡РёС‚С‹РІР°С‚СЊ РґРѕСЂРѕР¶РєСѓ РІ Р±СѓС„РµСЂ
 
-    // Проверить, не сменился ли текущий привод
+    // РџСЂРѕРІРµСЂРёС‚СЊ, РЅРµ СЃРјРµРЅРёР»СЃСЏ Р»Рё С‚РµРєСѓС‰РёР№ РїСЂРёРІРѕРґ
     int newdrive = -1;
     switch (cmd & 0x0f)
     {
@@ -190,20 +184,19 @@ case 1: default:                    newdrive = 0;  break;
         m_drive = newdrive;
         m_pDrive = (newdrive == -1) ? NULL : m_drivedata + m_drive;
         okPrepareTrack = true;
-#if !defined(PRODUCT)
+
         if (m_okTrace)
             DebugLogFormat(_T("Floppy CURRENT DRIVE %d\r\n"), newdrive);
-#endif
     }
     if (m_drive == -1)
         return;
-    cmd &= ~3;  // Убираем из команды информацию о текущем приводе
+    cmd &= ~3;  // РЈР±РёСЂР°РµРј РёР· РєРѕРјР°РЅРґС‹ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‚РµРєСѓС‰РµРј РїСЂРёРІРѕРґРµ
 
     // Copy new flags to m_flags
     m_flags &= ~FLOPPY_CMD_MASKSTORED;
     m_flags |= cmd & FLOPPY_CMD_MASKSTORED;
 
-    // Проверяем, не сменилась ли сторона
+    // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ СЃРјРµРЅРёР»Р°СЃСЊ Р»Рё СЃС‚РѕСЂРѕРЅР°
     if (m_flags & FLOPPY_CMD_SIDEUP)  // Side selection: 0 - down, 1 - up
     {
         if (m_side == 0) { m_side = 1;  okPrepareTrack = true; }
@@ -215,10 +208,9 @@ case 1: default:                    newdrive = 0;  break;
 
     if (cmd & FLOPPY_CMD_STEP)  // Move head for one track to center or from center
     {
-#if !defined(PRODUCT)
         if (m_okTrace)
             DebugLogFormat(_T("Floppy STEP %d\r\n"), (m_flags & FLOPPY_CMD_DIR) ? 1 : 0);
-#endif
+
         m_side = (m_flags & FLOPPY_CMD_SIDEUP) ? 1 : 0;
 
         if (m_flags & FLOPPY_CMD_DIR)
@@ -235,20 +227,20 @@ case 1: default:                    newdrive = 0;  break;
 
     if (cmd & FLOPPY_CMD_SEARCHSYNC) // Search for marker
     {
-#if !defined(PRODUCT)
-        DebugLog(_T("Floppy SEARCHSYNC\r\n"));  //DEBUG
-#endif
+        if (m_okTrace)
+            DebugLog(_T("Floppy SEARCHSYNC\r\n"));
+
         m_flags &= ~FLOPPY_CMD_SEARCHSYNC;
         m_searchsync = true;
         m_crccalculus = true;
         m_status &= ~FLOPPY_STATUS_CHECKSUMOK;
     }
 
-    if (m_writing && (cmd & FLOPPY_CMD_SKIPSYNC))  // Запись маркера
+    if (m_writing && (cmd & FLOPPY_CMD_SKIPSYNC))  // Р—Р°РїРёСЃСЊ РјР°СЂРєРµСЂР°
     {
-//#if !defined(PRODUCT)
+
 //        DebugLog(_T("Floppy MARKER\r\n"));  //DEBUG
-//#endif
+
         m_writemarker = true;
         m_status &= ~FLOPPY_STATUS_CHECKSUMOK;
     }
@@ -256,14 +248,12 @@ case 1: default:                    newdrive = 0;  break;
 
 uint16_t CFloppyController::GetData(void)
 {
-#if !defined(PRODUCT)
     if (m_okTrace && m_pDrive != NULL)
     {
         uint16_t offset = m_pDrive->dataptr;
         if (offset >= 102 && (offset - 102) % 610 == 0)
             DebugLogFormat(_T("Floppy READ\t\tTRACK %d SIDE %d SECTOR %d \r\n"), (int)m_track, (int)m_side, (offset - 102) / 610);
     }
-#endif
 
     m_status &= ~FLOPPY_STATUS_MOREDATA;
     m_writing = m_searchsync = false;
@@ -277,10 +267,8 @@ uint16_t CFloppyController::GetData(void)
 
 void CFloppyController::WriteData(uint16_t data)
 {
-//#if !defined(PRODUCT)
 //    if (m_okTrace)
 //        DebugLogFormat(_T("Floppy WRITE\t\t%04x\r\n"), data);  //DEBUG
-//#endif
 
     m_writing = true;  // Switch to write mode if not yet
     m_searchsync = false;
@@ -313,21 +301,20 @@ void CFloppyController::WriteData(uint16_t data)
 
 void CFloppyController::Periodic()
 {
-    if (!IsEngineOn()) return;  // Вращаем дискеты только если включен мотор
+    if (!IsEngineOn()) return;  // Р’СЂР°С‰Р°РµРј РґРёСЃРєРµС‚С‹ С‚РѕР»СЊРєРѕ РµСЃР»Рё РІРєР»СЋС‡РµРЅ РјРѕС‚РѕСЂ
 
-    // Вращаем дискеты во всех драйвах сразу
+    // Р’СЂР°С‰Р°РµРј РґРёСЃРєРµС‚С‹ РІРѕ РІСЃРµС… РґСЂР°Р№РІР°С… СЃСЂР°Р·Сѓ
     for (int drive = 0; drive < 4; drive++)
     {
         m_drivedata[drive].dataptr += 2;
         if (m_drivedata[drive].dataptr >= FLOPPY_RAWTRACKSIZE)
             m_drivedata[drive].dataptr = 0;
     }
-#if !defined(PRODUCT)
+
     if (m_okTrace && m_pDrive != NULL && m_pDrive->dataptr == 0)
         DebugLogFormat(_T("Floppy Index\n"));
-#endif
 
-    // Далее обрабатываем чтение/запись на текущем драйве
+    // Р”Р°Р»РµРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј С‡С‚РµРЅРёРµ/Р·Р°РїРёСЃСЊ РЅР° С‚РµРєСѓС‰РµРј РґСЂР°Р№РІРµ
     if (m_pDrive == NULL) return;
     if (!IsAttached(m_drive)) return;
 
@@ -351,10 +338,9 @@ void CFloppyController::Periodic()
                 {
                     m_status |= FLOPPY_STATUS_MOREDATA;
                     m_searchsync = false;
-#if !defined(PRODUCT)
+
                     if (m_okTrace)
                         DebugLogFormat(_T("Floppy Marker Found\n"));
-#endif
                 }
             }
             else  // Just read
@@ -372,20 +358,18 @@ void CFloppyController::Periodic()
 
             if (m_shiftmarker)
             {
-//#if !defined(PRODUCT)
 //                if (m_okTrace)
 //                    DebugLogFormat(_T("Floppy WRITING %06o MARKER\r\n"), m_shiftreg);  //DEBUG
-//#endif
+
                 m_pDrive->marker[m_pDrive->dataptr / 2] = true;
                 m_shiftmarker = false;
                 m_crccalculus = true;  // Start CRC calculation
             }
             else
             {
-//#if !defined(PRODUCT)
 //                if (m_okTrace)
 //                    DebugLogFormat(_T("Floppy WRITING %06o\r\n"), m_shiftreg);  //DEBUG
-//#endif
+
                 m_pDrive->marker[m_pDrive->dataptr / 2] = false;
             }
 
@@ -418,10 +402,8 @@ void CFloppyController::PrepareTrack()
 
     if (m_pDrive == NULL) return;
 
-#if !defined(PRODUCT)
     if (m_okTrace)
         DebugLogFormat(_T("Floppy Prepare Track\tTRACK %d SIDE %d\r\n"), m_track, m_side);
-#endif
 
     uint32_t count;
 
@@ -440,8 +422,8 @@ void CFloppyController::PrepareTrack()
     if (m_pDrive->fpFile != NULL)
     {
         ::fseek(m_pDrive->fpFile, foffset, SEEK_SET);
-        count = (uint32_t) ::fread(&data, 1, 5120, m_pDrive->fpFile);
-        //TODO: Контроль ошибок чтения
+        count = (uint32_t) ::fread(data, 1, 5120, m_pDrive->fpFile);
+        //TODO: РљРѕРЅС‚СЂРѕР»СЊ РѕС€РёР±РѕРє С‡С‚РµРЅРёСЏ
     }
 
     // Fill m_data array and m_marker array with marked data
@@ -467,9 +449,7 @@ void CFloppyController::FlushChanges()
     if (!IsAttached(m_drive)) return;
     if (!m_trackchanged) return;
 
-//#if !defined(PRODUCT)
 //    DebugLog(_T("Floppy FLUSH\r\n"));  //DEBUG
-//#endif
 
     // Decode track data from m_data
     uint8_t data[5120];  memset(data, 0, 5120);
@@ -489,20 +469,18 @@ void CFloppyController::FlushChanges()
             size_t bytesToWrite = ((size_t)(foffset + 5120) - currentFileSize) % 512;
             if (bytesToWrite == 0) bytesToWrite = 512;
             ::fwrite(datafill, 1, bytesToWrite, m_pDrive->fpFile);
-            //TODO: Проверка на ошибки записи
+            //TODO: РџСЂРѕРІРµСЂРєР° РЅР° РѕС€РёР±РєРё Р·Р°РїРёСЃРё
             currentFileSize += bytesToWrite;
         }
 
         // Save data into the file
         ::fseek(m_pDrive->fpFile, foffset, SEEK_SET);
-        uint32_t dwBytesWritten = (uint32_t) ::fwrite(&data, 1, 5120, m_pDrive->fpFile);
-        //TODO: Проверка на ошибки записи
+        uint32_t dwBytesWritten = (uint32_t) ::fwrite(data, 1, 5120, m_pDrive->fpFile);
+        //TODO: РџСЂРѕРІРµСЂРєР° РЅР° РѕС€РёР±РєРё Р·Р°РїРёСЃРё
     }
     else
     {
-#if !defined(PRODUCT)
-        DebugLog(_T("Floppy FLUSH FAILED\r\n"));  //DEBUG
-#endif
+        DebugLog(_T("Floppy FLUSH FAILED\r\n"));
     }
 
     m_trackchanged = false;

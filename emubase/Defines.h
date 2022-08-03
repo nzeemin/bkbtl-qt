@@ -1,4 +1,4 @@
-/*  This file is part of BKBTL.
+﻿/*  This file is part of BKBTL.
     BKBTL is free software: you can redistribute it and/or modify it under the terms
 of the GNU Lesser General Public License as published by the Free Software Foundation,
 either version 3 of the License, or (at your option) any later version.
@@ -16,10 +16,10 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 
 //////////////////////////////////////////////////////////////////////
 
-inline uint16_t GetDigit(uint16_t word, int pos)
+inline uint8_t GetDigit(uint16_t word, int pos)
 {
     //return (word >>= pos * 3) % 8;
-    return (word >>= ((pos << 1) + pos)) & 7;
+    return static_cast<uint8_t>((word >>= ((pos << 1) + pos)) & 7);
 }
 
 // Constants for "pos" argument
@@ -29,19 +29,6 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 
 //////////////////////////////////////////////////////////////////////
 
-// Interrupts
-#define NO_INTERRUPT	0000
-#define INTERRUPT_4		0004
-#define INTERRUPT_10	0010
-#define INTERRUPT_14	0014
-#define INTERRUPT_20	0020
-#define INTERRUPT_24	0024
-#define INTERRUPT_30	0030
-#define INTERRUPT_34	0034
-#define INTERRUPT_60	0060
-#define INTERRUPT_100	0100
-#define INTERRUPT_274	0274
-
 // Process Status Word (PSW) bits
 #define PSW_C           1      // Carry
 #define PSW_V           2      // Arithmetic overflow
@@ -49,7 +36,7 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 #define PSW_N           8      // Negative result
 #define PSW_T           16     // Trap/Debug
 #define PSW_P           0200   // Priority
-#define PSW_HALT		0400   // Halt
+#define PSW_HALT        0400   // Halt
 
 // Commands -- no operands
 #define PI_HALT         0000000
@@ -59,7 +46,7 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 #define PI_IOT          0000004
 #define PI_RESET        0000005
 #define PI_RTT          0000006
-#define PI_MFPT			0000007
+#define PI_MFPT         0000007
 #define PI_HALT10       0000010
 #define PI_HALT11       0000011
 #define PI_HALT12       0000012
@@ -100,7 +87,7 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 #define PI_SENZC        0000275
 #define PI_SENZV        0000276
 #define PI_SCC          0000277
-#define PI_MED			0076600
+#define PI_MED          0076600
 
 // Commands -- single operand
 #define PI_RTS          0000200
@@ -147,10 +134,10 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 
 // Commands -- three operands
 #define PI_JSR          0004000
-#define PI_MUL			0070000
-#define PI_DIV			0071000
-#define PI_ASH			0072000
-#define PI_ASHC			0073000
+#define PI_MUL          0070000
+#define PI_DIV          0071000
+#define PI_ASH          0072000
+#define PI_ASHC         0073000
 #define PI_XOR          0074000
 #define PI_SOB          0077000
 
@@ -173,15 +160,4 @@ inline uint16_t GetDigit(uint16_t word, int pos)
 #define PI_FSUB         0075010
 #define PI_FMUL         0075020
 #define PI_FDIV         0075030
-
-// Commands -- special commands, HALT mode only
-#define PI_GO           0000012  // Return to USER mode;  PC := CPC; PSW := CPS
-#define PI_STEP         0000016
-#define PI_RSEL         0000020  // R0 := SEL  - Read SEL register
-#define PI_MFUS         0000021  // R0 := (R5)+
-#define PI_RCPC         0000022  // R0 := CPC
-#define PI_RCPS         0000024  // R0 := CPS
-#define PI_MTUS         0000031  // -(R5) := R0
-#define PI_WCPC         0000032  // CPC := R0
-#define PI_WCPS         0000034  // CPS := R0
 
