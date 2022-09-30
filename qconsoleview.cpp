@@ -320,6 +320,7 @@ void QConsoleView::cmdStepOver(const ConsoleCommandParams &)
     quint16 bpaddress = pProc->GetPC() + instrLength * 2;
 
     Emulator_SetTempCPUBreakpoint(bpaddress);
+    Emulator_Start();
 
     Global_UpdateMenu();
 }

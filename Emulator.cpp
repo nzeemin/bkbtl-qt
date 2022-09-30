@@ -498,22 +498,19 @@ bool Emulator_IsBreakpoint()
 }
 bool Emulator_IsBreakpoint(quint16 address)
 {
-    int bpsCount = m_wEmulatorCPUBpsCount;
-    quint16* pbps = m_EmulatorCPUBps;
-    if (bpsCount == 0)
+    if (m_wEmulatorCPUBpsCount == 0)
         return false;
-    for (int i = 0; i < bpsCount; i++)
+    for (int i = 0; i < m_wEmulatorCPUBpsCount; i++)
     {
-        if (address == pbps[i])
+        if (address == m_EmulatorCPUBps[i])
             return true;
     }
     return false;
 }
 void Emulator_RemoveAllBreakpoints()
 {
-    quint16* pbps = m_EmulatorCPUBps;
     for (int i = 0; i < MAX_BREAKPOINTCOUNT; i++)
-        pbps[i] = 0177777;
+        m_EmulatorCPUBps[i] = 0177777;
     m_wEmulatorCPUBpsCount = 0;
 }
 
@@ -524,10 +521,7 @@ bool Emulator_SystemFrame()
     g_pBoard->SetCPUBreakpoints(m_wEmulatorCPUBpsCount > 0 ? m_EmulatorCPUBps : nullptr);
 
     if (!g_pBoard->SystemFrame())  // Breakpoint hit
-    {
-        Emulator_SetTempCPUBreakpoint(0177777);
         return false;
-    }
 
     // Calculate frames per second
     m_nFrameCount++;
