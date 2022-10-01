@@ -52,14 +52,14 @@ QConsoleView::~QConsoleView()
     delete m_edit;
 }
 
-void QConsoleView::clear()
-{
-    m_log->clear();
-}
-
 CProcessor* QConsoleView::getCurrentProcessor()
 {
     return g_pBoard->GetCPU();
+}
+
+void QConsoleView::clear()
+{
+    m_log->clear();
 }
 
 void QConsoleView::updatePrompt()
@@ -504,6 +504,7 @@ void QConsoleView::execConsoleCommand(const QString &command)
     params.paramReg1 = -1;
     params.paramOct1 = 0;
     params.paramOct2 = 0;
+
     // Find matching console command from the list, parse and execute the command
     bool parsedOkay = false, parseError = false;
     for (size_t i = 0; i < ConsoleCommandsCount; i++)

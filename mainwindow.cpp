@@ -58,6 +58,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
     QObject::connect(ui->actionDebugStepInto, SIGNAL(triggered()), this, SLOT(debugStepInto()));
     QObject::connect(ui->actionDebugStepOver, SIGNAL(triggered()), this, SLOT(debugStepOver()));
+    QObject::connect(ui->actionDebugClearConsole, SIGNAL(triggered()), this, SLOT(debugClearConsole()));
+    QObject::connect(ui->actionDebugRemoveAllBreakpoints, SIGNAL(triggered()), this, SLOT(debugRemoveAllBreakpoints()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     QObject::connect(ui->actionViewKeyboard, SIGNAL(triggered()), this, SLOT(viewKeyboard()));
     QObject::connect(ui->actionSoundEnabled, SIGNAL(triggered()), this, SLOT(soundEnabled()));
@@ -189,6 +191,7 @@ void MainWindow::showEvent(QShowEvent *e)
         autoStartProcessed = true;
     }
 }
+
 void MainWindow::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -221,6 +224,7 @@ void MainWindow::saveSettings(QSettings * settings)
     settings->setValue("MainWindow/TeletypeView", m_dockTeletype->isVisible());
     settings->setValue("MainWindow/TapeView", m_dockTape->isVisible());
 }
+
 void MainWindow::restoreSettings(QSettings * settings)
 {
     int scrViewMode = Global_getSettings()->value("MainWindow/ScreenMode").toInt();
@@ -259,7 +263,7 @@ void MainWindow::updateMenu()
     ui->actionEmulatorScreen6->setChecked(m_screen->mode() == 6);
     ui->actionEmulatorScreen7->setChecked(m_screen->mode() == 7);
     ui->actionEmulatorColorScreen->setIcon(QIcon(
-            (m_screen->mode() & 1) ? ":/images/iconScreenColor.png" : ":/images/iconScreenBW.png" ));
+            (m_screen->mode() & 1) ? ":/images/iconScreenColor.svg" : ":/images/iconScreenBW.svg" ));
 
     ui->actionConfBK10Basic->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_BASIC);
     ui->actionConfBK10Focal->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FOCAL);
@@ -268,13 +272,13 @@ void MainWindow::updateMenu()
     ui->actionConfBK11Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011_FDD);
 
     ui->actionDrivesFloppy0->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(0) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
+            g_pBoard->IsFloppyImageAttached(0) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
     ui->actionDrivesFloppy1->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(1) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
+            g_pBoard->IsFloppyImageAttached(1) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
     ui->actionDrivesFloppy2->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(2) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
+            g_pBoard->IsFloppyImageAttached(2) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
     ui->actionDrivesFloppy3->setIcon(QIcon(
-            g_pBoard->IsFloppyImageAttached(3) ? ":/images/iconFloppy.png" : ":/images/iconFloppySlot.png" ));
+            g_pBoard->IsFloppyImageAttached(3) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
 
     ui->actionDebugConsoleView->setChecked(m_console->isVisible());
     ui->actionDebugDebugView->setChecked(m_dockDebug->isVisible());
@@ -508,12 +512,10 @@ void MainWindow::emulatorFrame()
     if (!isActiveWindow())
         return;
 
-    if (Emulator_IsBreakpoint())
-        Emulator_Stop();
-    else if (Emulator_SystemFrame())
-    {
-        m_screen->repaint();
-    }
+    if (!Emulator_SystemFrame())
+        Emulator_Stop();  // Breakpoint hit
+
+    m_screen->repaint();
 }
 
 void MainWindow::emulatorRun()
@@ -667,6 +669,16 @@ void MainWindow::debugStepOver()
 {
     if (!g_okEmulatorRunning)
         m_console->execConsoleCommand("so");
+}
+
+void MainWindow::debugClearConsole()
+{
+    m_console->clear();
+}
+
+void MainWindow::debugRemoveAllBreakpoints()
+{
+    m_console->execConsoleCommand("bc");
 }
 
 void MainWindow::printToTeletype(const QString & message)

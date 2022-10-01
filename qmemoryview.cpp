@@ -40,16 +40,16 @@ QMemoryView::QMemoryView()
     QObject::connect(m_scrollbar, SIGNAL(valueChanged(int)), this, SLOT(scrollValueChanged()));
 
     m_toolbar = new QToolBar(this);
-    m_toolbar->setGeometry(4, 4, 28, 2000);
+    m_toolbar->setGeometry(4, 4, 36, 2000);
     m_toolbar->setOrientation(Qt::Vertical);
-    m_toolbar->setIconSize(QSize(16, 16));
+    m_toolbar->setIconSize(QSize(24, 24));
     m_toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolbar->setFocusPolicy(Qt::NoFocus);
     m_toolbar->setStyle(QStyleFactory::create("windows"));  // fix for macOS to remove gradient background
 
-    QAction* actionGotoAddr = m_toolbar->addAction(QIcon(":/images/iconEditAddress.png"), "");
+    QAction* actionGotoAddr = m_toolbar->addAction(QIcon(":/images/iconEditAddress.svg"), "");
     m_toolbar->addSeparator();
-    QAction* actionWordByte = m_toolbar->addAction(QIcon(":/images/iconWordByte.png"), "");
+    QAction* actionWordByte = m_toolbar->addAction(QIcon(":/images/iconWordByte.svg"), "");
 
     QObject::connect((const QObject*)actionGotoAddr, SIGNAL(triggered()), this, SLOT(gotoAddress()));
     QObject::connect((const QObject*)actionWordByte, SIGNAL(triggered()), this, SLOT(changeWordByteMode()));
@@ -169,7 +169,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     for (int j = 0; j < 8; j++)
     {
         _snprintf(buffer, 7, "%d", j * 2);
-        painter.drawText(30 + (9 + j * 7) * cxChar, cyLine, buffer);
+        painter.drawText(38 + (9 + j * 7) * cxChar, cyLine, buffer);
     }
 
     // Calculate m_nPageSize
@@ -179,9 +179,9 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     int y = 2 * cyLine;
     for (;;)    // Draw lines
     {
-        DrawOctalValue(painter, 30 + 1 * cxChar, y, address);
+        DrawOctalValue(painter, 38 + 1 * cxChar, y, address);
 
-        int x = 30 + 9 * cxChar;
+        int x = 38 + 9 * cxChar;
         ushort wchars[16];
 
         for (int j = 0; j < 8; j++)    // Draw words as octal value
@@ -241,7 +241,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         option.initFrom(this);
         option.state |= QStyle::State_KeyboardFocusChange;
         option.backgroundColor = QColor(Qt::gray);
-        option.rect = QRect(30, cyLine + fontmetrics.descent(), 83 * cxChar, cyLine * m_nPageSize);
+        option.rect = QRect(38, cyLine + fontmetrics.descent(), 83 * cxChar, cyLine * m_nPageSize);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }

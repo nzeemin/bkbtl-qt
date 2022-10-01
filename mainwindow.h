@@ -70,6 +70,8 @@ public slots:
     void debugTeletypeView();
     void debugStepInto();
     void debugStepOver();
+    void debugClearConsole();
+    void debugRemoveAllBreakpoints();
     void viewKeyboard();
     void soundEnabled();
     void scriptRun();

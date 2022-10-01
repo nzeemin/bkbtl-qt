@@ -22,15 +22,15 @@ QDebugView::QDebugView(QWidget *mainWindow) :
     this->setMaximumHeight(cyLine * 14 + cyLine / 2);
 
     m_toolbar = new QToolBar(this);
-    m_toolbar->setGeometry(4, 4, 28, cyLine * 16);
+    m_toolbar->setGeometry(4, 4, 36, cyLine * 16);
     m_toolbar->setOrientation(Qt::Vertical);
-    m_toolbar->setIconSize(QSize(16, 16));
+    m_toolbar->setIconSize(QSize(24, 24));
     m_toolbar->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_toolbar->setFocusPolicy(Qt::NoFocus);
     m_toolbar->setStyle(QStyleFactory::create("windows"));  // fix for macOS to remove gradient background
 
-    QAction* actionStepInto = m_toolbar->addAction(QIcon(":/images/iconStepInto.png"), "");
-    QAction* actionStepOver = m_toolbar->addAction(QIcon(":/images/iconStepOver.png"), "");
+    QAction* actionStepInto = m_toolbar->addAction(QIcon(":/images/iconStepInto.svg"), "");
+    QAction* actionStepOver = m_toolbar->addAction(QIcon(":/images/iconStepOver.svg"), "");
 
     QObject::connect((const QObject*)actionStepInto, SIGNAL(triggered()), mainWindow, SLOT(debugStepInto()));
     QObject::connect((const QObject*)actionStepOver, SIGNAL(triggered()), mainWindow, SLOT(debugStepOver()));
@@ -86,12 +86,12 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     quint16* arrR = m_wDebugCpuR;
     bool* arrRChanged = m_okDebugCpuRChanged;
 
-    drawProcessor(painter, pDebugPU, 30 + cxChar * 2, 1 * cyLine, arrR, arrRChanged);
+    drawProcessor(painter, pDebugPU, 38 + cxChar * 2, 1 * cyLine, arrR, arrRChanged);
 
     // Draw stack
     drawMemoryForRegister(painter, 6, pDebugPU, 30 + 35 * cxChar, 1 * cyLine);
 
-    drawPorts(painter, 30 + 57 * cxChar, 1 * cyLine);
+    drawPorts(painter, 38 + 57 * cxChar, 1 * cyLine);
 
     // Draw focus rect
     if (hasFocus())
@@ -101,8 +101,8 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
         option.state |= QStyle::State_KeyboardFocusChange;
         option.backgroundColor = QColor(Qt::gray);
         option.rect = this->rect();
-        option.rect.setLeft(option.rect.left() + 30);
-        option.rect.setRight(30 + cxChar * 86);
+        option.rect.setLeft(option.rect.left() + 38);
+        option.rect.setRight(38 + cxChar * 86);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }

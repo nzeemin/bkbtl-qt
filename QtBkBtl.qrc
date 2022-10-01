@@ -1,17 +1,19 @@
 <RCC>
     <qresource prefix="/">
-        <file>images/iconFloppy.png</file>
-        <file>images/iconFloppySlot.png</file>
-        <file>images/iconReset.png</file>
-        <file>images/iconRun.png</file>
+        <file>images/iconFloppy.svg</file>
+        <file>images/iconFloppySlot.svg</file>
+        <file>images/iconReset.svg</file>
+        <file>images/iconRun.svg</file>
         <file>images/keyboard.png</file>
-        <file>images/iconScreenBW.png</file>
-        <file>images/iconScreenColor.png</file>
-        <file>images/iconStepInto.png</file>
-        <file>images/iconStepOver.png</file>
-        <file>images/iconWordByte.png</file>
-        <file>images/iconEditAddress.png</file>
-        <file>images/iconSound.png</file>
-        <file>images/iconScreenshot.png</file>
+        <file>images/iconScreenBW.svg</file>
+        <file>images/iconScreenColor.svg</file>
+        <file>images/iconStepInto.svg</file>
+        <file>images/iconStepOver.svg</file>
+        <file>images/iconWordByte.svg</file>
+        <file>images/iconEditAddress.svg</file>
+        <file>images/iconSound.svg</file>
+        <file>images/iconSoundOff.svg</file>
+        <file>images/iconScreenshot.svg</file>
+        <file>images/iconDebugger.svg</file>
     </qresource>
 </RCC>

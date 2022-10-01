@@ -92,6 +92,9 @@
     <addaction name="separator"/>
     <addaction name="actionDebugStepInto"/>
     <addaction name="actionDebugStepOver"/>
+    <addaction name="separator"/>
+    <addaction name="actionDebugClearConsole"/>
+    <addaction name="actionDebugRemoveAllBreakpoints"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -125,8 +128,8 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>16</width>
-     <height>16</height>
+     <width>24</width>
+     <height>24</height>
     </size>
    </property>
    <property name="toolButtonStyle">
@@ -166,7 +169,7 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconRun.png</normaloff>:/images/iconRun.png</iconset>
+     <normaloff>:/images/iconRun.svg</normaloff>:/images/iconRun.svg</iconset>
    </property>
    <property name="text">
     <string>Run</string>
@@ -178,7 +181,7 @@
   <action name="actionEmulatorReset">
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconReset.png</normaloff>:/images/iconReset.png</iconset>
+     <normaloff>:/images/iconReset.svg</normaloff>:/images/iconReset.svg</iconset>
    </property>
    <property name="text">
     <string>Reset</string>
@@ -195,8 +198,8 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconFloppySlot.png</normaloff>
-     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+     <normaloff>:/images/iconFloppySlot.svg</normaloff>
+     <normalon>:/images/iconFloppy.svg</normalon>:/images/iconFloppySlot.svg</iconset>
    </property>
    <property name="text">
     <string>Floppy A:</string>
@@ -211,8 +214,8 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconFloppySlot.png</normaloff>
-     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+     <normaloff>:/images/iconFloppySlot.svg</normaloff>
+     <normalon>:/images/iconFloppy.svg</normalon>:/images/iconFloppySlot.svg</iconset>
    </property>
    <property name="text">
     <string>Floppy B:</string>
@@ -227,8 +230,8 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconFloppySlot.png</normaloff>
-     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+     <normaloff>:/images/iconFloppySlot.svg</normaloff>
+     <normalon>:/images/iconFloppy.svg</normalon>:/images/iconFloppySlot.svg</iconset>
    </property>
    <property name="text">
     <string>Floppy C:</string>
@@ -243,8 +246,8 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconFloppySlot.png</normaloff>
-     <normalon>:/images/iconFloppy.png</normalon>:/images/iconFloppySlot.png</iconset>
+     <normaloff>:/images/iconFloppySlot.svg</normaloff>
+     <normalon>:/images/iconFloppy.svg</normalon>:/images/iconFloppySlot.svg</iconset>
    </property>
    <property name="text">
     <string>Floppy D:</string>
@@ -256,7 +259,7 @@
   <action name="actionFileScreenshot">
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconScreenshot.png</normaloff>:/images/iconScreenshot.png</iconset>
+     <normaloff>:/images/iconScreenshot.svg</normaloff>:/images/iconScreenshot.svg</iconset>
    </property>
    <property name="text">
     <string>Screenshot</string>
@@ -346,11 +349,19 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconDebugger.svg</normaloff>:/images/iconDebugger.svg</iconset>
+   </property>
    <property name="text">
     <string>Debug Views</string>
    </property>
   </action>
   <action name="actionDebugStepInto">
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconStepInto.svg</normaloff>:/images/iconStepInto.svg</iconset>
+   </property>
    <property name="text">
     <string>Step Into</string>
    </property>
@@ -359,6 +370,10 @@
    </property>
   </action>
   <action name="actionDebugStepOver">
+   <property name="icon">
+    <iconset resource="QtBkBtl.qrc">
+     <normaloff>:/images/iconStepOver.svg</normaloff>:/images/iconStepOver.svg</iconset>
+   </property>
    <property name="text">
     <string>Step Over</string>
    </property>
@@ -428,7 +443,8 @@
    </property>
    <property name="icon">
     <iconset resource="QtBkBtl.qrc">
-     <normaloff>:/images/iconSound.png</normaloff>:/images/iconSound.png</iconset>
+     <normaloff>:/images/iconSoundOff.svg</normaloff>
+     <normalon>:/images/iconSound.svg</normalon>:/images/iconSoundOff.svg</iconset>
    </property>
    <property name="text">
     <string>Sound Enabled</string>
@@ -503,6 +519,16 @@
    </property>
    <property name="text">
     <string>Autostart</string>
+   </property>
+  </action>
+  <action name="actionDebugClearConsole">
+   <property name="text">
+    <string>Clear Console Log</string>
+   </property>
+  </action>
+  <action name="actionDebugRemoveAllBreakpoints">
+   <property name="text">
+    <string>Remove All Breakpoints</string>
    </property>
   </action>
  </widget>
