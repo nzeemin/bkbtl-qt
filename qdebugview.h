@@ -25,11 +25,13 @@ private:
     QToolBar* m_toolbar;
     unsigned short m_wDebugCpuR[9];  // Old register values - R0..R7, PSW
     bool m_okDebugCpuRChanged[9];  // Register change flags
+    quint16 m_wDebugCpuR6Old;  // SP value on previous step
 
 private:
     void drawProcessor(QPainter &painter, const CProcessor *pProc, int x, int y, quint16 *arrR, bool *arrRChanged);
-    void drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y);
+    void drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y, quint16 oldValue);
     void drawPorts(QPainter &painter, int x, int y);
+    bool drawBreakpoints(QPainter &painter, int x, int y);
 };
 
 #endif // QDEBUGVIEW_H

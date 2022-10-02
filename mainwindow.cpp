@@ -118,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dockDebug = new QDockWidget(tr("Processor"));
     m_dockDebug->setObjectName("dockDebug");
     m_dockDebug->setWidget(m_debug);
+    m_dockDebug->setFeatures(m_dockDebug->features() & ~QDockWidget::DockWidgetClosable);
     m_dockDisasm = new QDockWidget(tr("Disassemble"));
     m_dockDisasm->setObjectName("dockDisasm");
     m_dockDisasm->setWidget(m_disasm);
@@ -127,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_dockConsole = new QDockWidget(tr("Debug Console"));
     m_dockConsole->setObjectName("dockConsole");
     m_dockConsole->setWidget(m_console);
+    m_dockConsole->setFeatures(m_dockConsole->features() & ~QDockWidget::DockWidgetClosable);
     m_dockTeletype = new QDockWidget("Teletype");
     m_dockTeletype->setObjectName("dockTeletype");
     m_dockTeletype->setWidget(m_teletype);

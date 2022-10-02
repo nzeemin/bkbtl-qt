@@ -18,8 +18,8 @@ QDebugView::QDebugView(QWidget *mainWindow) :
     QFontMetrics fontmetrics(font);
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
-    this->setMinimumSize(cxChar * 55, cyLine * 14 + cyLine / 2);
-    this->setMaximumHeight(cyLine * 14 + cyLine / 2);
+    this->setMinimumSize(cxChar * 55, cyLine * 16 + cyLine / 2);
+    this->setMaximumHeight(cyLine * 16 + cyLine / 2);
 
     m_toolbar = new QToolBar(this);
     m_toolbar->setGeometry(4, 4, 36, cyLine * 16);
@@ -47,6 +47,7 @@ void QDebugView::updateData()
     ASSERT(pCPU != nullptr);
 
     // Get new register values and set change flags
+    m_wDebugCpuR6Old = m_wDebugCpuR[6];
     for (int r = 0; r < 8; r++)
     {
         quint16 value = pCPU->GetReg(r);
@@ -85,13 +86,16 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
     ASSERT(pDebugPU != nullptr);
     quint16* arrR = m_wDebugCpuR;
     bool* arrRChanged = m_okDebugCpuRChanged;
+    quint16 oldSP = m_wDebugCpuR6Old;
 
     drawProcessor(painter, pDebugPU, 38 + cxChar * 2, 1 * cyLine, arrR, arrRChanged);
 
     // Draw stack
-    drawMemoryForRegister(painter, 6, pDebugPU, 30 + 35 * cxChar, 1 * cyLine);
+    drawMemoryForRegister(painter, 6, pDebugPU, 38 + 35 * cxChar, 1 * cyLine, oldSP);
 
-    drawPorts(painter, 38 + 57 * cxChar, 1 * cyLine);
+    drawPorts(painter, 38 + 54 * cxChar, 1 * cyLine);
+
+    bool okBreakpoints = drawBreakpoints(painter, 38 + 80 * cxChar, 1 * cyLine);
 
     // Draw focus rect
     if (hasFocus())
@@ -102,7 +106,7 @@ void QDebugView::paintEvent(QPaintEvent * /*event*/)
         option.backgroundColor = QColor(Qt::gray);
         option.rect = this->rect();
         option.rect.setLeft(option.rect.left() + 38);
-        option.rect.setRight(38 + cxChar * 86);
+        option.rect.setRight(38 + cxChar * 89);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }
@@ -116,7 +120,7 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
     QColor colorChanged = Common_GetColorShifted(palette(), COLOR_VALUECHANGED);
 
     painter.setPen(QColor(Qt::gray));
-    painter.drawRect(x - cxChar, y - cyLine / 2, 33 * cxChar, cyLine * 13 + cyLine / 2);
+    painter.drawRect(x - cxChar, y - cyLine / 2, 33 * cxChar, cyLine * 15 + cyLine / 2);
 
     // Registers
     for (int r = 0; r < 8; r++)
@@ -135,34 +139,36 @@ void QDebugView::drawProcessor(QPainter &painter, const CProcessor *pProc, int x
 
     // PSW value
     painter.setPen(QColor(arrRChanged[8] ? colorChanged : colorText));
-    painter.drawText(x, y + 10 * cyLine, "PS");
+    painter.drawText(x, y + 11 * cyLine, "PS");
     quint16 psw = arrR[8]; // pProc->GetPSW();
-    DrawOctalValue(painter, x + cxChar * 3, y + 10 * cyLine, psw);
-    DrawHexValue(painter, x + cxChar * 10, y + 10 * cyLine, psw);
-    painter.drawText(x + cxChar * 15, y + 9 * cyLine, "       HP  TNZVC");
-    DrawBinaryValue(painter, x + cxChar * 15, y + 10 * cyLine, psw);
+    DrawOctalValue(painter, x + cxChar * 3, y + 11 * cyLine, psw);
+    DrawHexValue(painter, x + cxChar * 10, y + 11 * cyLine, psw);
+    painter.drawText(x + cxChar * 15, y + 10 * cyLine, "       HP  TNZVC");
+    DrawBinaryValue(painter, x + cxChar * 15, y + 11 * cyLine, psw);
 
     painter.setPen(colorText);
 
     // Processor mode - HALT or USER
     bool okHaltMode = pProc->IsHaltMode();
-    painter.drawText(x, y + 12 * cyLine, okHaltMode ? "HALT" : "USER");
+    painter.drawText(x, y + 13 * cyLine, okHaltMode ? "HALT" : "USER");
 
     // "Stopped" flag
     bool okStopped = pProc->IsStopped();
     if (okStopped)
-        painter.drawText(x + 6 * cxChar, y + 12 * cyLine, "STOP");
+        painter.drawText(x + 6 * cxChar, y + 13 * cyLine, "STOP");
 }
 
-void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y)
+void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *pProc, int x, int y, quint16 oldValue)
 {
     QFontMetrics fontmetrics(painter.font());
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
     QColor colorText = palette().color(QPalette::Text);
     QColor colorChanged = Common_GetColorShifted(palette(), COLOR_VALUECHANGED);
+    QColor colorPrev = Common_GetColorShifted(palette(), COLOR_PREVIOUS);
 
     quint16 current = pProc->GetReg(reg);
+    quint16 previous = oldValue;
     bool okExec = (reg == 7);
 
     // Reading from memory into the buffer
@@ -174,26 +180,31 @@ void QDebugView::drawMemoryForRegister(QPainter &painter, int reg, CProcessor *p
                 current + idx * 2 - 14, pProc->IsHaltMode(), okExec, &addrtype);
     }
 
-    quint16 address = current - 14;
-    for (int index = 0; index < 14; index++)    // Рисуем строки
+    quint16 address = current - 16;
+    for (int index = 0; index < 16; index++)    // Draw strings
     {
         // Address
         painter.setPen(colorText);
-        DrawOctalValue(painter, x + 4 * cxChar, y, address);
+        DrawOctalValue(painter, x + 3 * cxChar, y, address);
 
         // Value at the address
         quint16 value = memory[index];
         quint16 wChanged = Emulator_GetChangeRamStatus(address);
         painter.setPen(wChanged != 0 ? colorChanged : colorText);
-        DrawOctalValue(painter, x + 12 * cxChar, y, value);
+        DrawOctalValue(painter, x + 10 * cxChar, y, value);
 
         // Current position
         if (address == current)
         {
             painter.setPen(colorText);
-            painter.drawText(x + 2 * cxChar, y, ">>");
-            painter.setPen(m_okDebugCpuRChanged[reg] != 0 ? colorChanged : colorText);
+            painter.drawText(x + 2 * cxChar, y, ">");
+            painter.setPen(current != previous ? colorChanged : colorText);
             painter.drawText(x, y, REGISTER_NAME[reg]);
+        }
+        else if (address == previous)
+        {
+            painter.setPen(colorPrev);
+            painter.drawText(x + 2 * cxChar, y, ">");
         }
 
         address += 2;
@@ -215,64 +226,74 @@ void QDebugView::drawPorts(QPainter &painter, int x, int y)
     y += cyLine;
     value = g_pBoard->GetPortView(0177660);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177660);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "keyb state");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "kbd state");
     y += cyLine;
     value = g_pBoard->GetPortView(0177662);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177662);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "keyb data");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "kbd data");
     y += cyLine;
     value = g_pBoard->GetPortView(0177664);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177664);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "scroll");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "scroll");
     y += cyLine;
     value = g_pBoard->GetPortView(0177706);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177706);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "timer reload");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "timer rel");
     y += cyLine;
     value = g_pBoard->GetPortView(0177710);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177710);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "timer value");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "timer val");
     y += cyLine;
     value = g_pBoard->GetPortView(0177712);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177712);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "timer manage");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "timer ctl");
     y += cyLine;
     value = g_pBoard->GetPortView(0177714);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177714);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "parallel");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "parallel");
     y += cyLine;
     value = g_pBoard->GetPortView(0177716);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177716);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
     //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "system");
+    painter.drawText(x + 14 * cxChar, y, "system");
     y += cyLine;
     value = g_pBoard->GetPortView(0177130);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177130);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "floppy state");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "fdd state");
     y += cyLine;
     value = g_pBoard->GetPortView(0177132);
     DrawOctalValue(painter, x + 0 * cxChar, y, 0177132);
-    DrawOctalValue(painter, x + 8 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 16 * cxChar, y, "floppy data");
+    DrawOctalValue(painter, x + 7 * cxChar, y, value);
+    painter.drawText(x + 14 * cxChar, y, "fdd data");
 }
 
+bool QDebugView::drawBreakpoints(QPainter &painter, int x, int y)
+{
+    const quint16* pbps = Emulator_GetCPUBreakpointList();
+    if (*pbps == 0177777)
+        return false;
+
+    QFontMetrics fontmetrics(painter.font());
+    int cyLine = fontmetrics.height();
+
+    painter.drawText(x, y, tr("Breakpts"));
+    y += cyLine;
+    while (*pbps != 0177777)
+    {
+        DrawOctalValue(painter, x, y, *pbps);
+        y += cyLine;
+        pbps++;
+    }
+    return true;
+}
 
 //////////////////////////////////////////////////////////////////////

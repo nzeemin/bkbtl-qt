@@ -80,6 +80,7 @@ void QDisasmView::mousePressEvent(QMouseEvent * event)
                             AlertWarning(tr("Failed to remove breakpoint at %1.").arg(address, 6, 8, QLatin1Char('0')));
                     }
                     repaint();
+                    Global_RedrawDebugView();
                 }
             }
         }
