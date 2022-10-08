@@ -278,6 +278,8 @@ void QDebugView::drawPorts(QPainter &painter, int x, int y)
 
 bool QDebugView::drawBreakpoints(QPainter &painter, int x, int y)
 {
+    painter.drawText(x, y, tr("Breakpts"));
+
     const quint16* pbps = Emulator_GetCPUBreakpointList();
     if (*pbps == 0177777)
         return false;
@@ -285,7 +287,6 @@ bool QDebugView::drawBreakpoints(QPainter &painter, int x, int y)
     QFontMetrics fontmetrics(painter.font());
     int cyLine = fontmetrics.height();
 
-    painter.drawText(x, y, tr("Breakpts"));
     y += cyLine;
     while (*pbps != 0177777)
     {

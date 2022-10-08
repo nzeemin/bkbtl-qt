@@ -72,27 +72,13 @@ private:
     quint16 m_wDisasmNextBaseAddr;
     QVector<DisasmSubtitleItem> m_SubtitleItems;
     bool m_okDisasmJumpPredict;
-    QString m_strDisasmHint;
-    QString m_strDisasmHint2;
+    char m_strDisasmHint[42];
+    char m_strDisasmHint2[42];
     QVector<DisasmLineItem> m_DisasmLineItems;
     int m_cxDisasmBreakpointZone;
     int m_cyDisasmLine;
 
     const DisasmSubtitleItem * findSubtitle(quint16 address, quint16 typemask);
-
-    bool checkForJump(const quint16* memory, int* pDelta);
-    bool getJumpConditionHint(const quint16* memory, const CProcessor * pProc, QString &buffer);
-    void registerHint(const CProcessor *pProc,
-            QString &hint1, QString& hint2,
-            int regnum, int regmod, bool byteword, quint16 indexval);
-    void registerHintPC(const CProcessor *pProc,
-            QString &hint1, QString& hint2,
-            int regmod, bool byteword, quint16 curaddr, quint16 value);
-    void instructionHint(const quint16 *memory, const CProcessor *pProc,
-            QString& buffer, QString& buffer2,
-            int srcreg, int srcmod, int dstreg, int dstmod);
-    int getInstructionHint(const quint16* memory, const CProcessor * pProc,
-            QString &buffer, QString &buffer2);
 
     void drawJump(QPainter& painter, int yFrom, int delta, int x, int cyLine, QColor color);
     void drawBreakpoint(QPainter& painter, int x, int y, int cyLine);

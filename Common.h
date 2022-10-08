@@ -21,9 +21,11 @@ typedef char TCHAR;
 #define _tfopen     fopen
 #define _tfsopen    _fsopen
 #define _tcscpy     strcpy
+#define _tcscpy_s   strcpy_s
 #define _tstat      _stat
 #define _tcsrchr    strrchr
 #define _tcsicmp    _stricmp
+#define _tcscmp     strcmp
 #define _tcslen     strlen
 #define _sntprintf  _snprintf
 #define _T(x)       x
@@ -35,6 +37,7 @@ typedef char TCHAR;
 #define _snprintf   snprintf
 #endif
 
+typedef char * LPTSTR;
 typedef const char * LPCTSTR;
 
 #ifdef __GNUC__
