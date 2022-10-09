@@ -1,0 +1,49 @@
+name: push-matrix
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }} ${{ matrix.qt-version }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      matrix:
+        config:
+        - name: "Ubuntu latest GCC"
+          os: ubuntu-latest
+          cc: "gcc"
+          cxx: "g++"
+          qmakespec: "linux-g++"
+        - name: "Ubuntu latest Clang"
+          os: ubuntu-latest
+          cc: "clang"
+          cxx: "clang++"
+          qmakespec: "linux-clang"
+        qt-version: ['5.9.9', '5.10.1', '5.11.3', '5.12.11', '5.13.2', '5.14.2', '5.15.2']
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: ${{ matrix.qt-version }}
+        install-deps: 'true'
+        modules: 'qtscript'
+    
+    - name: Versions
+      run: qmake -v
+
+    - name: Build
+      env:
+        CC: ${{ matrix.config.cc }}
+        CXX: ${{ matrix.config.cxx }}
+        QMAKESPEC: ${{ matrix.config.qmakespec }}
+      run: |
+        qmake "CONFIG+=debug" QtBkBtl.pro
+        make
