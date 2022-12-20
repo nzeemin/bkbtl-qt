@@ -1,7 +1,9 @@
 ﻿// Common.cpp
 
 #include "stdafx.h"
+#include <QClipboard>
 #include <QMessageBox>
+#include <QGuiApplication>
 #include <QFont>
 #include <QPainter>
 #include <QCoreApplication>
@@ -68,7 +70,7 @@ void DebugPrintFormat(const char* pszFormat, ...)
 
     va_list ptr;
     va_start(ptr, pszFormat);
-    _snprintf(buffer, 512, pszFormat, ptr);
+    vsnprintf(buffer, 512, pszFormat, ptr);
     va_end(ptr);
 
     DebugPrint(buffer);
@@ -84,6 +86,7 @@ void DebugLog(const char* message)
     if (Common_LogFile == nullptr)
     {
         Common_LogFile = ::fopen(TRACELOG_FILE_NAME, "a+b");
+        //TODO: Check if Common_LogFile == nullptr
     }
 
     ::fseek(Common_LogFile, 0, SEEK_END);
@@ -98,7 +101,7 @@ void DebugLogFormat(const char* pszFormat, ...)
 
     va_list ptr;
     va_start(ptr, pszFormat);
-    _snprintf(buffer, 512, pszFormat, ptr);
+    vsnprintf(buffer, 512, pszFormat, ptr);
     va_end(ptr);
 
     DebugLog(buffer);
@@ -238,6 +241,32 @@ bool ParseOctalValue(const QString &text, quint16* pValue)
     *pValue = value;
     return true;
 }
+
+void CopyTextToClipboard(const char* text)
+{
+    QClipboard *clipboard = QGuiApplication::clipboard();
+    clipboard->clear();
+    clipboard->setText(text);
+}
+void CopyWordOctalToClipboard(uint16_t value)
+{
+    char buffer[7];
+    PrintOctalValue(buffer, value);
+    CopyTextToClipboard(buffer);
+}
+void CopyWordHexToClipboard(uint16_t value)
+{
+    char bufferHex[5];
+    PrintHexValue(bufferHex, value);
+    CopyTextToClipboard(bufferHex);
+}
+void CopyWordBinaryToClipboard(uint16_t value)
+{
+    char bufferBin[17];
+    PrintBinaryValue(bufferBin, value);
+    CopyTextToClipboard(bufferBin);
+}
+
 
 // BK to Unicode conversion table
 const quint16 BK_CHAR_CODES[] =

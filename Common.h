@@ -101,6 +101,8 @@ const int BK_SCREEN_HEIGHT = 256;
 #define COLOR_VALUECHANGED  qRgb(255,40,40)
 #define COLOR_PREVIOUS      qRgb(40,40,255)
 #define COLOR_MEMORYROM     qRgb(40,40,255)
+#define COLOR_MEMORYIO      qRgb(128,255,128)
+#define COLOR_MEMORYNA      qRgb(128,128,128)
 #define COLOR_SUBTITLE      qRgb(0,128,0)
 #define COLOR_VALUE         qRgb(128,128,128)
 #define COLOR_VALUEROM      qRgb(128,128,192)
@@ -114,12 +116,18 @@ QFont Common_GetMonospacedFont();
 QColor Common_GetColorShifted(const QPalette& palette, QRgb rgb);
 void Common_Cleanup();
 void PrintOctalValue(char* buffer, quint16 value);
+void PrintHexValue(char* buffer, quint16 value);
 void PrintBinaryValue(char* buffer, quint16 value);
 void DrawOctalValue(QPainter &painter, int x, int y, quint16 value);
 void DrawHexValue(QPainter &painter, int x, int y, quint16 value);
 void DrawBinaryValue(QPainter &painter, int x, int y, quint16 value);
 bool ParseOctalValue(const char* text, quint16* pValue);
 bool ParseOctalValue(const QString &text, quint16* pValue);
+
+void CopyTextToClipboard(const char* text);
+void CopyWordOctalToClipboard(uint16_t value);
+void CopyWordHexToClipboard(uint16_t value);
+void CopyWordBinaryToClipboard(uint16_t value);
 
 quint16 Translate_BK_Unicode(quint8 ch);
 
