@@ -7,4 +7,9 @@
 /*.user
 /ui_mainwindow.h
 *.o
-moc_*.cpp
+moc_*
+qrc_*
+/.qmake.stash
+/.qtc_clangd/*
+/QtBkBtl
+

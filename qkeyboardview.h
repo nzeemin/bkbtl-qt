@@ -18,9 +18,11 @@ protected:
 private:
     int m_nImageTop;
     int m_nImageLeft;
+    unsigned char m_nKeyPressedScan;
+    unsigned char m_nKeyPressedCode;
 
 private:
-    unsigned char GetKeyByPoint(int x, int y, bool okShift);
+    unsigned char getKeyByPoint(int x, int y);
     void showKeyboardMapping(QPainter& painter);
 };
 
