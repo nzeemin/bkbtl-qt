@@ -51,7 +51,7 @@ QAboutDialog::QAboutDialog(QWidget * parent)
 {
     setWindowTitle(tr("About"));
 
-    m_topLabel.setText(tr("BKBTL Qt Version 1.0\nCopyright (C) 2009-2020"));
+    m_topLabel.setText(tr("BKBTL Qt Version 1.0\nCopyright (C) 2009-2023"));
     m_linkLabel.setText(tr("<a href=\"https://github.com/nzeemin/bkbtl-qt\">https://github.com/nzeemin/bkbtl-qt</a>"));
     m_authorsLabel.setText(tr("Author:\r\nNikita Zimin (nzeemin@gmail.com)"));
     m_thanksLabel.setText(tr("Special thanks to:\nAlexey Kisly"));
