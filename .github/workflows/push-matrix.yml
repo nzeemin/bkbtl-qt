@@ -23,7 +23,7 @@ jobs:
           cc: "clang"
           cxx: "clang++"
           qmakespec: "linux-clang"
-        qt-version: ['5.9.9', '5.12.12', '5.15.7']
+        qt-version: ['5.15.2']
       fail-fast: false
 
     steps:
