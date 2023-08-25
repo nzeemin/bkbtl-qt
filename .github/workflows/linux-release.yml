@@ -1,0 +1,60 @@
+name: linux-release
+
+on: workflow_dispatch
+
+env:
+  SOURCE_DIR: ${{ github.workspace }}
+  QT_VERSION: 5.15.2
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: '${{ env.QT_VERSION }}'
+          target: 'desktop'
+          install-deps: 'true'
+          modules: 'qtscript'
+
+      - name: Get linuxdeployqt
+        run: |
+          wget -nv -c https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+          chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+
+      - name: Versions
+        run: qmake -v
+
+      - name: Create build directory
+        run: |
+          mkdir ${{ env.SOURCE_DIR }}/build
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/bin
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/share
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/share/applications
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/icons
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor/256x256
+          mkdir -p ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor/256x256/apps
+
+      - name: Build
+        run: |
+          qmake "CONFIG+=release" -r GST_VERSION=1.0 QtBkBtl.pro
+          make
+
+      - name: Packaging
+        working-directory: ${{ env.SOURCE_DIR }}/build
+        run: |
+          cp ${{ env.SOURCE_DIR }}/QtBkBtl ./usr/bin/
+          cp ${{ env.SOURCE_DIR }}/linux/qtbkbtl.png ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor/256x256/apps/qtbkbtl.png
+          ../linuxdeployqt-continuous-x86_64.AppImage ${{ env.SOURCE_DIR }}/linux/qtbkbtl.desktop -appimage
+          ls -l *.AppImage
+
+      - name: Linux artefact
+        uses: actions/upload-artifact@v3
+        with:
+          name: AppImage
+          path: ${{ env.SOURCE_DIR }}/build/*.AppImage

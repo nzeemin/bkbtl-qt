@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=BKBTL Qt
+Comment=BKBTL emulator Qt version
+Exec=QtBkBtl
+Icon=qtbkbtl
+Categories=Office;
