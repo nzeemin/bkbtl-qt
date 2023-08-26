@@ -50,8 +50,9 @@ jobs:
         working-directory: ${{ env.SOURCE_DIR }}/build
         run: |
           cp ${{ env.SOURCE_DIR }}/emulator/QtBkBtl ./usr/bin/
-          cp ${{ env.SOURCE_DIR }}/linux/qtbkbtl.png ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor/256x256/apps/qtbkbtl.png
-          ../linuxdeployqt-continuous-x86_64.AppImage ${{ env.SOURCE_DIR }}/linux/qtbkbtl.desktop -appimage
+          cp ${{ env.SOURCE_DIR }}/linux/qtbkbtl.desktop ./usr/share/applications/
+          cp ${{ env.SOURCE_DIR }}/linux/qtbkbtl.png ./usr/icons/hicolor/256x256/apps/
+          ../linuxdeployqt-continuous-x86_64.AppImage usr/share/applications//qtbkbtl.desktop -appimage -extra-plugins=iconengines
           ls -l *.AppImage
 
       - name: Linux artefact
