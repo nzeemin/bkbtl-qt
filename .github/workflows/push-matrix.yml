@@ -45,5 +45,6 @@ jobs:
         CXX: ${{ matrix.config.cxx }}
         QMAKESPEC: ${{ matrix.config.qmakespec }}
       run: |
+        cd emulator
         qmake "CONFIG+=debug" QtBkBtl.pro
         make

@@ -42,13 +42,14 @@ jobs:
 
       - name: Build
         run: |
+          cd emulator
           qmake "CONFIG+=release" -r GST_VERSION=1.0 QtBkBtl.pro
           make
 
       - name: Packaging
         working-directory: ${{ env.SOURCE_DIR }}/build
         run: |
-          cp ${{ env.SOURCE_DIR }}/QtBkBtl ./usr/bin/
+          cp ${{ env.SOURCE_DIR }}/emulator/QtBkBtl ./usr/bin/
           cp ${{ env.SOURCE_DIR }}/linux/qtbkbtl.png ${{ env.SOURCE_DIR }}/build/usr/icons/hicolor/256x256/apps/qtbkbtl.png
           ../linuxdeployqt-continuous-x86_64.AppImage ${{ env.SOURCE_DIR }}/linux/qtbkbtl.desktop -appimage
           ls -l *.AppImage
