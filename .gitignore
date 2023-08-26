@@ -9,22 +9,22 @@
 *.dll
 *.dylib
 
-/object_script.*
-/.qmake.cache
-/.qmake.stash
+/emulator/debug
+/emulator/release
+/emulator/Makefile.*
+/emulator/Makefile
+/emulator/object_script.*
+*.user
 moc_*.cpp
 moc_*.h
 qrc_*.cpp
 ui_*.h
 /.qtc_clangd/*
+/.qmake.cache
+/.qmake.stash
 
-/debug
-/release
-/Makefile.*
-/Makefile
-/*.user
 /QtBkBtl
 /QtBkBtl.app
-/*.rom
+/emulator/*.rom
 
 .DS_Store
