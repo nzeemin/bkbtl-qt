@@ -220,6 +220,7 @@ void MainWindow::saveSettings(QSettings * settings)
     settings->setValue("MainWindow/Geometry", saveGeometry());
     settings->setValue("MainWindow/WindowState", saveState());
 
+    settings->setValue("MainWindow/KeyboardView", m_keyboard->isVisible());
     settings->setValue("MainWindow/ConsoleView", m_dockConsole->isVisible());
     settings->setValue("MainWindow/DebugView", m_dockDebug->isVisible());
     settings->setValue("MainWindow/DisasmView", m_dockDisasm->isVisible());
@@ -240,6 +241,7 @@ void MainWindow::restoreSettings(QSettings * settings)
     restoreGeometry(settings->value("MainWindow/Geometry").toByteArray());
     restoreState(settings->value("MainWindow/WindowState").toByteArray());
 
+    m_keyboard->setVisible(settings->value("MainWindow/KeyboardView", true).toBool());
     m_dockConsole->setVisible(settings->value("MainWindow/ConsoleView", false).toBool());
     m_dockDebug->setVisible(settings->value("MainWindow/DebugView", false).toBool());
     m_dockDisasm->setVisible(settings->value("MainWindow/DisasmView", false).toBool());
