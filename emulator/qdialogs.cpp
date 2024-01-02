@@ -51,20 +51,23 @@ QAboutDialog::QAboutDialog(QWidget * parent)
 {
     setWindowTitle(tr("About"));
 
-    m_topLabel.setText(tr("BKBTL Qt Version 1.0\nCopyright (C) 2009-2023"));
-    m_linkLabel.setText(tr("<a href=\"https://github.com/nzeemin/bkbtl-qt\">https://github.com/nzeemin/bkbtl-qt</a>"));
+    m_topLabel.setText(tr("BKBTL Qt Version 1.0\nCopyright (C) 2009-2024"));
     m_authorsLabel.setText(tr("Author:\r\nNikita Zimin (nzeemin@gmail.com)"));
     m_thanksLabel.setText(tr("Special thanks to:\nAlexey Kisly"));
+    m_linkLabel.setText(tr("<a href=\"https://github.com/nzeemin/bkbtl-qt\">https://github.com/nzeemin/bkbtl-qt</a>"));
+    m_disclaimerLabel.setText(tr("This program is provided by authors and contributors AS IS, with absolutely no warranty of any kind.  Please use it on your own risk."));
     m_bottomLabel.setText(tr("Build date:\t%1 %2\nQt version:\t%3").arg(__DATE__).arg(__TIME__).arg(QT_VERSION_STR));
 
     m_linkLabel.setOpenExternalLinks(true);
+    m_disclaimerLabel.setWordWrap(true);
 
-    setMinimumSize(260, 320);
+    setMinimumSize(420, 320);
 
     m_layout.addWidget(&m_topLabel);
-    m_layout.addWidget(&m_linkLabel);
     m_layout.addWidget(&m_authorsLabel);
     m_layout.addWidget(&m_thanksLabel);
+    m_layout.addWidget(&m_linkLabel);
+    m_layout.addWidget(&m_disclaimerLabel);
     m_layout.addWidget(&m_bottomLabel);
     m_buttons.setStandardButtons(QDialogButtonBox::Ok);
     QObject::connect(&m_buttons, SIGNAL(accepted()), this, SLOT(accept()));

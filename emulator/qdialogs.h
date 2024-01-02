@@ -48,6 +48,7 @@ private:
     QLabel m_linkLabel;
     QLabel m_authorsLabel;
     QLabel m_thanksLabel;
+    QLabel m_disclaimerLabel;
     QLabel m_bottomLabel;
     QDialogButtonBox m_buttons;
 };
