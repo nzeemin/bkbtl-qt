@@ -5,8 +5,8 @@
 #include <QDialog>
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
-#include <QLineEdit>
 #include <QLabel>
+#include <QLineEdit>
 
 
 //////////////////////////////////////////////////////////////////////
@@ -17,16 +17,20 @@ class QInputOctalDialog : public QDialog
     Q_OBJECT
 
 public:
-    QInputOctalDialog(QWidget * parent, const QString & title, const QString & prompt, quint16 * value);
+    QInputOctalDialog(QWidget * parent, const QString & title, quint16 * value);
 
 public slots:
+    void octalEdited(const QString &text);
+    void hexEdited(const QString &text);
     virtual void accept();
 
 private:
     quint16 * m_result;
-    QVBoxLayout m_layout;
-    QLabel m_label;
-    QLineEdit m_edit;
+    QGridLayout m_layout;
+    QLabel m_labelOctal;
+    QLabel m_labelHex;
+    QLineEdit m_editOctal;
+    QLineEdit m_editHex;
     QWidget m_spacer;
     QDialogButtonBox m_buttons;
 };

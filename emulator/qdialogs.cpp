@@ -6,33 +6,73 @@
 //////////////////////////////////////////////////////////////////////
 
 
-QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, const QString & prompt, quint16 * value)
+QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, quint16 * value)
     : QDialog(parent, nullptr)
 {
     m_result = value;
 
-    char buffer[8];
-    PrintOctalValue(buffer, *value);
-
     setWindowTitle(title);
-    resize(340, 120);
-    m_label.setText(prompt);
-    m_layout.addWidget(&m_label);
-    m_edit.setText(buffer);
-    m_edit.selectAll();
-    m_layout.addWidget(&m_edit);
-    m_layout.addWidget(&m_spacer);
+    resize(260, 120);
+    m_labelOctal.setText(tr("Octal"));
+    m_labelHex.setText(tr("Hex"));
     m_buttons.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    m_layout.addWidget(&m_labelOctal, 0, 0);
+    m_layout.addWidget(&m_labelHex, 0, 1);
+    m_layout.addWidget(&m_editOctal, 1, 0);
+    m_layout.addWidget(&m_editHex, 1, 1);
+    m_layout.addWidget(&m_spacer, 2, 0);
+    m_layout.addWidget(&m_buttons, 3, 0, 1, -1);
+    setLayout(&m_layout);
+
+    QObject::connect(&m_editOctal, SIGNAL(textEdited(QString)), this, SLOT(octalEdited(QString)));
+    QObject::connect(&m_editHex, SIGNAL(textEdited(QString)), this, SLOT(hexEdited(QString)));
     QObject::connect(&m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
     QObject::connect(&m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    m_layout.addWidget(&m_buttons);
-    setLayout(&m_layout);
+
+    char buffer[8];
+    PrintOctalValue(buffer, *value);
+    m_editOctal.setText(buffer);
+    PrintHexValue(buffer, *value);
+    m_editHex.setText(buffer);
+    m_editOctal.selectAll();
+}
+
+void QInputOctalDialog::octalEdited(const QString &text)
+{
+    quint16 value;
+    if (! ParseOctalValue(text.toLatin1().data(), &value))
+    {
+        m_editHex.setText(nullptr);
+    }
+    else
+    {
+        char buffer[8];
+        PrintHexValue(buffer, value);
+        m_editHex.setText(buffer);
+    }
+}
+
+void QInputOctalDialog::hexEdited(const QString &text)
+{
+    quint16 value;
+    if (! ParseHexValue(text.toLatin1().data(), &value))
+    {
+        m_editOctal.setText(nullptr);
+    }
+    else
+    {
+        char buffer[8];
+        PrintOctalValue(buffer, value);
+        m_editOctal.setText(buffer);
+    }
 }
 
 void QInputOctalDialog::accept()
 {
+    QString text = m_editOctal.text();
     quint16 value;
-    if (! ParseOctalValue(m_edit.text().toLatin1().data(), &value))
+    if (text.isEmpty() || !ParseOctalValue(text.toLatin1().data(), &value))
     {
         QMessageBox::warning(this, nullptr, tr("Please enter correct octal value."));
         return;

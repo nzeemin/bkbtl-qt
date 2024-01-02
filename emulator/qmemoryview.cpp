@@ -113,7 +113,7 @@ void QMemoryView::scrollBy(qint16 delta)
 void QMemoryView::gotoAddress()
 {
     quint16 value = m_wBaseAddress;
-    QInputOctalDialog dialog(this, tr("Go To Address"), tr("Address (octal):"), &value);
+    QInputOctalDialog dialog(this, tr("Go To Address"), &value);
     if (dialog.exec() == QDialog::Rejected) return;
 
     // Scroll to the address
