@@ -2,6 +2,7 @@
 #include <QAction>
 #include <QClipboard>
 #include <QDateTime>
+#include <QDesktopWidget>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QLabel>
@@ -207,9 +208,11 @@ void MainWindow::changeEvent(QEvent *e)
     }
 }
 
-void MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent * event)
 {
     saveSettings(Global_getSettings());
+
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::saveSettings(QSettings * settings)
@@ -233,12 +236,17 @@ void MainWindow::restoreSettings(QSettings * settings)
     int scrViewMode = Global_getSettings()->value("MainWindow/ScreenMode").toInt();
     m_screen->setMode(scrViewMode);
 
-    //Update centralWidget size
+    // Update centralWidget size
     ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-    ui->centralWidget->setMaximumWidth(m_screen->maximumWidth());
+    int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
+    ui->centralWidget->setMaximumWidth(maxwid);
 
-    restoreGeometry(settings->value("MainWindow/Geometry").toByteArray());
-    restoreState(settings->value("MainWindow/WindowState").toByteArray());
+    QByteArray geometry = Global_getSettings()->value("MainWindow/Geometry").toByteArray();
+    if (!geometry.isEmpty())
+        restoreGeometry(geometry);
+    if (isMaximized())  //HACK for restoring maximized window, see https://bugreports.qt.io/browse/QTBUG-46620
+        setGeometry(QApplication::desktop()->availableGeometry(this));
+    restoreState(Global_getSettings()->value("MainWindow/WindowState").toByteArray());
 
     m_keyboard->setVisible(settings->value("MainWindow/KeyboardView", true).toBool());
     m_dockConsole->setVisible(settings->value("MainWindow/ConsoleView", false).toBool());

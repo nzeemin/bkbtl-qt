@@ -50,7 +50,7 @@ void QEmulatorScreen::createDisplay()
     m_image = new QImage(cxScreenWidth, cyScreenHeight, QImage::Format_RGB32);
 
     setMinimumSize(cxScreenWidth + 8, cyScreenHeight + 8);
-    setMaximumSize(cxScreenWidth + 100, cyScreenHeight + 20);
+    setMaximumSize(std::max(cxScreenWidth + 100, 1024), cyScreenHeight + 24);
 }
 
 void QEmulatorScreen::paintEvent(QPaintEvent * /*event*/)

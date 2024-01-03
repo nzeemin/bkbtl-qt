@@ -102,7 +102,7 @@ QKeyboardView::QKeyboardView(QWidget *parent) :
     m_nKeyPressedScan = m_nKeyPressedCode = 0;
 
     setMinimumSize(551 + 8, 216 + 8);
-    setMaximumSize(904, 216 + 20);
+    setMaximumSize(1024, 216 + 24);
 }
 
 void QKeyboardView::paintEvent(QPaintEvent *)
