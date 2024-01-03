@@ -64,7 +64,6 @@ public slots:
     void configurationBK0011Fdd();
     void emulatorFloppy(int slot);
     void debugConsoleView();
-    void debugDebugView();
     void debugDisasmView();
     void debugMemoryView();
     void debugTeletypeView();

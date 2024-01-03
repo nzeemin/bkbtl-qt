@@ -11,6 +11,10 @@ QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, qui
 {
     m_result = value;
 
+    QFont font = Common_GetMonospacedFont();
+    m_editOctal.setFont(font);
+    m_editHex.setFont(font);
+
     setWindowTitle(title);
     resize(260, 120);
     m_labelOctal.setText(tr("Octal"));

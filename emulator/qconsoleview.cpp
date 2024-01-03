@@ -38,6 +38,7 @@ QConsoleView::QConsoleView()
     QFont font = Common_GetMonospacedFont();
     m_log->setReadOnly(true);
     m_log->setFont(font);
+    m_prompt->setFont(font);
     m_edit->setFont(font);
 
     QObject::connect(m_edit, SIGNAL(returnPressed()), this, SLOT(execConsoleCommand()));

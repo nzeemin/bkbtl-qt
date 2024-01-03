@@ -52,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionConfBK11, SIGNAL(triggered()), this, SLOT(configurationBK0011()));
     QObject::connect(ui->actionConfBK11Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0011Fdd()));
     QObject::connect(ui->actionDebugConsoleView, SIGNAL(triggered()), this, SLOT(debugConsoleView()));
-    QObject::connect(ui->actionDebugDebugView, SIGNAL(triggered()), this, SLOT(debugDebugView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
     QObject::connect(ui->actionDebugMemoryView, SIGNAL(triggered()), this, SLOT(debugMemoryView()));
     QObject::connect(ui->actionDebugTeletypeView, SIGNAL(triggered()), this, SLOT(debugTeletypeView()));
@@ -116,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent) :
     int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
     ui->centralWidget->setMaximumWidth(maxwid);
 
-    m_dockDebug = new QDockWidget(tr("Processor"));
+    m_dockDebug = new QDockWidget(tr("Debug"));
     m_dockDebug->setObjectName("dockDebug");
     m_dockDebug->setWidget(m_debug);
     m_dockDebug->setFeatures(m_dockDebug->features() & ~QDockWidget::DockWidgetClosable);
@@ -286,7 +285,6 @@ void MainWindow::updateMenu()
             g_pBoard->IsFloppyImageAttached(3) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
 
     ui->actionDebugConsoleView->setChecked(m_console->isVisible());
-    ui->actionDebugDebugView->setChecked(m_dockDebug->isVisible());
     ui->actionDebugDisasmView->setChecked(m_dockDisasm->isVisible());
     ui->actionDebugMemoryView->setChecked(m_dockMemory->isVisible());
     ui->actionDebugTeletypeView->setChecked(m_dockTeletype->isVisible());
@@ -647,11 +645,6 @@ void MainWindow::debugConsoleView()
         this->adjustSize();
     }
 
-    updateMenu();
-}
-void MainWindow::debugDebugView()
-{
-    m_dockDebug->setVisible(!m_dockDebug->isVisible());
     updateMenu();
 }
 void MainWindow::debugDisasmView()

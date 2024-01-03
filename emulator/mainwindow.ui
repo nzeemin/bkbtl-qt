@@ -85,7 +85,6 @@
     </property>
     <addaction name="actionDebugConsoleView"/>
     <addaction name="separator"/>
-    <addaction name="actionDebugDebugView"/>
     <addaction name="actionDebugDisasmView"/>
     <addaction name="actionDebugMemoryView"/>
     <addaction name="actionDebugTeletypeView"/>
@@ -319,14 +318,6 @@
   <action name="actionFileLoadBin">
    <property name="text">
     <string>Load BIN...</string>
-   </property>
-  </action>
-  <action name="actionDebugDebugView">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Processor View</string>
    </property>
   </action>
   <action name="actionDebugDisasmView">
