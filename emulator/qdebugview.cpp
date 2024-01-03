@@ -49,22 +49,33 @@ QDebugView::QDebugView(QWidget *mainWindow) :
     m_breaksCtrl = new QDebugBreakpointsCtrl(this);
     m_breaksCtrl->setGeometry(x, 0, cxBreaks, cyHeight);
     x += cxBreaks + 4;
-    int cxMemmap = cxChar * 21 + cxChar / 2;
+    int cxMemmap = cxChar * 25;
     m_memmapCtrl = new QDebugMemoryMapCtrl(this);
     m_memmapCtrl->setGeometry(x, 0, cxMemmap, cyHeight);
 
+    m_actionDebugger = m_toolbar->addAction(QIcon(":/images/iconDebugger.svg"), "");
+    m_toolbar->addSeparator();
     QAction* actionStepInto = m_toolbar->addAction(QIcon(":/images/iconStepInto.svg"), "");
     QAction* actionStepOver = m_toolbar->addAction(QIcon(":/images/iconStepOver.svg"), "");
+    m_actionDebugger->setCheckable(true);
 
+    QObject::connect(m_actionDebugger, SIGNAL(triggered()), mainWindow, SLOT(debugConsoleView()));
     QObject::connect(actionStepInto, SIGNAL(triggered()), mainWindow, SLOT(debugStepInto()));
     QObject::connect(actionStepOver, SIGNAL(triggered()), mainWindow, SLOT(debugStepOver()));
 
     setFocusPolicy(Qt::ClickFocus);
+
+    updateToolbar();
 }
 
 CProcessor* QDebugView::getCurrentProc() const
 {
     return g_pBoard->GetCPU();
+}
+
+void QDebugView::updateToolbar()
+{
+    m_actionDebugger->setChecked(true);
 }
 
 // Update after Run or Step
@@ -183,7 +194,7 @@ void QDebugProcessorCtrl::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
+    QFontMetrics fontmetrics = painter.fontMetrics();
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
     QColor colorText = palette().color(QPalette::Text);
@@ -296,7 +307,7 @@ void QDebugStackCtrl::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
+    QFontMetrics fontmetrics = painter.fontMetrics();
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
     QColor colorText = palette().color(QPalette::Text);
@@ -411,7 +422,7 @@ void QDebugPortsCtrl::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
+    QFontMetrics fontmetrics = painter.fontMetrics();
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
 
@@ -488,7 +499,7 @@ void QDebugBreakpointsCtrl::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
+    QFontMetrics fontmetrics = painter.fontMetrics();
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
 
@@ -524,7 +535,7 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
-    QFontMetrics fontmetrics(font);
+    QFontMetrics fontmetrics = painter.fontMetrics();
     int cxChar = fontmetrics.averageCharWidth();
     int cyLine = fontmetrics.height();
 
@@ -548,6 +559,16 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
         quint16 addr = (quint16)i * 020000;
         DrawOctalValue(painter, x, y2 - cyLine * i * 2 + cyLine / 3, addr);
     }
+
+    quint16 sp = getProc()->GetSP();
+    int ysp = y2 - ((y2 - y1) * sp / 65536);
+    painter.drawLine(x2, ysp, x2 + cxChar, ysp);
+    painter.drawText(x2 + cxChar, ysp + cyLine / 4, "SP");
+
+    quint16 pc = getProc()->GetPC();
+    int ypc = y2 - ((y2 - y1) * pc / 65536);
+    painter.drawLine(x2, ypc, x2 + cxChar, ypc);
+    painter.drawText(x2 + cxChar, ypc + cyLine / 4, "PC");
 }
 
 //////////////////////////////////////////////////////////////////////

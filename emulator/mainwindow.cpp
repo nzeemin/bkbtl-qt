@@ -290,6 +290,9 @@ void MainWindow::updateMenu()
     ui->actionDebugDisasmView->setChecked(m_dockDisasm->isVisible());
     ui->actionDebugMemoryView->setChecked(m_dockMemory->isVisible());
     ui->actionDebugTeletypeView->setChecked(m_dockTeletype->isVisible());
+
+    if (m_debug != nullptr)
+        m_debug->updateToolbar();
 }
 
 void MainWindow::updateAllViews()
@@ -639,6 +642,8 @@ void MainWindow::debugConsoleView()
 
     if (!okShow)
     {
+        if (this->isMaximized())
+            this->showNormal();
         this->adjustSize();
     }
 

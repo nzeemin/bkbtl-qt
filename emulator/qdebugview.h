@@ -16,6 +16,7 @@ public:
     QDebugView(QWidget *parent = nullptr);
 
     CProcessor* getCurrentProc() const;
+    void updateToolbar();
     void updateData();
 
 protected:
@@ -25,6 +26,7 @@ protected:
 
 private:
     QToolBar* m_toolbar;
+    QAction* m_actionDebugger;
     QDebugCtrl* m_procCtrl;
     QDebugCtrl* m_stackCtrl;
     QDebugCtrl* m_portsCtrl;
