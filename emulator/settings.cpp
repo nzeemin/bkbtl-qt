@@ -50,7 +50,6 @@ void Settings_SetSound(bool flag)
 {
     Global_getSettings()->setValue("Sound", flag);
 }
-
 bool Settings_GetSound()
 {
     QVariant value = Global_getSettings()->value("Sound", false);
@@ -75,6 +74,16 @@ bool Settings_GetDebugMemoryByte()
 {
     QVariant value = Global_getSettings()->value("DebugMemoryByte", false);
     return value.toBool();
+}
+
+void Settings_SetDebugMemoryNumeral(quint16 mode)
+{
+    Global_getSettings()->setValue("DebugMemoryNumeral", mode);
+}
+quint16 Settings_GetDebugMemoryNumeral()
+{
+    QVariant value = Global_getSettings()->value("DebugMemoryNumeral", 0);
+    return (quint16)value.toUInt();
 }
 
 

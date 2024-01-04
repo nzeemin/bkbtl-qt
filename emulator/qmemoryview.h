@@ -17,6 +17,7 @@ public:
 
 public slots:
     void changeWordByteMode();
+    void changeNumeralMode();
     void gotoAddress();
     void scrollBy(qint16 delta);
 
@@ -36,10 +37,12 @@ protected slots:
 
 private:
     bool m_ByteMode;  // false - word mode, true - byte mode
-    unsigned short m_wBaseAddress;
+    quint16 m_NumeralMode = 0;
+    quint16 m_wBaseAddress;
     int m_cyLineMemory;  // Line height in pixels
     int m_nPageSize;  // Page size in lines
     int m_cyLine;
+    int m_PostionIncrement = 100;  // Increment by X to the next word
     QScrollBar *m_scrollbar;
     QToolBar* m_toolbar;
 };

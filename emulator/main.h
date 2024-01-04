@@ -40,6 +40,8 @@ void Settings_SetDebugMemoryAddress(quint16 address);
 quint16 Settings_GetDebugMemoryAddress();
 bool Settings_GetDebugMemoryByte();
 void Settings_SetDebugMemoryByte(bool flag);
+void Settings_SetDebugMemoryNumeral(quint16 mode);
+quint16 Settings_GetDebugMemoryNumeral();
 
 
 //////////////////////////////////////////////////////////////////////

@@ -15,5 +15,6 @@
         <file>images/iconSoundOff.svg</file>
         <file>images/iconScreenshot.svg</file>
         <file>images/iconDebugger.svg</file>
+        <file>images/iconHex.svg</file>
     </qresource>
 </RCC>

@@ -17,9 +17,17 @@
 //////////////////////////////////////////////////////////////////////
 
 
+enum MemoryViewNumeralMode
+{
+    MEMMODENUM_OCT = 0,
+    MEMMODENUM_HEX = 1,
+};
+
+
 QMemoryView::QMemoryView()
 {
     m_ByteMode = Settings_GetDebugMemoryByte();
+    m_NumeralMode = Settings_GetDebugMemoryNumeral();
     m_wBaseAddress = Settings_GetDebugMemoryAddress();
     m_cyLineMemory = 0;
     m_nPageSize = 0;
@@ -50,9 +58,11 @@ QMemoryView::QMemoryView()
     QAction* actionGotoAddr = m_toolbar->addAction(QIcon(":/images/iconEditAddress.svg"), "");
     m_toolbar->addSeparator();
     QAction* actionWordByte = m_toolbar->addAction(QIcon(":/images/iconWordByte.svg"), "");
+    QAction* actionOctalHex = m_toolbar->addAction(QIcon(":/images/iconHex.svg"), "");
 
-    QObject::connect((const QObject*)actionGotoAddr, SIGNAL(triggered()), this, SLOT(gotoAddress()));
-    QObject::connect((const QObject*)actionWordByte, SIGNAL(triggered()), this, SLOT(changeWordByteMode()));
+    QObject::connect(actionGotoAddr, SIGNAL(triggered()), this, SLOT(gotoAddress()));
+    QObject::connect(actionWordByte, SIGNAL(triggered()), this, SLOT(changeWordByteMode()));
+    QObject::connect(actionOctalHex, SIGNAL(triggered()), this, SLOT(changeNumeralMode()));
 
     setFocusPolicy(Qt::ClickFocus);
 }
@@ -86,6 +96,7 @@ void QMemoryView::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(tr("Go to Address..."), this, SLOT(gotoAddress()));
     menu.addSeparator();
     menu.addAction(tr("Words / Bytes"), this, SLOT(changeWordByteMode()));
+    menu.addAction(tr("Octal / Hex"), this, SLOT(changeNumeralMode()));
 
     menu.exec(event->globalPos());
 }
@@ -94,6 +105,15 @@ void QMemoryView::changeWordByteMode()
 {
     m_ByteMode = !m_ByteMode;
     Settings_SetDebugMemoryByte(m_ByteMode);
+
+    repaint();
+}
+
+void QMemoryView::changeNumeralMode()
+{
+    int newMode = m_NumeralMode ^ 1;
+    m_NumeralMode = newMode;
+    Settings_SetDebugMemoryNumeral(newMode);
 
     repaint();
 }
@@ -147,7 +167,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     QColor colorBackground = palette().color(QPalette::Base);
 
     QPainter painter(this);
-    painter.fillRect(0, 0, this->width(), this->height(), colorBackground);
+    painter.fillRect(36 + 4, 0, this->width(), this->height(), colorBackground);
 
     QFont font = Common_GetMonospacedFont();
     painter.setFont(font);
@@ -157,20 +177,34 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     QColor colorText = palette().color(QPalette::Text);
     QColor colorChanged = Common_GetColorShifted(palette(), COLOR_VALUECHANGED);
     QColor colorMemoryRom = Common_GetColorShifted(palette(), COLOR_MEMORYROM);
+    QColor colorMemoryIO = Common_GetColorShifted(palette(), COLOR_MEMORYIO);
+    QColor colorMemoryNA = Common_GetColorShifted(palette(), COLOR_MEMORYNA);
 
     CProcessor* pDebugPU = g_pBoard->GetCPU();
     ASSERT(pDebugPU != nullptr);
 
     m_cyLineMemory = cyLine;
 
+    if (m_NumeralMode == MEMMODENUM_OCT)
+        m_PostionIncrement = cxChar * 7;
+    else
+        m_PostionIncrement = cxChar * 5;
+    if (m_ByteMode)
+        m_PostionIncrement += cxChar;
+
     char buffer[7];
-    const char * ADDRESS_LINE = "  addr";
-    painter.drawText(30, cyLine, ADDRESS_LINE);
-    for (int j = 0; j < 8; j++)
-    {
-        _snprintf(buffer, 7, "%d", j * 2);
-        painter.drawText(38 + (9 + j * 7) * cxChar, cyLine, buffer);
-    }
+    const char* ADDRESS_LINE_OCT_WORDS = "   addr  0      2      4      6      10     12     14     16";
+    const char* ADDRESS_LINE_OCT_BYTES = "   addr  0   1   2   3   4   5   6   7   10  11  12  13  14  15  16  17";
+    const char* ADDRESS_LINE_HEX_WORDS = "   addr  0    2    4    6    8    a    c    e";
+    const char* ADDRESS_LINE_HEX_BYTES = "   addr  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f";
+    if (m_NumeralMode == MEMMODENUM_OCT && !m_ByteMode)
+        painter.drawText(38, cyLine, ADDRESS_LINE_OCT_WORDS);
+    else if (m_NumeralMode == MEMMODENUM_OCT && m_ByteMode)
+        painter.drawText(38, cyLine, ADDRESS_LINE_OCT_BYTES);
+    else if (m_ByteMode)
+        painter.drawText(38, cyLine, ADDRESS_LINE_HEX_BYTES);
+    else
+        painter.drawText(38, cyLine, ADDRESS_LINE_HEX_WORDS);
 
     // Calculate m_nPageSize
     m_nPageSize = this->height() / cyLine - 1;
@@ -179,11 +213,13 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     int y = 2 * cyLine;
     for (;;)    // Draw lines
     {
-        DrawOctalValue(painter, 38 + 1 * cxChar, y, address);
+        if (m_NumeralMode == MEMMODENUM_OCT)
+            DrawOctalValue(painter, 38 + 1 * cxChar, y, address);
+        else
+            DrawHexValue(painter, 38 + 3 * cxChar, y, address);
 
         int x = 38 + 9 * cxChar;
         ushort wchars[16];
-
         for (int j = 0; j < 8; j++)    // Draw words as octal value
         {
             // Get word from memory
@@ -198,16 +234,42 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
 
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
             {
-                painter.setPen(wChanged != 0 ? colorChanged : colorText);
-                if (m_ByteMode)
+                if (addrtype == ADDRTYPE_ROM)
+                    painter.setPen(colorMemoryRom);
+                else
+                    painter.setPen(wChanged != 0 ? colorChanged : colorText);
+
+                if (m_NumeralMode == MEMMODENUM_OCT && !m_ByteMode)
+                    DrawOctalValue(painter, x, y, word);
+                else if (m_NumeralMode == MEMMODENUM_OCT && m_ByteMode)
                 {
                     PrintOctalValue(buffer, (word & 0xff));
                     painter.drawText(x, y, buffer + 3);
                     PrintOctalValue(buffer, (word >> 8));
-                    painter.drawText(x + 3 * cxChar + cxChar / 2, y, buffer + 3);
+                    painter.drawText(x + 4 * cxChar, y, buffer + 3);
+                }
+                else if (m_NumeralMode == MEMMODENUM_HEX && !m_ByteMode)
+                    DrawHexValue(painter, x, y, word);
+                else if (m_NumeralMode == MEMMODENUM_HEX && m_ByteMode)
+                {
+                    PrintHexValue(buffer, word);
+                    painter.drawText(x, y, buffer + 2);
+                    buffer[2] = 0;
+                    painter.drawText(x + 3 * cxChar, y, buffer);
+                }
+            }
+            else  // No value
+            {
+                if (addrtype == ADDRTYPE_IO)
+                {
+                    painter.setPen(colorMemoryIO);
+                    painter.drawText(x, y, "  IO");
                 }
                 else
-                    DrawOctalValue(painter, x, y, word);
+                {
+                    painter.setPen(colorMemoryNA);
+                    painter.drawText(x, y, "  NA");
+                }
             }
 
             // Prepare characters to draw at right
@@ -221,7 +283,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             wchars[j * 2 + 1] = wch2;
 
             address += 2;
-            x += 7 * cxChar;
+            x += m_PostionIncrement;
         }
         painter.setPen(colorText);
 
@@ -241,7 +303,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         option.initFrom(this);
         option.state |= QStyle::State_KeyboardFocusChange;
         option.backgroundColor = QColor(Qt::gray);
-        option.rect = QRect(38, cyLine + fontmetrics.descent(), 83 * cxChar, cyLine * m_nPageSize);
+        option.rect = QRect(38, cyLine + fontmetrics.descent(), 28 * cxChar + 8 * m_PostionIncrement, cyLine * m_nPageSize);
         style()->drawPrimitive(QStyle::PE_FrameFocusRect, &option, &painter, this);
     }
 }
@@ -255,8 +317,14 @@ void QMemoryView::keyPressEvent(QKeyEvent *event)
         gotoAddress();
         break;
     case Qt::Key_B:
+    case Qt::Key_W:
         event->accept();
         changeWordByteMode();
+        break;
+    case Qt::Key_H:
+    case Qt::Key_O:
+        event->accept();
+        changeNumeralMode();
         break;
 
     case Qt::Key_Up:
