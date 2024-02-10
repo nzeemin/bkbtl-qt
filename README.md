@@ -12,3 +12,27 @@ The BKBTL project consists of:
 * [**bkbtl-testbench**](https://github.com/nzeemin/bkbtl-testbench) — test bench for regression testing.
 * [**bkbtl-doc**](https://github.com/nzeemin/bkbtl-doc) — documentation and screenshots.
 * Project wiki: https://github.com/nzeemin/bkbtl-doc/wiki
+
+## Как запустить под Linux
+
+### Собрать из исходников
+
+ 1. Установить пакеты: Qt 5.15.2 + QtScript
+ 2. Скачать исходники: либо через<br>
+    `git clone https://github.com/nzeemin/bkbtl-qt.git`<br>
+    либо скачать как .zip и распаковать
+ 3. Выполнить команды:<br>
+   `cd emulator`<br>
+   `qmake "CONFIG+=release" QtBkBtl.pro`<br>
+   `make`<br>
+ 4. Даём права на выполнение: `chmod +x QtBkBtl`
+ 5. Запускаем `QtBkBtl`
+ 6. Если при запуске появилось сообщение вида `Failed to load Monitor ROM file.`, то
+    скачать .rom файлы от [BKBTL](https://github.com/nzeemin/bkbtl/tree/master/roms), положить в ту же папку где лежит файл `QtBkBtl`, запустить снова
+
+### Используя готовый AppImage
+
+ 1. Зайти в [Releases](https://github.com/nzeemin/bkbtl-qt/releases) найти последний AppImage-релиз и скачать `*.AppImage` файл
+ 2. Дать права на выполнение: `chmod +x BKBTL_Qt-9cc9d83-x86_64.AppImage` (подставить тут правильное название AppImage файла)
+ 3. Если при запуске появилось сообщение вида `Failed to load Monitor ROM file.`, то
+    скачать .rom файлы от [BKBTL](https://github.com/nzeemin/bkbtl/tree/master/roms), положить в ту же папку где лежит AppImage файл, запустить снова
