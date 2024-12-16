@@ -36,6 +36,8 @@ void Settings_SetAutostart(bool flag);
 bool Settings_GetAutostart();
 void Settings_SetSound(bool flag);
 bool Settings_GetSound();
+void Settings_SetDebugBreakpoint(int bpno, quint16 address);
+quint16 Settings_GetDebugBreakpoint(int bpno);
 void Settings_SetDebugMemoryAddress(quint16 address);
 quint16 Settings_GetDebugMemoryAddress();
 bool Settings_GetDebugMemoryByte();

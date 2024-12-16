@@ -182,8 +182,11 @@ bool Emulator_Init()
     m_wEmulatorCPUBpsCount = 0;
     for (int i = 0; i <= MAX_BREAKPOINTCOUNT; i++)
     {
-        m_EmulatorCPUBps[i] = 0177777;
+        uint16_t address = Settings_GetDebugBreakpoint(i);
+        m_EmulatorCPUBps[i] = address;
+        if (address != 0177777) m_wEmulatorCPUBpsCount = i + 1;
     }
+
     g_pBoard = new CMotherboard();
 
     // Allocate memory for old RAM values
@@ -212,6 +215,10 @@ bool Emulator_Init()
 void Emulator_Done()
 {
     ASSERT(g_pBoard != nullptr);
+
+    // Save breakpoints
+    for (int i = 0; i < MAX_BREAKPOINTCOUNT; i++)
+        Settings_SetDebugBreakpoint(i, i < m_wEmulatorCPUBpsCount ? m_EmulatorCPUBps[i] : 0177777);
 
     CProcessor::Done();
 
