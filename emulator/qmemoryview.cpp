@@ -93,10 +93,10 @@ void QMemoryView::focusOutEvent(QFocusEvent *)
 void QMemoryView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
-    menu.addAction(tr("Go to Address..."), this, SLOT(gotoAddress()));
+    menu.addAction(QIcon(":/images/iconEditAddress.svg"), tr("Go to Address..."), this, SLOT(gotoAddress()));
     menu.addSeparator();
-    menu.addAction(tr("Words / Bytes"), this, SLOT(changeWordByteMode()));
-    menu.addAction(tr("Octal / Hex"), this, SLOT(changeNumeralMode()));
+    menu.addAction(QIcon(":/images/iconWordByte.svg"), tr("Words / Bytes"), this, SLOT(changeWordByteMode()));
+    menu.addAction(QIcon(":/images/iconHex.svg"), tr("Octal / Hex"), this, SLOT(changeNumeralMode()));
 
     menu.exec(event->globalPos());
 }

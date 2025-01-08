@@ -36,7 +36,7 @@ CMotherboard::CMotherboard() :
     m_CPUbps = nullptr;
 
     // Allocate memory for RAM and ROM
-    m_pRAM = static_cast<uint8_t*>(::malloc(128 * 1024));  //::memset(m_pRAM, 0, 128 * 1024);
+    m_pRAM = static_cast<uint8_t*>(::calloc(128 * 1024, 1));
     m_pROM = static_cast<uint8_t*>(::calloc(64 * 1024, 1));
 
     SetConfiguration(BK_CONF_BK0010_BASIC);  // Default configuration
@@ -52,8 +52,8 @@ CMotherboard::~CMotherboard()
     delete m_pSoundAY;
 
     // Free memory
-    ::free(m_pRAM);
-    ::free(m_pROM);
+    ::free(m_pRAM);  m_pRAM = nullptr;
+    ::free(m_pROM);  m_pROM = nullptr;
 }
 
 void CMotherboard::SetConfiguration(uint16_t conf)
@@ -192,7 +192,7 @@ void CMotherboard::DetachFloppyImage(int slot)
 
 uint16_t CMotherboard::GetRAMWord(uint16_t offset) const
 {
-    return *((uint16_t*)(m_pRAM + offset));
+    return *reinterpret_cast<uint16_t*>(m_pRAM + offset);
 }
 uint16_t CMotherboard::GetRAMWord(uint8_t chunk, uint16_t offset) const
 {
@@ -210,12 +210,12 @@ uint8_t CMotherboard::GetRAMByte(uint8_t chunk, uint16_t offset) const
 }
 void CMotherboard::SetRAMWord(uint16_t offset, uint16_t word)
 {
-    *((uint16_t*)(m_pRAM + offset)) = word;
+    *reinterpret_cast<uint16_t*>(m_pRAM + offset) = word;
 }
 void CMotherboard::SetRAMWord(uint8_t chunk, uint16_t offset, uint16_t word)
 {
     uint32_t dwOffset = ((static_cast<uint32_t>(chunk) & 7) << 14) + offset;
-    *((uint16_t*)(m_pRAM + dwOffset)) = word;
+    *reinterpret_cast<uint16_t*>(m_pRAM + dwOffset) = word;
 }
 void CMotherboard::SetRAMByte(uint16_t offset, uint8_t byte)
 {
@@ -364,7 +364,7 @@ bool CMotherboard::SystemFrame()
     const int audioticks = 20286 / (SOUNDSAMPLERATE / 25);
     m_SoundChanges = 0;
     const int teletypeTicks = 20000 / (9600 / 25);
-    int floppyTicks = (m_Configuration & BK_COPT_BK0011) ? 38 : 44;
+    int floppyTicks = (m_Configuration & BK_COPT_BK0011) ? 38 : 32;
     int teletypeTxCount = 0;
 
     int frameTapeTicks = 0, tapeSamplesPerFrame = 0, tapeReadError = 0;
