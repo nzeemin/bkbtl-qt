@@ -549,15 +549,31 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
     painter.drawRect(x1, y1, x2 - x1, y2 - y1);
     painter.drawText(x, ybase + 2, "000000");
 
-    for (int i = 1; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
-        int ycur = y2 - cyLine * i * 2;
-        if (i < 7)
-            painter.drawLine(x1, ycur, x1 + 8, ycur);
-        else
-            painter.drawLine(x1, ycur, x2, ycur);
-        quint16 addr = (quint16)i * 020000;
-        DrawOctalValue(painter, x, y2 - cyLine * i * 2 + cyLine / 3, addr);
+        int yp = y2 - cyLine * i * 2;
+        quint16 address = (quint16)i * 020000;
+
+        if (i > 0)
+        {
+            painter.drawLine(x1, yp, x2, yp);
+            DrawOctalValue(painter, x, y2 - cyLine * i * 2 + cyLine / 3, address);
+        }
+
+        int addrtype;
+        g_pBoard->GetWordView(address, getProc()->GetHALT(), false, &addrtype);
+        QString addrtypestr;
+        switch (addrtype & (ADDRTYPE_RAM | ADDRTYPE_ROM | ADDRTYPE_IO | ADDRTYPE_DENY))
+        {
+        case ADDRTYPE_ROM:  addrtypestr = "ROM"; break;
+        case ADDRTYPE_RAM:  addrtypestr = "RAM"; break;
+        case ADDRTYPE_IO:   addrtypestr = "I/O"; break;
+        case ADDRTYPE_DENY: addrtypestr = "N/A"; break;
+        default:
+            addrtypestr.clear();
+        }
+        if (!addrtypestr.isEmpty())
+            painter.drawText(xtype, yp - (cyLine * 2) / 3, addrtypestr);
     }
 
     quint16 sp = getProc()->GetSP();

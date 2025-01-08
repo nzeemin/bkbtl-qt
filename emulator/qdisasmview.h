@@ -62,6 +62,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event) override;
     void focusInEvent(QFocusEvent *) override;
     void focusOutEvent(QFocusEvent *) override;
+    void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
 
     void parseSubtitles(QTextStream& stream);

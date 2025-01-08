@@ -111,6 +111,7 @@ const int BK_SCREEN_HEIGHT = 256;
 #define COLOR_JUMPNO        qRgb(192,192,192)
 #define COLOR_JUMPHINT      qRgb(40,128,160)
 #define COLOR_HINT          qRgb(40,40,160)
+#define COLOR_BREAKPOINT    qRgb(255,0,0)
 
 QFont Common_GetMonospacedFont();
 QColor Common_GetColorShifted(const QPalette& palette, QRgb rgb);
