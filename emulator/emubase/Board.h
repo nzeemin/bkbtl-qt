@@ -71,9 +71,9 @@ enum BKConfiguration
 // Emulator image constants
 #define BKIMAGE_HEADER_SIZE 32
 #define BKIMAGE_SIZE 200704
-#define BKIMAGE_HEADER1 0x30304B41  // "BK00"
+#define BKIMAGE_HEADER1 0x30304B42  // "BK00"
 #define BKIMAGE_HEADER2 0x214C5442  // "BTL!"
-#define BKIMAGE_VERSION 0x00010000  // 1.0
+#define BKIMAGE_VERSION 0x00010001  // 1.1
 
 
 //////////////////////////////////////////////////////////////////////
@@ -101,6 +101,24 @@ enum BKConfiguration
 #define KEYB_LAT                0x02
 #define KEYB_LOWERREG           0x10
 
+// Константы для получения значений внутренних регистров из метода GetPortView
+#define PORTVIEW_TIMERREL       0177706
+#define PORTVIEW_TIMERVAL       0177710
+#define PORTVIEW_TIMERCTL       0177712
+#define PORTVIEW_KEYBSTATUS     0177660
+#define PORTVIEW_KEYBDATA       0177662
+#define PORTVIEW_PALETTE        0177663
+#define PORTVIEW_SCROLL         0177664
+#define PORTVIEW_PARALLELIN     0177714
+#define PORTVIEW_PARALLELOUT    0177715
+#define PORTVIEW_SYSTEM         0177716
+#define PORTVIEW_SYSTEMMEM      0177717
+#define PORTVIEW_SYSTEMTAP      0177721
+#define PORTVIEW_FDDSTATE       0177130
+#define PORTVIEW_FDDDATA        0177132
+#define PORTVIEW_FDDDRIVE       0000133  // Drive number: from 0 to 3; -1 if not selected
+#define PORTVIEW_FDDTRACK       0000134  // Track number: from 0 to 79
+#define PORTVIEW_FDDSIDE        0000135  // Disk side: 0 or 1
 
 // Tape emulator callback used to read a tape recorded data.
 // Input:
@@ -234,6 +252,9 @@ private:  // Ports: implementation
     uint16_t    m_Port177566;       // Serial port output data register
     uint16_t    m_Port177660;       // Keyboard status register
     uint16_t    m_Port177662rd;     // Keyboard register
+    uint16_t    m_nKbdIrqPending;   // Nonzero if a keyboard interrupt was
+    // deferred because bit 6 (interrupt mask) of m_Port177660 was set when the
+    // key was pressed; holds the vector to fire once software unmasks it. 0 = none pending.
     uint16_t    m_Port177662wr;     // Palette register
     uint16_t    m_Port177664;       // Scroll register
     uint16_t    m_Port177714in;     // Parallel port, input register

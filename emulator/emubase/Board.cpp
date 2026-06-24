@@ -114,6 +114,7 @@ void CMotherboard::Reset()
     m_Port177660 = 0100;
     m_Port177662rd = 0;
     m_Port177662wr = 047400;
+    m_nKbdIrqPending = 0;
     m_Port177664 = 01330;
     m_Port177714in = m_Port177714out = 0;
     m_Port177716 = ((m_Configuration & BK_COPT_BK0011) ? 0140000 : 0100000) | 0300;
@@ -257,6 +258,12 @@ void CMotherboard::ResetDevices()
     m_timerflags = 0177400;
     m_timer = 0177777;
     m_timerreload = 011000;
+
+    // RESET/INIT signal cancels all pending device interrupt requests (VIRQs).
+    // On real PDP-11 hardware the INIT line causes every bus device to withdraw
+    // its interrupt request, so none of those requests should survive into the
+    // instruction that follows RESET.
+    m_pCPU->ClearVIRQ();
 }
 
 void CMotherboard::Tick50()  // 50 Hz timer
@@ -313,10 +320,11 @@ void CMotherboard::TimerTick() // Timer Tick, 31250 Hz = 32 мкс (BK-0011), 23
                 m_timerflags &= ~16;
 
             m_timer = m_timerreload;
-        }
 
-        if ((m_timerflags & 4) != 0)  // If EXPENABLE
-            m_timerflags |= 128;  // Set EXPIRY bit
+            if ((m_timerflags & 4) != 0)  // If EXPENABLE
+                m_timerflags |= 128;  // Set EXPIRY bit
+        }
+        // In WRAPAROUND mode the EXPIRY bit is never set, regardless of EXPENABLE
     }
 }
 
@@ -329,6 +337,7 @@ void CMotherboard::SetTimerState(uint16_t val) // Sets timer state, write to por
 {
     //DebugPrintFormat(_T("SetTimerState %06o\r\n"), val);
     m_timer = m_timerreload;
+    m_timerdivider = 0;
 
     m_timerflags = 0177400 | val;
 }
@@ -364,7 +373,7 @@ bool CMotherboard::SystemFrame()
     const int audioticks = 20286 / (SOUNDSAMPLERATE / 25);
     m_SoundChanges = 0;
     const int teletypeTicks = 20000 / (9600 / 25);
-    int floppyTicks = (m_Configuration & BK_COPT_BK0011) ? 38 : 32;
+    int floppyTicks = 32;  // FDD rotation is a fixed real-time rate (300 RPM), independent of CPU config
     int teletypeTxCount = 0;
 
     int frameTapeTicks = 0, tapeSamplesPerFrame = 0, tapeReadError = 0;
@@ -448,7 +457,7 @@ bool CMotherboard::SystemFrame()
             }
         }
 
-        if (frameticks % teletypeTicks)
+        if (frameticks % teletypeTicks == 0)  // One teletype baud-rate tick every teletypeTicks frame-ticks
         {
             if (teletypeTxCount > 0)
             {
@@ -523,10 +532,20 @@ void CMotherboard::KeyboardEvent(uint8_t scancode, bool okPressed, bool okAr2)
     {
         m_Port177662rd = scancode & 0177;
         m_Port177660 |= 0200;  // "Key ready" flag in keyboard state register
-        if ((m_Port177660 & 0100) == 0100)  // Keyboard interrupt enabled
+
+        uint16_t intvec = ((okAr2 || (scancode & 0200) != 0) ? 0274 : 060);
+        if ((m_Port177660 & 0100) == 0)  // Bit 6 clear == keyboard interrupt enabled (unmasked)
         {
-            uint16_t intvec = ((okAr2 || (scancode & 0200) != 0) ? 0274 : 060);
             m_pCPU->InterruptVIRQ(1, intvec);
+        }
+        else
+        {
+            // Interrupt is masked right now. Remember the vector so that if/when
+            // software unmasks it (clears bit 6) while this key is still "ready",
+            // the interrupt fires then -- this is what real BK0010 hardware does,
+            // and what lets a key event survive across a mask/unmask sequence
+            // performed entirely in software (e.g. BASIC's startup code).
+            m_nKbdIrqPending = intvec;
         }
     }
 }
@@ -722,7 +741,7 @@ int CMotherboard::TranslateAddress(uint16_t address, bool /*okHaltMode*/, bool /
             addrType = ADDRTYPE_RAM;
             break;
         case 1:  // 040000-077777, окно 0, страница ОЗУ 0..7
-            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];  // 8 chanks #0..7
+            memoryRamChunk = memoryBlockMap[(m_Port177716mem >> 12) & 7];  // 8 chunks #0..7
             addrType = ADDRTYPE_RAM | memoryRamChunk;
             address &= 037777;
             break;
@@ -794,21 +813,26 @@ uint16_t CMotherboard::GetPortWord(uint16_t address)
     case 0177700:  // Регистр режима (РР) ВМ1
         return 0177740;
     case 0177702:  // Регистр адреса прерывания (РАП) ВМ1
+        //TODO: Тут всё сложнее, см. описание к эмулятору gid
         return 0177777;
     case 0177704:  // Регистр ошибки (РОШ) ВМ1
         return 0177440;
 
     case 0177706:  // System Timer counter start value -- регистр установки таймера
+    case 0177707:
         return m_timerreload;
     case 0177710:  // System Timer Counter -- регистр счетчика таймера
+    case 0177711:
         return m_timer;
     case 0177712:  // System Timer Manage -- регистр управления таймера
+    case 0177713:
         return m_timerflags;
 
     case 0177660:  // Keyboard status register
         return m_Port177660;
     case 0177662:  // Keyboard register
         m_Port177660 &= ~0200;  // Reset "Ready" bit
+        m_nKbdIrqPending = 0;  // The key was consumed by polling; cancel any deferred interrupt for it
         return m_Port177662rd;
 
     case 0177664:  // Scroll register
@@ -827,6 +851,7 @@ uint16_t CMotherboard::GetPortWord(uint16_t address)
     case 0177130:
         if ((m_Configuration & BK_COPT_FDD) == 0)
         {
+            DebugLogFormat(_T("GetPortWord unknown port %06o CPU %06o\r\n"), address, m_pCPU->GetInstructionPC());
             m_pCPU->MemoryError();
             return 0;
         }
@@ -843,6 +868,7 @@ uint16_t CMotherboard::GetPortWord(uint16_t address)
     case 0177132:
         if ((m_Configuration & BK_COPT_FDD) == 0)
         {
+            DebugLogFormat(_T("GetPortWord unknown port %06o CPU %06o\r\n"), address, m_pCPU->GetInstructionPC());
             m_pCPU->MemoryError();
             return 0;
         }
@@ -857,6 +883,7 @@ uint16_t CMotherboard::GetPortWord(uint16_t address)
         return 0;
 
     default:
+        DebugLogFormat(_T("GetPortWord unknown port %06o CPU %06o\r\n"), address, m_pCPU->GetInstructionPC());
         m_pCPU->MemoryError();
         return 0;
     }
@@ -878,35 +905,56 @@ uint16_t CMotherboard::GetPortView(uint16_t address) const
     case 0177566:  // Serial port interrupt vector
         return 060;
 
-    case 0177706:  // System Timer counter start value -- регистр установки таймера
+    case PORTVIEW_TIMERREL:  // System Timer counter start value -- регистр установки таймера
         return m_timerreload;
-    case 0177710:  // System Timer Counter -- регистр счетчика таймера
+    case PORTVIEW_TIMERVAL:  // System Timer Counter -- регистр счетчика таймера
         return m_timer;
-    case 0177712:  // System Timer Manage -- регистр управления таймера
+    case PORTVIEW_TIMERCTL:  // System Timer Manage -- регистр управления таймера
         return m_timerflags;
 
-    case 0177660:  // Keyboard status register
+    case PORTVIEW_KEYBSTATUS:  // Keyboard status register
         return m_Port177660;
-    case 0177662:  // Keyboard data register
+    case PORTVIEW_KEYBDATA:  // Keyboard data register
         return m_Port177662rd;
 
-    case 0177664:  // Scroll register
+    case PORTVIEW_PALETTE:
+        return m_Port177662wr;
+
+    case PORTVIEW_SCROLL:  // Scroll register
         return m_Port177664;
 
-    case 0177714:  // Parallel port register
+    case PORTVIEW_PARALLELIN:  // Parallel port register
         return m_Port177714in;
+    case PORTVIEW_PARALLELOUT:  // Parallel port register
+        return m_Port177714out;
 
-    case 0177716:  // System register
+    case PORTVIEW_SYSTEM:  // System register
         return m_Port177716;
+    case PORTVIEW_SYSTEMMEM:  // System register (memory)
+        return m_Port177716mem;
+    case PORTVIEW_SYSTEMTAP:  // System register (tape)
+        return m_Port177716tap;
 
-    case 0177130:  // Floppy state
+    case PORTVIEW_FDDSTATE:  // Floppy state
         if (m_pFloppyCtl != nullptr)
             return m_pFloppyCtl->GetStateView();
         return 0;
-    case 0177132:  // Floppy data
+    case PORTVIEW_FDDDATA:  // Floppy data
         if (m_pFloppyCtl != nullptr)
             return m_pFloppyCtl->GetDataView();
         return 0;
+    case PORTVIEW_FDDDRIVE:
+        if (m_pFloppyCtl != nullptr)
+            return m_pFloppyCtl->GetDriveView();
+        return 0xFFFF;
+    case PORTVIEW_FDDTRACK:
+        if (m_pFloppyCtl != nullptr)
+            return m_pFloppyCtl->GetTrackView();
+        return 0xFFFF;
+    case PORTVIEW_FDDSIDE:
+        if (m_pFloppyCtl != nullptr)
+            return m_pFloppyCtl->GetSideView();
+        return 0xFFFF;
 
     default:
         return 0;
@@ -949,11 +997,25 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
         //TODO
         break;
     case 0177564:  // Serial port output status register
-//        DebugPrintFormat(_T("177564 write '%06o'\r\n"), word);
-        m_Port177564 = word;
+        //DebugPrintFormat(_T("177564 write '%06o'\r\n"), word);
+        {
+            uint16_t old177564 = m_Port177564;
+            // Bit 7 (TX ready) is read-only / hardware-set: it is asserted by the UART
+            // when a byte finishes transmitting, and cleared by writing to 177566.
+            // Software writes to 177564 must not affect bit 7.
+            m_Port177564 = (m_Port177564 & 0200) | (word & ~0200u);
+
+            // Level-sensitive interrupt: if interrupt enable (bit 6) transitions to set
+            // while TX ready (bit 7) is already asserted, immediately fire the VIRQ.
+            if ((m_Port177564 & 0300) == 0300 && !(old177564 & 0100))
+                m_pCPU->InterruptVIRQ(1, 064);
+            // Conversely, if interrupt enable (bit 6) is cleared, withdraw any pending VIRQ.
+            else if (!(m_Port177564 & 0100) && (old177564 & 0100))
+                m_pCPU->ClearVIRQByIndex(1);
+        }
         break;
     case 0177566:  // Serial port output data
-//        DebugPrintFormat(_T("177566 write '%c'\r\n"), (uint8_t)word);
+        //DebugPrintFormat(_T("177566 write '%c'\r\n"), (uint8_t)word);
         m_Port177566 = word;
         m_Port177564 &= ~0200;
         break;
@@ -962,12 +1024,15 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
         break;
 
     case 0177706:  // System Timer reload value -- регистр установки таймера
+    case 0177707:
         SetTimerReload(word);
         break;
     case 0177710:  // System Timer Counter -- регистр реверсивного счетчика таймера
+    case 0177711:
         //Do nothing: the register is read-only
         break;
     case 0177712:  // System Timer Manage -- регистр управления таймера
+    case 0177713:
         SetTimerState(word);
         break;
 
@@ -994,7 +1059,24 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
         break;
 
     case 0177660:  // Keyboard status register
-        //TODO
+        {
+            // Only bit 6 (0100, keyboard interrupt mask) is writable from software;
+            // bit 7 (0200, key ready) is read-only and other bits are unused.
+            // Bit 6 = 0 means interrupts are enabled (unmasked), 1 means masked --
+            // this is the real BK0010 polarity, confirmed by GID's emulator and by
+            // BASIC's own startup code, which writes 0 here to unmask the keyboard
+            // interrupt once it has installed its keyboard ISR.
+            bool wasMasked = (m_Port177660 & 0100) != 0;
+            m_Port177660 = (m_Port177660 & ~0100) | (word & 0100);
+            bool nowMasked = (m_Port177660 & 0100) != 0;
+            if (wasMasked && !nowMasked && m_nKbdIrqPending != 0)
+            {
+                // A key event arrived while masked and is still unconsumed --
+                // deliver the interrupt now that the mask has been lifted.
+                m_pCPU->InterruptVIRQ(1, m_nKbdIrqPending);
+                m_nKbdIrqPending = 0;
+            }
+        }
         break;
 
     case 0177662:  // Palette register
@@ -1039,6 +1121,7 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
         break;
 
     default:
+        DebugLogFormat(_T("SetPortWord unknown port %06o CPU %06o\r\n"), address, m_pCPU->GetInstructionPC());
         m_pCPU->MemoryError();
         break;
     }
@@ -1050,8 +1133,8 @@ void CMotherboard::SetPortWord(uint16_t address, uint16_t word)
 //  Offset Length
 //       0     32 bytes  - Header
 //      32    128 bytes  - Board status
-//     160     32 bytes  - CPU status
-//     192   3904 bytes  - RESERVED
+//     160     64 bytes  - CPU status
+//     224   3872 bytes  - RESERVED
 //    4096  65536 bytes  - ROM image 64K
 //   69632 131072 bytes  - RAM image 128K
 //  200704     --        - END
@@ -1075,7 +1158,8 @@ void CMotherboard::SaveToImage(uint8_t* pImage)
     *pwImage++ = m_Port177716;
     *pwImage++ = m_Port177716mem;
     *pwImage++ = m_Port177716tap;
-    pwImage += 3;  // RESERVED
+    *pwImage++ = m_nKbdIrqPending;
+    pwImage += 2;  // RESERVED
     *pwImage++ = m_timer;
     *pwImage++ = m_timerreload;
     *pwImage++ = m_timerflags;
@@ -1095,22 +1179,23 @@ void CMotherboard::LoadFromImage(const uint8_t* pImage)
 {
     // Board data
     const uint16_t* pwImage = reinterpret_cast<const uint16_t*>(pImage + 32);
-    m_Configuration = *pwImage++;
+    m_Configuration = *pwImage++; //TODO: call SetConfiguration() instead
     pwImage += 6;  // RESERVED
-    m_Port177560 = *pwImage++;
-    m_Port177562 = *pwImage++;
-    m_Port177564 = *pwImage++;
-    m_Port177566 = *pwImage++;
-    m_Port177660 = *pwImage++;
-    m_Port177662rd = *pwImage++;
-    m_Port177662wr = *pwImage++;
-    m_Port177664 = *pwImage++;
-    m_Port177714in = *pwImage++;
+    m_Port177560    = *pwImage++;
+    m_Port177562    = *pwImage++;
+    m_Port177564    = *pwImage++;
+    m_Port177566    = *pwImage++;
+    m_Port177660    = *pwImage++;
+    m_Port177662rd  = *pwImage++;
+    m_Port177662wr  = *pwImage++;
+    m_Port177664    = *pwImage++;
+    m_Port177714in  = *pwImage++;
     m_Port177714out = *pwImage++;
-    m_Port177716 = *pwImage++;
+    m_Port177716    = *pwImage++;
     m_Port177716mem = *pwImage++;
     m_Port177716tap = *pwImage++;
-    pwImage += 3;  // RESERVED
+    m_nKbdIrqPending = *pwImage++;
+    pwImage += 2;  // RESERVED
     m_timer = *pwImage++;
     m_timerreload = *pwImage++;
     m_timerflags = *pwImage++;
@@ -1225,6 +1310,7 @@ void CMotherboard::SetTeletypeCallback(TELETYPECALLBACK callback)
 void TraceInstruction(const CProcessor* pProc, const CMotherboard* pBoard, uint16_t address, uint32_t dwTrace)
 {
     bool okHaltMode = pProc->IsHaltMode();
+    bool okBk11 = (pBoard->GetConfiguration() & BK_COPT_BK0011) != 0;
 
     uint16_t memory[4];
     int addrtype = ADDRTYPE_RAM;
@@ -1243,7 +1329,13 @@ void TraceInstruction(const CProcessor* pProc, const CMotherboard* pBoard, uint1
     TCHAR args[32];
     DisassembleInstruction(memory, address, instr, args);
     TCHAR buffer[64];
-    _sntprintf(buffer, 64, _T("%s\t%s\t%s\r\n"), bufaddr, instr, args);
+    if (okBk11 && (addrtype & ADDRTYPE_MASK) == ADDRTYPE_RAM)
+    {
+        int nRamPage = addrtype & 7;
+        _sntprintf(buffer, 64, _T("%d:%s\t%s\t%s\r\n"), nRamPage, bufaddr, instr, args);
+    }
+    else
+        _sntprintf(buffer, 64, _T("%s\t%s\t%s\r\n"), bufaddr, instr, args);
 
     DebugLog(buffer);
 }
