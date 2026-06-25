@@ -204,48 +204,52 @@ void QDebugProcessorCtrl::paintEvent(QPaintEvent * /*event*/)
 
     int x = cxChar * 1, y = 0;
 
+    // Header
+    painter.setPen(colorText);
+    painter.drawText(x, y + 1 * cyLine, "CPU");
+
     // Registers
     for (int r = 0; r < 8; r++)
     {
         painter.setPen(QColor(arrRChanged[r] ? colorChanged : colorText));
 
         const char * strRegName = REGISTER_NAME[r];
-        painter.drawText(x, y + (1 + r) * cyLine, strRegName);
+        painter.drawText(x, y + (2 + r) * cyLine, strRegName);
 
         quint16 value = arrR[r]; //pProc->GetReg(r);
-        DrawOctalValue(painter, x + cxChar * 3, y + (1 + r) * cyLine, value);
-        DrawHexValue(painter, x + cxChar * 10, y + (1 + r) * cyLine, value);
-        DrawBinaryValue(painter, x + cxChar * 15, y + (1 + r) * cyLine, value);
+        DrawOctalValue(painter, x + cxChar * 3, y + (2 + r) * cyLine, value);
+        DrawHexValue(painter, x + cxChar * 10, y + (2 + r) * cyLine, value);
+        DrawBinaryValue(painter, x + cxChar * 15, y + (2 + r) * cyLine, value);
     }
     painter.setPen(colorText);
 
     // PSW value
     painter.setPen(QColor(arrRChanged[8] ? colorChanged : colorText));
-    painter.drawText(x, y + 11 * cyLine, "PS");
+    painter.drawText(x, y + 12 * cyLine, "PS");
     quint16 psw = arrR[8]; // pProc->GetPSW();
-    DrawOctalValue(painter, x + cxChar * 3, y + 11 * cyLine, psw);
-    //DrawHexValue(painter, x + cxChar * 10, y + 11 * cyLine, psw);
+    DrawOctalValue(painter, x + cxChar * 3, y + 12 * cyLine, psw);
+    //DrawHexValue(painter, x + cxChar * 10, y + 12 * cyLine, psw);
     painter.setPen(colorText);
-    painter.drawText(x + cxChar * 15, y + 10 * cyLine, "       HP  TNZVC");
-    DrawBinaryValueChanged(painter, x + cxChar * 15, y + 11 * cyLine, psw, m_wDebugCpuPswOld, colorChanged, colorText);
+    painter.drawText(x + cxChar * 15, y + 11 * cyLine, "       HP  TNZVC");
+    DrawBinaryValueChanged(painter, x + cxChar * 15, y + 12 * cyLine, psw, m_wDebugCpuPswOld, colorChanged, colorText);
 
     // PSW flags as TNZVC string: flag letter if bit is set, '-' otherwise
     const char* tnzvc = "TNZVC";
     QString flagstr;
     for (int j = 0; j < 5; j++)
         flagstr += (psw & (1 << (4 - j))) ? QChar(tnzvc[j]) : QChar('-');
-    painter.drawText(x + cxChar * 26, y + 12 * cyLine, flagstr);
+    painter.drawText(x + cxChar * 26, y + 13 * cyLine, flagstr);
 
     painter.setPen(colorText);
 
     // Processor mode - HALT or USER
     bool okHaltMode = pProc->IsHaltMode();
-    painter.drawText(x, y + 14 * cyLine, okHaltMode ? "HALT" : "USER");
+    painter.drawText(x, y + 15 * cyLine, okHaltMode ? "HALT" : "USER");
 
     // "Stopped" flag
     bool okStopped = pProc->IsStopped();
     if (okStopped)
-        painter.drawText(x + 6 * cxChar, y + 14 * cyLine, "STOP");
+        painter.drawText(x + 6 * cxChar, y + 15 * cyLine, "STOP");
 }
 
 void QDebugProcessorCtrl::updateData()
@@ -289,14 +293,14 @@ void QDebugProcessorCtrl::DrawBinaryValueChanged(
 DebugCtrlHitTest QDebugProcessorCtrl::hitTest(int x, int y)
 {
     DebugCtrlHitTest hit = QDebugCtrl::hitTest(x, y);
-    if (hit.line < 0 || hit.line == 8 || hit.line == 9 || hit.line > 10)
+    if (hit.line < 1 || hit.line == 9 || hit.line == 10 || hit.line > 11)
         return hit;  // Invalid line number
     hit.isValid = true;
 
     const CProcessor* pProc = getProc();
-    if (hit.line < 8)
-        hit.value = pProc->GetReg(hit.line);
-    else if (hit.line == 10)
+    if (hit.line >= 1 && hit.line <= 8)
+        hit.value = pProc->GetReg(hit.line - 1);
+    else if (hit.line == 11)
         hit.value = pProc->GetPSW();
 
     return hit;
@@ -316,7 +320,7 @@ void QDebugProcessorCtrl::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu(this);
     menu.addAction(tr("Copy Value %1").arg(buffer), this, SLOT(copyValueOctal()));
-    if (hit.line < 10)
+    if (hit.line < 11)
         menu.addAction(tr("Copy Value %1").arg(bufferHex), this, SLOT(copyValueHex()));
     menu.addAction(tr("Copy Value %1").arg(bufferBin), this, SLOT(copyValueBinary()));
     menu.exec(event->globalPos());

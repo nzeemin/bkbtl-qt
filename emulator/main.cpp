@@ -33,7 +33,10 @@ const char CommandLineHelp[] =
     OPTIONSTR "autostart " OPTIONSTR "autostarton    Start emulation on window open\n"
     OPTIONSTR "noautostart " OPTIONSTR "autostartoff    Do not start emulation on window open\n"
     OPTIONSTR "sound " OPTIONSTR "soundon    Turn sound on\n"
-    OPTIONSTR "nosound " OPTIONSTR "soundoff    Turn sound off\n";
+    OPTIONSTR "nosound " OPTIONSTR "soundoff    Turn sound off\n"
+    OPTIONSTR "debug " OPTIONSTR "debugon " OPTIONSTR "debugger    Show the debugger on window open\n"
+    OPTIONSTR "nodebug " OPTIONSTR "debugoff    Do not show the debugger on window open\n"
+    OPTIONSTR "diskN:filePath    Attach floppy image filePath to drive N (N = A..D)\n";
 
 
 int main(int argc, char *argv[])
@@ -62,6 +65,14 @@ int main(int argc, char *argv[])
     w.updateMenu();
     w.updateAllViews();
 
+    if (Option_Debug >= 0)
+    {
+        if ((w.isDebugMode() && Option_Debug == 0) ||
+            (!w.isDebugMode() && Option_Debug > 0))
+        {
+            w.debugConsoleView();  // switch Debug mode on/off
+        }
+    }
     if (Option_ShowHelp)
     {
         AlertInfo(CommandLineHelp);
@@ -166,7 +177,32 @@ void ParseCommandLine(int argc, char *argv[])
             {
                 Settings_SetSound(false);
             }
-            //TODO
+            else if (option == "debug" || option == "debugon" || option == "debugger")
+            {
+                Option_Debug = 1;
+            }
+            else if (option == "debugoff" || option == "nodebug")
+            {
+                Option_Debug = 0;
+            }
+            else if (option.length() > 6 && option.startsWith("disk"))  // "diskN:filePath", N=A..D
+            {
+                QChar letter = option.at(4);
+                if (letter >= QLatin1Char('A') && letter <= QLatin1Char('D') && option.at(5) == QLatin1Char(':'))
+                {
+                    int slot = letter.toLatin1() - 'A';
+                    QString filePath = option.mid(6);
+                    Settings_SetFloppyFilePath(slot, filePath);
+                }
+                else
+                {
+                    AlertWarning(QString("Invalid command line option:\n%1").arg(QString::fromLocal8Bit(param)));
+                }
+            }
+            else
+            {
+                AlertWarning(QString("Unknown command line option:\n%1").arg(QString::fromLocal8Bit(param)));
+            }
         }
 
         ++it;

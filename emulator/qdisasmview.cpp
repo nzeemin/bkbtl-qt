@@ -22,6 +22,8 @@ QDisasmView::QDisasmView()
     m_wDisasmNextBaseAddr = 0;
     m_cxDisasmBreakpointZone = 16;
     m_cyDisasmLine = 10;
+    m_lastHitValid = false;
+    m_lastHitAddress = m_lastHitValue = 0;
 
     QFont font = Common_GetMonospacedFont();
     QFontMetrics fontmetrics(font);
@@ -53,8 +55,52 @@ void QDisasmView::focusOutEvent(QFocusEvent *)
 void QDisasmView::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu menu(this);
+
+    if (hitTest(event->y()))
+    {
+        char bufaddr[7], bufval[7];
+        PrintOctalValue(bufaddr, m_lastHitAddress);
+        PrintOctalValue(bufval, m_lastHitValue);
+        menu.addAction(tr("Copy Address: %1").arg(bufaddr), this, SLOT(copyAddressOctal()));
+        menu.addAction(tr("Copy Value: %1").arg(bufval), this, SLOT(copyValueOctal()));
+        menu.addSeparator();
+    }
+
     menu.addAction(m_SubtitleItems.isEmpty() ? tr("Show Subtitles...") : tr("Hide Subtitles"), this, SLOT(showHideSubtitles()));
     menu.exec(event->globalPos());
+}
+
+// Hit test for the context menu: returns true and fills m_lastHit* if y is over a disasm line
+bool QDisasmView::hitTest(int y)
+{
+    m_lastHitValid = false;
+
+    int lineindex = y / m_cyDisasmLine;
+    if (lineindex < 0 || lineindex >= m_DisasmLineItems.count())
+        return false;
+
+    const DisasmLineItem& lineitem = m_DisasmLineItems[lineindex];
+    if ((lineitem.type & (LINETYPE_DATA | LINETYPE_INSTR)) == 0)
+        return false;  // Not a line with address and value
+
+    m_lastHitAddress = lineitem.address;
+    m_lastHitValue = lineitem.value;
+    m_lastHitValid = true;
+    return true;
+}
+
+void QDisasmView::copyAddressOctal()
+{
+    if (!m_lastHitValid)
+        return;
+    CopyWordOctalToClipboard(m_lastHitAddress);
+}
+
+void QDisasmView::copyValueOctal()
+{
+    if (!m_lastHitValid)
+        return;
+    CopyWordOctalToClipboard(m_lastHitValue);
 }
 
 void QDisasmView::mouseMoveEvent(QMouseEvent * event)

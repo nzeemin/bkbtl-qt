@@ -50,6 +50,7 @@ quint16 Settings_GetDebugMemoryNumeral();
 // Options
 
 extern bool Option_ShowHelp;
+extern int Option_Debug;  // Tri-state: -1 = undefined, >0 = Debug mode on, 0 = Debug mode off
 
 
 //////////////////////////////////////////////////////////////////////

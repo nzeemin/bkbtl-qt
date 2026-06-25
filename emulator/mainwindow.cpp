@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionDebugRemoveAllBreakpoints, SIGNAL(triggered()), this, SLOT(debugRemoveAllBreakpoints()));
     QObject::connect(ui->actionHelpAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     QObject::connect(ui->actionViewKeyboard, SIGNAL(triggered()), this, SLOT(viewKeyboard()));
+    QObject::connect(ui->actionViewTape, SIGNAL(triggered()), this, SLOT(viewTape()));
     QObject::connect(ui->actionSoundEnabled, SIGNAL(triggered()), this, SLOT(soundEnabled()));
 
     QSignalMapper* mapScreenMode = new QSignalMapper(this);
@@ -265,6 +266,7 @@ void MainWindow::updateMenu()
     ui->actionactionEmulatorAutostart->setChecked(Settings_GetAutostart());
 
     ui->actionViewKeyboard->setChecked(m_keyboard->isVisible());
+    ui->actionViewTape->setChecked(m_dockTape->isVisible());
 
     ui->actionEmulatorScreen0->setChecked(m_screen->mode() == 0);
     ui->actionEmulatorScreen1->setChecked(m_screen->mode() == 1);
@@ -519,6 +521,12 @@ void MainWindow::viewKeyboard()
     updateMenu();
 }
 
+void MainWindow::viewTape()
+{
+    m_dockTape->setVisible(!m_dockTape->isVisible());
+    updateMenu();
+}
+
 void MainWindow::emulatorFrame()
 {
     if (!g_okEmulatorRunning)
@@ -638,9 +646,14 @@ void MainWindow::emulatorFloppy(int slot)
     updateMenu();
 }
 
+bool MainWindow::isDebugMode()
+{
+    return m_dockConsole->isVisible();
+}
+
 void MainWindow::debugConsoleView()
 {
-    bool okShow = !m_dockConsole->isVisible();
+    bool okShow = !isDebugMode();
     m_dockConsole->setVisible(okShow);
     m_dockDebug->setVisible(okShow);
     m_dockDisasm->setVisible(okShow);
