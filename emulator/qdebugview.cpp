@@ -5,6 +5,7 @@
 #include <QStyleOptionFocusRect>
 #include <QToolBar>
 #include "main.h"
+#include "mainwindow.h"
 #include "qdebugview.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
@@ -41,7 +42,7 @@ QDebugView::QDebugView(QWidget *mainWindow) :
     m_stackCtrl = new QDebugStackCtrl(this);
     m_stackCtrl->setGeometry(x, 0, cxStack, cyHeight);
     x += cxStack + 4;
-    int cxPorts = cxChar * 25;
+    int cxPorts = cxChar * 27;
     m_portsCtrl = new QDebugPortsCtrl(this);
     m_portsCtrl->setGeometry(x, 0, cxPorts, cyHeight);
     x += cxPorts + 4;
@@ -179,6 +180,7 @@ QDebugProcessorCtrl::QDebugProcessorCtrl(QDebugView *debugView)
 {
     memset(m_wDebugCpuR, 0, sizeof(m_wDebugCpuR));
     memset(m_okDebugCpuRChanged, 0, sizeof(m_okDebugCpuRChanged));
+    m_wDebugCpuPswOld = 0;
 }
 
 void QDebugProcessorCtrl::paintEvent(QPaintEvent * /*event*/)
@@ -223,8 +225,16 @@ void QDebugProcessorCtrl::paintEvent(QPaintEvent * /*event*/)
     quint16 psw = arrR[8]; // pProc->GetPSW();
     DrawOctalValue(painter, x + cxChar * 3, y + 11 * cyLine, psw);
     //DrawHexValue(painter, x + cxChar * 10, y + 11 * cyLine, psw);
+    painter.setPen(colorText);
     painter.drawText(x + cxChar * 15, y + 10 * cyLine, "       HP  TNZVC");
-    DrawBinaryValue(painter, x + cxChar * 15, y + 11 * cyLine, psw);
+    DrawBinaryValueChanged(painter, x + cxChar * 15, y + 11 * cyLine, psw, m_wDebugCpuPswOld, colorChanged, colorText);
+
+    // PSW flags as TNZVC string: flag letter if bit is set, '-' otherwise
+    const char* tnzvc = "TNZVC";
+    QString flagstr;
+    for (int j = 0; j < 5; j++)
+        flagstr += (psw & (1 << (4 - j))) ? QChar(tnzvc[j]) : QChar('-');
+    painter.drawText(x + cxChar * 26, y + 12 * cyLine, flagstr);
 
     painter.setPen(colorText);
 
@@ -251,8 +261,29 @@ void QDebugProcessorCtrl::updateData()
         m_wDebugCpuR[r] = value;
     }
     quint16 pswCPU = pCPU->GetPSW();
+    m_wDebugCpuPswOld = m_wDebugCpuR[8];
     m_okDebugCpuRChanged[8] = (m_wDebugCpuR[8] != pswCPU);
     m_wDebugCpuR[8] = pswCPU;
+}
+
+void QDebugProcessorCtrl::DrawBinaryValueChanged(
+    QPainter &painter, int x, int y, quint16 value, quint16 oldValue, QColor colorChanged, QColor colorText)
+{
+    char buffera[17], bufferb[17];
+    for (int b = 0; b < 16; b++)
+    {
+        int bit = (value >> b) & 1;
+        int oldbit = (oldValue >> b) & 1;
+        char ch = bit ? '1' : '0';
+        buffera[15 - b] = bit == oldbit ? ' ' : ch;
+        bufferb[15 - b] = bit == oldbit ? ch : ' ';
+    }
+    buffera[16] = 0;  bufferb[16] = 0;
+
+    painter.setPen(colorChanged);
+    painter.drawText(x, y, buffera);
+    painter.setPen(colorText);
+    painter.drawText(x, y, bufferb);
 }
 
 DebugCtrlHitTest QDebugProcessorCtrl::hitTest(int x, int y)
@@ -431,57 +462,51 @@ void QDebugPortsCtrl::paintEvent(QPaintEvent * /*event*/)
     painter.drawText(x, y, tr("Ports"));
     y += cyLine;
 
-    uint16_t value;
-    value = g_pBoard->GetPortView(0177660);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177660);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "kbd state");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177662);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177662);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "kbd data");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177664);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177664);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "scroll");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177706);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177706);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "timer rel");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177710);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177710);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "timer val");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177712);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177712);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "timer ctl");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177714);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177714);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "parallel");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177716);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177716);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    //DrawBinaryValue(painter, x + 15 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "system");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177130);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177130);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "fdd state");
-    y += cyLine;
-    value = g_pBoard->GetPortView(0177132);
-    DrawOctalValue(painter, x + 0 * cxChar, y, 0177132);
-    DrawOctalValue(painter, x + 7 * cxChar, y, value);
-    painter.drawText(x + 14 * cxChar, y, "fdd data");
+    static const struct
+    {
+        uint16_t address;   // Address shown in the first column
+        uint16_t portview;  // PORTVIEW_* selector passed to GetPortView
+        const char* description;
+    }
+    ports[] =
+    {
+        { 0177660, PORTVIEW_KEYBSTATUS,  "keyb state" },
+        { 0177662, PORTVIEW_KEYBDATA,    "keyb data" },
+        { 0177662, PORTVIEW_PALETTE,     "palette" },
+        { 0177664, PORTVIEW_SCROLL,      "scroll" },
+        { 0177706, PORTVIEW_TIMERREL,    "timer rel" },
+        { 0177710, PORTVIEW_TIMERVAL,    "timer val" },
+        { 0177712, PORTVIEW_TIMERCTL,    "timer ctl" },
+        { 0177714, PORTVIEW_PARALLELIN,  "parallel in" },
+        { 0177714, PORTVIEW_PARALLELOUT, "parallel out" },
+        { 0177716, PORTVIEW_SYSTEM,      "system" },
+        { 0177716, PORTVIEW_SYSTEMMEM,   "system mem" },
+        { 0177716, PORTVIEW_SYSTEMTAP,   "system tape" },
+    };
+
+    for (size_t i = 0; i < sizeof(ports) / sizeof(ports[0]); i++)
+    {
+        uint16_t value = g_pBoard->GetPortView(ports[i].portview);
+        DrawOctalValue(painter, x + 0 * cxChar, y, ports[i].address);
+        DrawOctalValue(painter, x + 7 * cxChar, y, value);
+        painter.drawText(x + 14 * cxChar, y, ports[i].description);
+        y += cyLine;
+    }
+
+    if ((g_pBoard->GetConfiguration() & BK_COPT_FDD) != 0)
+    {
+        uint16_t value;
+        value = g_pBoard->GetPortView(PORTVIEW_FDDSTATE);
+        DrawOctalValue(painter, x + 0 * cxChar, y, 0177130);
+        DrawOctalValue(painter, x + 7 * cxChar, y, value);
+        painter.drawText(x + 14 * cxChar, y, "floppy state");
+        y += cyLine;
+        value = g_pBoard->GetPortView(PORTVIEW_FDDDATA);
+        DrawOctalValue(painter, x + 0 * cxChar, y, 0177132);
+        DrawOctalValue(painter, x + 7 * cxChar, y, value);
+        painter.drawText(x + 14 * cxChar, y, "floppy data");
+        y += cyLine;
+    }
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -520,6 +545,18 @@ void QDebugBreakpointsCtrl::paintEvent(QPaintEvent * /*event*/)
     }
 }
 
+void QDebugBreakpointsCtrl::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu menu(this);
+    menu.addAction(tr("Remove All Breakpoints"), this, SLOT(removeAllBreakpoints()));
+    menu.exec(event->globalPos());
+}
+
+void QDebugBreakpointsCtrl::removeAllBreakpoints()
+{
+    Global_getMainWindow()->debugRemoveAllBreakpoints();
+}
+
 //////////////////////////////////////////////////////////////////////
 
 QDebugMemoryMapCtrl::QDebugMemoryMapCtrl(QDebugView *debugView)
@@ -549,6 +586,8 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
     painter.drawRect(x1, y1, x2 - x1, y2 - y1);
     painter.drawText(x, ybase + 2, "000000");
 
+    bool okBk11 = (g_pBoard->GetConfiguration() & BK_COPT_BK0011) != 0;
+
     for (int i = 0; i < 8; i++)
     {
         int yp = y2 - cyLine * i * 2;
@@ -566,7 +605,12 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
         switch (addrtype & (ADDRTYPE_RAM | ADDRTYPE_ROM | ADDRTYPE_IO | ADDRTYPE_DENY))
         {
         case ADDRTYPE_ROM:  addrtypestr = "ROM"; break;
-        case ADDRTYPE_RAM:  addrtypestr = "RAM"; break;
+        case ADDRTYPE_RAM:
+            if (okBk11)
+                addrtypestr = QString("RAM %1").arg(addrtype & 7);
+            else
+                addrtypestr = "RAM";
+            break;
         case ADDRTYPE_IO:   addrtypestr = "I/O"; break;
         case ADDRTYPE_DENY: addrtypestr = "N/A"; break;
         default:
@@ -575,6 +619,8 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
         if (!addrtypestr.isEmpty())
             painter.drawText(xtype, yp - (cyLine * 2) / 3, addrtypestr);
     }
+
+    painter.drawLine(x1, y1 + cyLine / 4, x2, y1 + cyLine / 4);
 
     quint16 sp = getProc()->GetSP();
     int ysp = y2 - ((y2 - y1) * sp / 65536);
