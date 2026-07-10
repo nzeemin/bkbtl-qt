@@ -21,6 +21,7 @@ void Global_UpdateAllViews();
 void Global_UpdateMenu();
 void Global_RedrawDebugView();
 void Global_RedrawDisasmView();
+void Global_focusScreen();
 void Global_showUptime(int uptimeMillisec);
 void Global_showFps(double framesPerSecond);
 

@@ -38,6 +38,7 @@ public:
     void showUptime(int uptimeMillisec);
     void showFps(double framesPerSecond);
     bool isDebugMode();
+    void focusScreen();
 
 public:
     void saveStateImage(const QString& filename);

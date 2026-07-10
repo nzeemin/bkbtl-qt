@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "qconsoleview.h"
+#include <QFile>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -236,7 +237,8 @@ void QConsoleView::cmdShowHelp(const ConsoleCommandParams& /*params*/)
             "  bXXXXXX    Set breakpoint at address XXXXXX\r\n"
             "  bcXXXXXX   Remove breakpoint at address XXXXXX\r\n"
             "  bc         Remove all breakpoints\r\n"
-//            "  u          Save memory dump to file memdumpXPU.bin\r\n"
+            "  u          Save memory dump to file memdump.bin\r\n"
+            "  mo         Type MO<Enter> (BASIC) or P M<Enter> (FOCAL) to exit to Monitor\r\n"
                   ));
 }
 
@@ -344,6 +346,24 @@ void QConsoleView::cmdPrintDisassembleAtPC(const ConsoleCommandParams & params)
     printDisassemble(address, false, okShort);
 }
 
+void QConsoleView::cmdSaveMemoryDump(const ConsoleCommandParams &)
+{
+    quint8 buf[65536];
+    for (int i = 0; i < 65536; i += 2)
+    {
+        int addrtype;
+        quint16 word = g_pBoard->GetWordView((quint16)i, true, false, &addrtype);
+        buf[i] = (quint8)(word & 0xff);
+        buf[i + 1] = (quint8)(word >> 8);
+    }
+
+    QFile file("memdump.bin");
+    if (!file.open(QIODevice::WriteOnly))
+        return;
+    file.write((const char*)buf, sizeof(buf));
+    file.close();
+}
+
 //void QConsoleView::cmdSetMemoryAtAddress(const ConsoleCommandParams & params)
 
 void QConsoleView::cmdPrintMemoryDumpAtAddress(const ConsoleCommandParams & params)
@@ -369,6 +389,28 @@ void QConsoleView::cmdPrintMemoryDumpAtPC(const ConsoleCommandParams &)
     quint16 address = pProc->GetPC();
 
     printMemoryDump(address);
+}
+
+void QConsoleView::cmdGotoMonitor(const ConsoleCommandParams &)
+{
+    if ((g_nEmulatorConfiguration & BK_COPT_ROM_BASIC) != 0)
+    {
+        Emulator_KeyEvent(0115, true, false);  // M
+        Emulator_KeyEvent(0115, false, false);
+        Emulator_KeyEvent(0117, true, false);  // O
+        Emulator_KeyEvent(0117, false, false);
+    }
+    else if ((g_nEmulatorConfiguration & BK_COPT_ROM_FOCAL) != 0)
+    {
+        Emulator_KeyEvent(0120, true, false);  // P
+        Emulator_KeyEvent(0120, false, false);
+        Emulator_KeyEvent(0040, true, false);  // SPACE
+        Emulator_KeyEvent(0040, false, false);
+        Emulator_KeyEvent(0115, true, false);  // M
+        Emulator_KeyEvent(0115, false, false);
+    }
+
+    Global_focusScreen();  // Move focus to the screen
 }
 
 void QConsoleView::cmdRunToAddress(const ConsoleCommandParams & params)
@@ -469,12 +511,13 @@ static ConsoleCommands[] =
     { _T("D%ho"), ARGINFO_OCT, &QConsoleView::cmdPrintDisassembleAtAddress },
     { _T("d"), ARGINFO_NONE, &QConsoleView::cmdPrintDisassembleAtPC },
     { _T("D"), ARGINFO_NONE, &QConsoleView::cmdPrintDisassembleAtPC },
-    //    { _T("u"), ARGINFO_NONE, &QConsoleView::cmdSaveMemoryDump },
+    { _T("u"), ARGINFO_NONE, &QConsoleView::cmdSaveMemoryDump },
     //    { _T("m%ho %ho"), ARGINFO_OCT_OCT, &QConsoleView::cmdSetMemoryAtAddress },
     //    { _T("m%ho=%ho"), ARGINFO_OCT_OCT, &QConsoleView::cmdSetMemoryAtAddress },
     { _T("m%ho"), ARGINFO_OCT, &QConsoleView::cmdPrintMemoryDumpAtAddress },
     { _T("mr%d"), ARGINFO_REG, &QConsoleView::cmdPrintMemoryDumpAtRegister },
     { _T("m"), ARGINFO_NONE, &QConsoleView::cmdPrintMemoryDumpAtPC },
+    { _T("mo"), ARGINFO_NONE, &QConsoleView::cmdGotoMonitor },
     { _T("g%ho"), ARGINFO_OCT, &QConsoleView::cmdRunToAddress },
     { _T("g"), ARGINFO_NONE, &QConsoleView::cmdRun },
     { _T("b%ho"), ARGINFO_OCT, &QConsoleView::cmdSetBreakpointAtAddress },

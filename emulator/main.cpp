@@ -123,6 +123,10 @@ void Global_RedrawDisasmView()
 {
     Global_getMainWindow()->redrawDisasmView();
 }
+void Global_focusScreen()
+{
+    Global_getMainWindow()->focusScreen();
+}
 
 void Global_showUptime(int uptimeMillisec)
 {

@@ -62,10 +62,12 @@ public:
     void cmdStepOver(const ConsoleCommandParams& params);
     void cmdPrintDisassembleAtAddress(const ConsoleCommandParams& params);
     void cmdPrintDisassembleAtPC(const ConsoleCommandParams& params);
+    void cmdSaveMemoryDump(const ConsoleCommandParams& params);
     //void cmdSetMemoryAtAddress(const ConsoleCommandParams& params);
     void cmdPrintMemoryDumpAtAddress(const ConsoleCommandParams& params);
     void cmdPrintMemoryDumpAtRegister(const ConsoleCommandParams& params);
     void cmdPrintMemoryDumpAtPC(const ConsoleCommandParams& params);
+    void cmdGotoMonitor(const ConsoleCommandParams& params);
     void cmdRunToAddress(const ConsoleCommandParams& params);
     void cmdRun(const ConsoleCommandParams& params);
     void cmdSetBreakpointAtAddress(const ConsoleCommandParams& params);

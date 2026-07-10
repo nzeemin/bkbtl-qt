@@ -657,6 +657,11 @@ bool MainWindow::isDebugMode()
     return m_dockConsole->isVisible();
 }
 
+void MainWindow::focusScreen()
+{
+    m_screen->setFocus();
+}
+
 void MainWindow::debugConsoleView()
 {
     bool okShow = !isDebugMode();
