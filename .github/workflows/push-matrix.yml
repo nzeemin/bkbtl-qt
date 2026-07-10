@@ -28,7 +28,7 @@ jobs:
           cc: "clang"
           cxx: "clang++"
           qmakespec: "macx-clang"
-        qt-version: ['5.15.2']
+        qt-version: ['5.15.17']
       fail-fast: false
 
     steps:
@@ -40,16 +40,6 @@ jobs:
         version: ${{ matrix.qt-version }}
         install-deps: 'true'
         modules: 'qtscript'
-
-    # macOS only: strip obsolete AGL framework reference from Qt's .prl files.
-    # Qt 5.15.2's macOS build hardcodes "-framework AGL" for legacy OpenGL support,
-    # but recent Xcode/macOS SDKs no longer ship AGL.framework, which fails the link step.
-    - name: Pre-build
-      if: runner.os == 'macOS'
-      run: |
-        QT_LIBDIR=$(qmake -query QT_INSTALL_LIBS)
-        echo "Qt lib dir: $QT_LIBDIR"
-        find "$QT_LIBDIR" -name '*.prl' -print -exec sed -i '' 's/-framework AGL//g' {} \;
 
     - name: Versions
       run: |
