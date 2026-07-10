@@ -110,6 +110,8 @@
     <addaction name="actionEmulatorScreen5"/>
     <addaction name="actionEmulatorScreen6"/>
     <addaction name="actionEmulatorScreen7"/>
+    <addaction name="actionEmulatorScreen8"/>
+    <addaction name="actionEmulatorScreen9"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -529,6 +531,22 @@
   <action name="actionDebugRemoveAllBreakpoints">
    <property name="text">
     <string>Remove All Breakpoints</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1536 x 1024 BW</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1536 x 1024 Color</string>
    </property>
   </action>
  </widget>
