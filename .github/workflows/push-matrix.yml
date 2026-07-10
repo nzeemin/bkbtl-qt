@@ -28,14 +28,14 @@ jobs:
           cc: "clang"
           cxx: "clang++"
           qmakespec: "macx-clang"
-        qt-version: ['5.15.6']
+        qt-version: ['5.15.2']
       fail-fast: false
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+      uses: jurplel/install-qt-action@v4
       with:
         version: ${{ matrix.qt-version }}
         install-deps: 'true'
