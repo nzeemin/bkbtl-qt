@@ -28,7 +28,7 @@ jobs:
           cc: "clang"
           cxx: "clang++"
           qmakespec: "macx-clang"
-        qt-version: ['5.15.12']
+        qt-version: ['5.15.6']
       fail-fast: false
 
     steps:
