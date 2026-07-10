@@ -49,6 +49,7 @@ private:
     int printDisassemble(quint16 address, bool okOneInstr, bool okShort);
     void printRegister(const char * strName, quint16 value);
     void printMemoryDump(quint16 address, int lines = 8);
+    void saveMemoryDump(quint16 addr1, quint16 addr2);
 
 public:
     void cmdShowHelp(const ConsoleCommandParams& params);
@@ -63,6 +64,7 @@ public:
     void cmdPrintDisassembleAtAddress(const ConsoleCommandParams& params);
     void cmdPrintDisassembleAtPC(const ConsoleCommandParams& params);
     void cmdSaveMemoryDump(const ConsoleCommandParams& params);
+    void cmdSaveMemoryFragment(const ConsoleCommandParams& params);
     //void cmdSetMemoryAtAddress(const ConsoleCommandParams& params);
     void cmdPrintMemoryDumpAtAddress(const ConsoleCommandParams& params);
     void cmdPrintMemoryDumpAtRegister(const ConsoleCommandParams& params);

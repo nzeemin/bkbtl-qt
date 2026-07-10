@@ -238,6 +238,7 @@ void QConsoleView::cmdShowHelp(const ConsoleCommandParams& /*params*/)
             "  bcXXXXXX   Remove breakpoint at address XXXXXX\r\n"
             "  bc         Remove all breakpoints\r\n"
             "  u          Save memory dump to file memdump.bin\r\n"
+            "  uXXXXXX YYYYYY  Save memory fragment to file memdump.bin\r\n"
             "  mo         Type MO<Enter> (BASIC) or P M<Enter> (FOCAL) to exit to Monitor\r\n"
                   ));
 }
@@ -346,22 +347,45 @@ void QConsoleView::cmdPrintDisassembleAtPC(const ConsoleCommandParams & params)
     printDisassemble(address, false, okShort);
 }
 
-void QConsoleView::cmdSaveMemoryDump(const ConsoleCommandParams &)
+void QConsoleView::saveMemoryDump(quint16 addr1, quint16 addr2)
 {
-    quint8 buf[65536];
-    for (int i = 0; i < 65536; i += 2)
+    if (addr2 <= addr1)
     {
+        print(tr("  End address should be greater than start address.\r\n"));
+        return;
+    }
+
+    quint32 bsize = (quint32)addr2 - addr1 + 1;
+    QByteArray buf(bsize, '\0');
+    for (quint32 i = 0; i < bsize; i++)
+    {
+        quint16 address = (quint16)(addr1 + i);
         int addrtype;
-        quint16 word = g_pBoard->GetWordView((quint16)i, true, false, &addrtype);
-        buf[i] = (quint8)(word & 0xff);
-        buf[i + 1] = (quint8)(word >> 8);
+        quint16 word = g_pBoard->GetWordView(address & ~1, true, false, &addrtype);
+        quint8 value = (address & 1) ? (quint8)(word >> 8) : (quint8)(word & 0xff);
+        buf[(int)i] = (char)value;
     }
 
     QFile file("memdump.bin");
     if (!file.open(QIODevice::WriteOnly))
+    {
+        print(tr("  Failed to save memory dump.\r\n"));
         return;
-    file.write((const char*)buf, sizeof(buf));
+    }
+    file.write(buf);
     file.close();
+
+    print(tr("  Memory saved to memdump.bin\r\n"));
+}
+
+void QConsoleView::cmdSaveMemoryDump(const ConsoleCommandParams &)
+{
+    saveMemoryDump(0, 0xffff);
+}
+
+void QConsoleView::cmdSaveMemoryFragment(const ConsoleCommandParams & params)
+{
+    saveMemoryDump(params.paramOct1, params.paramOct2);
 }
 
 //void QConsoleView::cmdSetMemoryAtAddress(const ConsoleCommandParams & params)
@@ -511,6 +535,7 @@ static ConsoleCommands[] =
     { _T("D%ho"), ARGINFO_OCT, &QConsoleView::cmdPrintDisassembleAtAddress },
     { _T("d"), ARGINFO_NONE, &QConsoleView::cmdPrintDisassembleAtPC },
     { _T("D"), ARGINFO_NONE, &QConsoleView::cmdPrintDisassembleAtPC },
+    { _T("u%ho %ho"), ARGINFO_OCT_OCT, &QConsoleView::cmdSaveMemoryFragment },
     { _T("u"), ARGINFO_NONE, &QConsoleView::cmdSaveMemoryDump },
     //    { _T("m%ho %ho"), ARGINFO_OCT_OCT, &QConsoleView::cmdSetMemoryAtAddress },
     //    { _T("m%ho=%ho"), ARGINFO_OCT_OCT, &QConsoleView::cmdSetMemoryAtAddress },
