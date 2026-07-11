@@ -112,6 +112,8 @@
     <addaction name="actionEmulatorScreen7"/>
     <addaction name="actionEmulatorScreen8"/>
     <addaction name="actionEmulatorScreen9"/>
+    <addaction name="actionEmulatorScreen10"/>
+    <addaction name="actionEmulatorScreen11"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuView"/>
@@ -462,7 +464,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>896 x 512 BW</string>
+    <string>768 x 512 BW</string>
    </property>
   </action>
   <action name="actionEmulatorScreen5">
@@ -470,7 +472,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>896 x 512 Color</string>
+    <string>768 x 512 Color</string>
    </property>
   </action>
   <action name="actionViewKeyboard">
@@ -494,7 +496,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>1024 x 768 BW</string>
+    <string>896 x 512 BW</string>
    </property>
   </action>
   <action name="actionEmulatorScreen7">
@@ -502,7 +504,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>1024 x 768 Color</string>
+    <string>896 x 512 Color</string>
    </property>
   </action>
   <action name="actionFileScreenshotAs">
@@ -538,10 +540,26 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>1536 x 1024 BW</string>
+    <string>1024 x 768 BW</string>
    </property>
   </action>
   <action name="actionEmulatorScreen9">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1024 x 768 Color</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen10">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1536 x 1024 BW</string>
+   </property>
+  </action>
+  <action name="actionEmulatorScreen11">
    <property name="checkable">
     <bool>true</bool>
    </property>
