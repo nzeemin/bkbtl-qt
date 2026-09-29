@@ -365,7 +365,7 @@ void QDebugStackCtrl::paintEvent(QPaintEvent * /*event*/)
     for (int idx = 0; idx < 16; idx++)
     {
         memory[idx] = g_pBoard->GetWordView(
-                current + idx * 2 - 16, pProc->IsHaltMode(), okExec, addrtype + idx);
+                current + idx * 2 - 16, okExec, addrtype + idx);
     }
 
     quint16 address = current - 16;
@@ -419,7 +419,7 @@ DebugCtrlHitTest QDebugStackCtrl::hitTest(int x, int y)
     hit.address = pProc->GetSP() - 16 + hit.line * 2;
 
     int addrtype;
-    hit.value = g_pBoard->GetWordView(hit.address, pProc->IsHaltMode(), false, &addrtype);
+    hit.value = g_pBoard->GetWordView(hit.address, false, &addrtype);
 
     return hit;
 }
@@ -604,7 +604,7 @@ void QDebugMemoryMapCtrl::paintEvent(QPaintEvent * /*event*/)
         }
 
         int addrtype;
-        g_pBoard->GetWordView(address, getProc()->GetHALT(), false, &addrtype);
+        g_pBoard->GetWordView(address, false, &addrtype);
         QString addrtypestr;
         switch (addrtype & (ADDRTYPE_RAM | ADDRTYPE_ROM | ADDRTYPE_IO | ADDRTYPE_DENY))
         {

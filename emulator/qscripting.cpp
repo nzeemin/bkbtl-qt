@@ -102,12 +102,12 @@ void QEmulator::saveScreenshot(const QString &filename)
 ushort QEmulator::readWord(ushort addr)
 {
     int addrType;
-    return g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
+    return g_pBoard->GetWordView(addr, false, &addrType);
 }
 uchar QEmulator::readByte(uint16_t addr)
 {
     int addrType;
-    uint16_t word = g_pBoard->GetWordView(addr, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
+    uint16_t word = g_pBoard->GetWordView(addr, false, &addrType);
     if (addrType == ADDRTYPE_DENY)
         return 0;
     return (addr & 1) ? word & 0xff : (word >> 8) & 0xff;
@@ -162,7 +162,7 @@ QScriptValue QEmulator::disassemble(ushort addr)
     for (int i = 0; i < 4; i++)
     {
         int addrType;
-        buffer[i] = g_pBoard->GetWordView(current, g_pBoard->GetCPU()->IsHaltMode(), false, &addrType);
+        buffer[i] = g_pBoard->GetWordView(current, false, &addrType);
         current += 2;
     }
 

@@ -17,6 +17,7 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 
 // Timings ///////////////////////////////////////////////////////////
 // Таблицы таймингов основаны на статье Ю. А. Зальцмана, журнал "Персональный компьютер БК" №1 1995.
+// Таблицы таймингов были обновлены по тесту Manwe 45com-lo.bin https://manwe.pdp-11.net/?/tools/tests
 
 const int TIMING_BRANCH =   16;  // 5.4 us - BR, BEQ etc.
 const int TIMING_ILLEGAL = 144;
@@ -30,10 +31,10 @@ const int TIMING_BR     =   16;  // 5.4 us
 const int TIMING_MARK   =   36;
 
 const int TIMING_REGREG =   12;  // Base timing
-const int TIMING_A[8]   = { 0, 12, 12, 20, 12, 20, 20, 28 };  // Source
-const int TIMING_B[8]   = { 0, 20, 20, 32, 20, 32, 32, 40 };  // Destination
-const int TIMING_AB[8]  = { 0, 16, 16, 24, 16, 24, 24, 32 };  // Source and destination are the same
-const int TIMING_A2[8]  = { 0, 20, 20, 28, 20, 28, 28, 36 };
+const int TIMING_A[8]   = { 0, 12, 12, 24, 16, 20, 20, 28 };  // Source
+const int TIMING_B[8]   = { 0, 20, 20, 32, 24, 36, 32, 40 };  // Destination
+const int TIMING_AB[8]  = { 4, 16, 20, 24, 16, 24, 24, 36 };  // Source and destination are the same
+const int TIMING_A2[8]  = { 0, 20, 20, 32, 20, 28, 32, 36 };
 const int TIMING_DS[8]  = { 0, 32, 32, 40, 32, 40, 40, 48 };
 
 #define TIMING_A1 TIMING_A
@@ -177,6 +178,7 @@ CProcessor::CProcessor(CMotherboard* pBoard)
     m_stepmode = false;
     m_RPLYrq = m_RSVDrq = m_TBITrq = m_ACLOrq = m_HALTrq = m_RPL2rq = m_IRQ1rq = m_IRQ2rq = false;
     m_BPT_rq = m_IOT_rq = m_EMT_rq = m_TRAPrq = false;
+    m_okDoubleHangupArmed = false;
     m_haltpin = false;
     m_instruction = m_instructionpc = 0;
     m_regsrc = m_methsrc = 0;
@@ -195,6 +197,7 @@ void CProcessor::Start()
     m_waitmode = false;
     m_RPLYrq = m_RSVDrq = m_TBITrq = m_ACLOrq = m_HALTrq = m_RPL2rq = m_IRQ1rq = m_IRQ2rq = false;
     m_BPT_rq = m_IOT_rq = m_EMT_rq = m_TRAPrq = false;
+    m_okDoubleHangupArmed = false;
     m_virqrq = 0;  memset(m_virq, 0, sizeof(m_virq));
 
     // "Turn On" interrupt processing
@@ -214,6 +217,7 @@ void CProcessor::Stop()
     m_internalTick = 0;
     m_RPLYrq = m_RSVDrq = m_TBITrq = m_ACLOrq = m_HALTrq = m_RPL2rq = m_IRQ1rq = m_IRQ2rq = false;
     m_BPT_rq = m_IOT_rq = m_EMT_rq = m_TRAPrq = false;
+    m_okDoubleHangupArmed = false;
     m_virqrq = 0;  memset(m_virq, 0, sizeof(m_virq));
     m_haltpin = false;
 }
@@ -258,45 +262,30 @@ void CProcessor::Execute()
             uint16_t intrVector = 0;
             bool currMode = ((m_psw & 0400) != 0);  // Current processor mode: true = HALT mode, false = USER mode
             bool intrMode = false;  // true = HALT mode interrupt, false = USER mode interrupt
-            if (m_HALTrq)  // HALT command
+            // Priority order per K1801VM1 datasheet: double bus timeout, bus timeout, illegal
+            // instruction, T-bit, ACLO, IRQ1, timer/IRQ2, VIRQ, then software traps last
+            // (software traps are synchronous to the just-decoded instruction and are only
+            // delivered once nothing higher-priority is pending).
+            if (m_RPL2rq)  // Двойное зависание, priority 1
             {
-                intrVector = 0002;  intrMode = true;
-                m_HALTrq = false;
-            }
-            else if (m_BPT_rq)  // BPT command
-            {
-                intrVector = 0000014;  intrMode = false;
-                m_BPT_rq = false;
-            }
-            else if (m_IOT_rq)  // IOT command
-            {
-                intrVector = 0000020;  intrMode = false;
-                m_IOT_rq = false;
-            }
-            else if (m_EMT_rq)  // EMT command
-            {
-                intrVector = 0000030;  intrMode = false;
-                m_EMT_rq = false;
-            }
-            else if (m_TRAPrq)  // TRAP command
-            {
-                intrVector = 0000034;  intrMode = false;
-                m_TRAPrq = false;
+                // Routed through the plain stack-based vector-4 path rather than a
+                // separate console-mode vector -- avoids the halt-mode entry machinery
+                // (not implemented; see IRQ1/HALT discussion) while still distinguishing
+                // a double fault from a single one via m_okDoubleHangupArmed.
+                intrVector = 0000004;  intrMode = false;
+                m_RPL2rq = false;
             }
             else if (m_RPLYrq && currMode)  // Зависание в HALT, priority 1
             {
                 intrVector = 0004;  intrMode = true;
                 m_RPLYrq = false;
+                m_okDoubleHangupArmed = true;
             }
             else if (m_RPLYrq && !currMode)  // Зависание в USER, priority 1
             {
                 intrVector = 0000004;  intrMode = false;
                 m_RPLYrq = false;
-            }
-            else if (m_RPL2rq)  // Двойное зависание, priority 1
-            {
-                intrVector = 0174;  intrMode = true;
-                m_RPL2rq = false;
+                m_okDoubleHangupArmed = true;
             }
             else if (m_RSVDrq)  // Reserved command, priority 2
             {
@@ -308,7 +297,7 @@ void CProcessor::Execute()
                 intrVector = 000014;  intrMode = false;
                 m_TBITrq = false;
             }
-            else if (m_ACLOrq && (m_psw & 0600) != 0600)  // ACLO, priority 4
+            else if (m_ACLOrq && (m_psw & PSW_ACLOMASK) == 0)  // ACLO, priority 4; masked by PSW10
             {
                 intrVector = 000024;  intrMode = false;
                 m_ACLOrq = false;
@@ -317,19 +306,20 @@ void CProcessor::Execute()
             {
                 intrVector = 0170;  intrMode = true;
             }
-            else if (m_IRQ2rq && (m_psw & 0200) != 0200)  // EVNT signal, priority 6
+            else if (m_IRQ1rq && (m_psw & (PSW_ACLOMASK | PSW_IRQ1MASK)) == 0)  // priority 5; masked by PSW10 or PSW11
+            {
+                // The BK-0010 monitor ROM handles the STOP key through the same vector as
+                // a bus timeout ("прерывание по клавише СТОП или зависанию (вектор 4)");
+                // real BK hardware does not implement a separate console-mode entry for it.
+                intrVector = 0000004;  intrMode = false;
+                m_IRQ1rq = false;
+            }
+            else if (m_IRQ2rq && (m_psw & (PSW_P | PSW_ACLOMASK)) == 0)  // EVNT signal, priority 6; masked by PSW7 or PSW10
             {
                 intrVector = 0000100;  intrMode = false;
                 m_IRQ2rq = false;
             }
-            else if (m_IRQ1rq /*TODO: masking*/)  //TODO: fix priority
-            {
-                SetWord(0177716, m_pBoard->GetSelRegister() | 010);  // Set bit 3 of SEL1
-                MemoryError();  // Instead of this should be writing PSW->0177676, PC->0177674
-                m_IRQ1rq = false;
-                continue;
-            }
-            else if (m_virqrq > 0 && (m_psw & 0200) != 0200)  // VIRQ, priority 7
+            else if (m_virqrq > 0 && (m_psw & (PSW_P | PSW_ACLOMASK)) == 0)  // VIRQ, priority 7; masked by PSW7 or PSW10
             {
                 intrMode = false;
                 for (int irq = 0; irq <= 15; irq++)
@@ -343,6 +333,31 @@ void CProcessor::Execute()
                     }
                 }
                 if (intrVector == 0) m_virqrq = 0;
+            }
+            else if (m_HALTrq)  // HALT command, priority 13 (software traps are lowest priority)
+            {
+                intrVector = 0002;  intrMode = true;
+                m_HALTrq = false;
+            }
+            else if (m_BPT_rq)  // BPT command, priority 14
+            {
+                intrVector = 0000014;  intrMode = false;
+                m_BPT_rq = false;
+            }
+            else if (m_IOT_rq)  // IOT command, priority 15
+            {
+                intrVector = 0000020;  intrMode = false;
+                m_IOT_rq = false;
+            }
+            else if (m_EMT_rq)  // EMT command, priority 16
+            {
+                intrVector = 0000030;  intrMode = false;
+                m_EMT_rq = false;
+            }
+            else if (m_TRAPrq)  // TRAP command, priority 17
+            {
+                intrVector = 0000034;  intrMode = false;
+                m_TRAPrq = false;
             }
 
             if (intrVector == 0)
@@ -375,6 +390,7 @@ void CProcessor::Execute()
 
                 SetPC(GetWord(intrVector));
                 m_psw = GetWord(intrVector + 2) & 0377;
+                m_okDoubleHangupArmed = false;  // Entry completed without a further fault
             }
         }  // end while
     }
@@ -433,7 +449,11 @@ void CProcessor::DeassertHALT()
 }
 void CProcessor::MemoryError()
 {
-    m_RPLYrq = true;
+    // A second bus fault while the first one is still being delivered escalates
+    // to a double hangup instead of repeating the same fault.
+    m_RPL2rq = m_okDoubleHangupArmed;
+    m_RPLYrq = !m_okDoubleHangupArmed;
+    m_okDoubleHangupArmed = false;
 }
 void CProcessor::AssertIRQ1()
 {
@@ -490,9 +510,6 @@ void CProcessor::ExecuteWAIT()  // WAIT - Wait for an interrupt
 void CProcessor::ExecuteRUN()
 {
     m_HALTrq = true;
-
-    //SetPC(m_savepc);
-    //SetPSW(m_savepsw);
 }
 
 void CProcessor::ExecuteHALT()  // HALT - Останов
@@ -503,10 +520,7 @@ void CProcessor::ExecuteHALT()  // HALT - Останов
 void CProcessor::ExecuteSTEP()
 {
     m_HALTrq = true;
-
     m_stepmode = true;
-    //SetPC(m_savepc);
-    //SetPSW(m_savepsw);
 }
 
 void CProcessor::ExecuteRTI()  // RTI - Return from Interrupt
@@ -642,7 +656,7 @@ void CProcessor::ExecuteSWAB()
     SetV(false);
     SetC(false);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteCLR()
@@ -662,7 +676,7 @@ void CProcessor::ExecuteCLR()
     SetV(false);
     SetC(false);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteCLRB()
@@ -684,7 +698,7 @@ void CProcessor::ExecuteCLRB()
     SetV(false);
     SetC(false);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteCOM()
@@ -715,7 +729,7 @@ void CProcessor::ExecuteCOM()
     SetV(false);
     SetC(true);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteCOMB()
@@ -746,7 +760,7 @@ void CProcessor::ExecuteCOMB()
     SetV(false);
     SetC(true);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteINC()
@@ -776,7 +790,7 @@ void CProcessor::ExecuteINC()
     SetZ(!dst);
     SetV(dst == 0100000);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteINCB()
@@ -806,7 +820,7 @@ void CProcessor::ExecuteINCB()
     SetZ(!dst);
     SetV(dst == 0200);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteDEC()
@@ -836,7 +850,7 @@ void CProcessor::ExecuteDEC()
     SetZ(!dst);
     SetV(dst == 077777);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteDECB()
@@ -866,7 +880,7 @@ void CProcessor::ExecuteDECB()
     SetZ(!dst);
     SetV(dst == 0177);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteNEG()
@@ -897,7 +911,7 @@ void CProcessor::ExecuteNEG()
     SetV(dst == 0100000);
     SetC(!GetZ());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteNEGB()
@@ -928,7 +942,7 @@ void CProcessor::ExecuteNEGB()
     SetV(dst == 0200);
     SetC(!GetZ());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteADC()
@@ -959,7 +973,7 @@ void CProcessor::ExecuteADC()
     SetV(GetC() && (dst == 0100000));
     SetC(GetC() && GetZ());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteADCB()
@@ -990,7 +1004,7 @@ void CProcessor::ExecuteADCB()
     SetV(GetC() && (dst == 0200));
     SetC(GetC() && GetZ());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteSBC()
@@ -1021,7 +1035,7 @@ void CProcessor::ExecuteSBC()
     SetV(GetC() && (dst == 077777));
     SetC(GetC() && (dst == 0177777));
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteSBCB()
@@ -1052,7 +1066,7 @@ void CProcessor::ExecuteSBCB()
     SetV(GetC() && (dst == 0177));
     SetC(GetC() && (dst == 0377));
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteTST()
@@ -1127,7 +1141,7 @@ void CProcessor::ExecuteROR()
     SetC(src & 1);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteRORB()
@@ -1158,7 +1172,7 @@ void CProcessor::ExecuteRORB()
     SetC(src & 1);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteROL()
@@ -1189,7 +1203,7 @@ void CProcessor::ExecuteROL()
     SetC((src >> 15) != 0);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteROLB()
@@ -1220,7 +1234,7 @@ void CProcessor::ExecuteROLB()
     SetC((src >> 7) != 0);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteASR()
@@ -1251,7 +1265,7 @@ void CProcessor::ExecuteASR()
     SetC(src & 1);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteASRB()
@@ -1282,7 +1296,7 @@ void CProcessor::ExecuteASRB()
     SetC(src & 1);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteASL()
@@ -1313,7 +1327,7 @@ void CProcessor::ExecuteASL()
     SetC((src >> 15) != 0);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteASLB()
@@ -1344,7 +1358,7 @@ void CProcessor::ExecuteASLB()
     SetC((src >> 7) != 0);
     SetV(GetN() != GetC());
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteSXT()  // SXT - sign-extend
@@ -1362,7 +1376,7 @@ void CProcessor::ExecuteSXT()  // SXT - sign-extend
     SetZ(!GetN());
     SetV(false);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteMTPS()  // MTPS - move to PS
@@ -1388,7 +1402,7 @@ void CProcessor::ExecuteMTPS()  // MTPS - move to PS
         SetPSW((GetPSW() & 0420) | (dst & 0357));  // preserve T
     }
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteMFPS()  // MFPS - move from PS
@@ -1411,7 +1425,7 @@ void CProcessor::ExecuteMFPS()  // MFPS - move from PS
     SetZ(psw == 0);
     SetV(false);
 
-    m_internalTick = TIMING_REGREG + TIMING_AB[m_methdest];
+    m_internalTick = TIMING_REGREG + TIMING_B[m_methdest];
 }
 
 void CProcessor::ExecuteBR()

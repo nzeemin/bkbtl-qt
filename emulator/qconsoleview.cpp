@@ -114,17 +114,13 @@ void QConsoleView::printRegister(const char * strName, quint16 value)
 
 void QConsoleView::printMemoryDump(quint16 address, int lines)
 {
-    CProcessor* pProc = getCurrentProcessor();
-
     address &= ~1;  // Line up to even address
-
-    bool okHaltMode = pProc->IsHaltMode();
 
     for (int line = 0; line < lines; line++)
     {
         quint16 dump[8];
         for (int i = 0; i < 8; i++)
-            dump[i] = g_pBoard->GetWord(address + i * 2, okHaltMode);
+            dump[i] = g_pBoard->GetWord(address + i * 2, false);
 
         char buffer[2 + 6 + 2 + 7 * 8 + 1 + 16 + 1 + 2];
         char* pBuf = buffer;
@@ -164,14 +160,11 @@ void QConsoleView::printMemoryDump(quint16 address, int lines)
 // Return value: number of words disassembled
 int QConsoleView::printDisassemble(quint16 address, bool okOneInstr, bool okShort)
 {
-    CProcessor* pProc = getCurrentProcessor();
-    bool okHaltMode = pProc->IsHaltMode();
-
     const int nWindowSize = 30;
     quint16 memory[nWindowSize + 2];
     int addrtype;
     for (int i = 0; i < nWindowSize + 2; i++)
-        memory[i] = g_pBoard->GetWordView(address + i * 2, okHaltMode, true, &addrtype);
+        memory[i] = g_pBoard->GetWordView(address + i * 2, true, &addrtype);
 
     char bufaddr[7];
     char bufvalue[7];
@@ -361,7 +354,7 @@ void QConsoleView::saveMemoryDump(quint16 addr1, quint16 addr2)
     {
         quint16 address = (quint16)(addr1 + i);
         int addrtype;
-        quint16 word = g_pBoard->GetWordView(address & ~1, true, false, &addrtype);
+        quint16 word = g_pBoard->GetWordView(address & ~1, false, &addrtype);
         quint8 value = (address & 1) ? (quint8)(word >> 8) : (quint8)(word & 0xff);
         buf[(int)i] = (char)value;
     }

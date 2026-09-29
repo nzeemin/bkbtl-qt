@@ -290,7 +290,7 @@ void QDisasmView::updateData()
     for (int idx = 0; idx < nWindowSize; idx++)
     {
         memory[idx] = g_pBoard->GetWordView(
-                current + idx * 2 - 10, pProc->IsHaltMode(), true, addrtype + idx);
+                current + idx * 2 - 10, true, addrtype + idx);
     }
 
     quint16 address = current - 10;

@@ -180,9 +180,6 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
     QColor colorMemoryIO = Common_GetColorShifted(palette(), COLOR_MEMORYIO);
     QColor colorMemoryNA = Common_GetColorShifted(palette(), COLOR_MEMORYNA);
 
-    CProcessor* pDebugPU = g_pBoard->GetCPU();
-    ASSERT(pDebugPU != nullptr);
-
     m_cyLineMemory = cyLine;
 
     if (m_NumeralMode == MEMMODENUM_OCT)
@@ -225,11 +222,9 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
             // Get word from memory
             quint16 word = 0;
             int addrtype;
-            bool okHalt = false;
             quint16 wChanged = 0;
 
-            okHalt = pDebugPU->IsHaltMode();
-            word = g_pBoard->GetWordView(address, okHalt, false, &addrtype);
+            word = g_pBoard->GetWordView(address, false, &addrtype);
             wChanged = Emulator_GetChangeRamStatus(address);
 
             if ((addrtype & (ADDRTYPE_IO | ADDRTYPE_DENY)) == 0)
