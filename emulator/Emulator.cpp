@@ -11,6 +11,7 @@ BKBTL. If not, see <http://www.gnu.org/licenses/>. */
 // Emulator.cpp
 
 #include "stdafx.h"
+#include <QElapsedTimer>
 #include "main.h"
 #include "mainwindow.h"
 #include "Emulator.h"
@@ -37,7 +38,7 @@ quint16 m_wEmulatorTempCPUBreakpoint = 0177777;
 static bool m_okEmulatorSound = false;
 
 static long m_nFrameCount = 0;
-static QTime m_emulatorTime;
+static QElapsedTimer m_emulatorTime;
 static int m_nTickCount = 0;
 static quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every FRAMERATE frames
 static long m_nUptimeFrameCount = 0;
@@ -121,10 +122,10 @@ static const char * FILENAME_BKROM_BK11M_MSTD = "b11m_mstd.rom";
 //////////////////////////////////////////////////////////////////////
 // Colors
 
-const quint32 ScreenView_BWPalette[4] =
-{
-    0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF
-};
+//const quint32 ScreenView_BWPalette[4] =
+//{
+//    0xFF000000, 0xFFFFFFFF, 0xFF000000, 0xFFFFFFFF
+//};
 
 const quint32 ScreenView_ColorPalette[4] =
 {

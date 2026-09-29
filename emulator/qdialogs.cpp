@@ -7,7 +7,7 @@
 
 
 QInputOctalDialog::QInputOctalDialog(QWidget *parent, const QString & title, quint16 * value)
-    : QDialog(parent, nullptr)
+    : QDialog(parent)
 {
     m_result = value;
 
@@ -91,7 +91,7 @@ void QInputOctalDialog::accept()
 
 
 QAboutDialog::QAboutDialog(QWidget * parent)
-    : QDialog(parent, nullptr)
+    : QDialog(parent)
 {
     setWindowTitle(tr("About"));
 

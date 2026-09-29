@@ -271,7 +271,7 @@ QScriptWindow::QScriptWindow(QWidget * parent)
     setMinimumSize(300, 125);
     setMaximumSize(400, 200);
     m_cancelButton.setText(tr("Stop"));
-    m_vlayout.addWidget(&m_static, 0, 0);
+    m_vlayout.addWidget(&m_static, 0);
     m_vlayout.addWidget(&m_cancelButton, 0, Qt::AlignHCenter);
     setLayout(&m_vlayout);
     setModal(true);
