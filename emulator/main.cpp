@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     QTimer timerFrame;
     QObject::connect(&timerFrame, SIGNAL(timeout()), &w, SLOT(emulatorFrame()), Qt::AutoConnection);
-    timerFrame.start(32);
+    timerFrame.start(16);
 
     int result = application.exec();
 

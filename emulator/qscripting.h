@@ -76,8 +76,8 @@ public:
 public slots:
     /// \brief Resets the emulator.
     void reset();
-    /// \brief Runs the emulator for the given number of frames. One second is 25 frames.
-    /// \param frames Number of frames to execute. Every frame is 1/25 second.
+    /// \brief Runs the emulator for the given number of frames. One second is 50 frames.
+    /// \param frames Number of frames to execute. Every frame is 1/50 second.
     bool run(int frames);
     /// \brief Get emulator uptime, in seconds.
     float getUptime();

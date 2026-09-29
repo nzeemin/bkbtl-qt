@@ -376,7 +376,7 @@ void MainWindow::showFps(double framesPerSecond)
     }
     else
     {
-        double speed = framesPerSecond / 25.0 * 100.0;
+        double speed = framesPerSecond / FRAMERATE * 100.0;
         char buffer[16];
         _snprintf(buffer, 16, "%03.f%%", speed);
         m_statusLabelFrames->setText(buffer);

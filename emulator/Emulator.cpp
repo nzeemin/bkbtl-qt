@@ -39,7 +39,7 @@ static bool m_okEmulatorSound = false;
 static long m_nFrameCount = 0;
 static QTime m_emulatorTime;
 static int m_nTickCount = 0;
-static quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every 25 frames
+static quint32 m_dwEmulatorUptime = 0;  // BK uptime, seconds, from turn on or reset, increments every FRAMERATE frames
 static long m_nUptimeFrameCount = 0;
 
 quint8* g_pEmulatorRam;  // RAM values - for change tracking
@@ -551,9 +551,9 @@ bool Emulator_SystemFrame()
         m_nTickCount = nCurrentTicks;
     }
 
-    // Calculate emulator uptime (25 frames per second)
+    // Calculate emulator uptime (FRAMERATE frames per second)
     m_nUptimeFrameCount++;
-    if (m_nUptimeFrameCount >= 25)
+    if (m_nUptimeFrameCount >= FRAMERATE)
     {
         m_dwEmulatorUptime++;
         m_nUptimeFrameCount = 0;
@@ -566,7 +566,7 @@ bool Emulator_SystemFrame()
 
 float Emulator_GetUptime()
 {
-    return (float)m_dwEmulatorUptime + float(m_nUptimeFrameCount) / 25.0f;
+    return (float)m_dwEmulatorUptime + float(m_nUptimeFrameCount) / (float)FRAMERATE;
 }
 
 // Update cached values after Run or Step
