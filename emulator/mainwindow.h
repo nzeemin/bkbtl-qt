@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QElapsedTimer>
 
 class QEmulatorScreen;
 class QKeyboardView;
@@ -110,6 +111,9 @@ private:
     QLabel* m_statusLabelInfo;
     QLabel* m_statusLabelFrames;
     QLabel* m_statusLabelUptime;
+
+    QElapsedTimer m_frameElapsed;  // Wall-clock pacing for emulatorFrame()
+    double m_frameLeftover;        // Accumulated milliseconds not yet turned into frames
 
     void setConfiguration(int configuration);
 };

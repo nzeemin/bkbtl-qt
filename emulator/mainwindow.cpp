@@ -173,6 +173,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setFocusProxy(m_screen);
 
     autoStartProcessed = false;
+    m_frameLeftover = 0;
 }
 
 MainWindow::~MainWindow()
@@ -558,13 +559,41 @@ void MainWindow::viewTape()
 
 void MainWindow::emulatorFrame()
 {
-    if (!g_okEmulatorRunning)
+    if (!g_okEmulatorRunning || !isActiveWindow())
+    {
+        m_frameElapsed.invalidate();  // Pause pacing; no catch-up burst on resume
         return;
-    if (!isActiveWindow())
-        return;
+    }
 
-    if (!Emulator_SystemFrame())
-        Emulator_Stop();  // Breakpoint hit
+    // The timer ticks faster than FRAMERATE; run only as many frames as real time allows,
+    // so the emulation runs at true FRAMERATE regardless of the timer granularity and jitter
+    if (!m_frameElapsed.isValid())
+    {
+        m_frameElapsed.start();
+        m_frameLeftover = 0;
+    }
+    m_frameLeftover += m_frameElapsed.restart();
+
+    const double frameMs = 1000.0 / FRAMERATE;
+    int framesToRun = (int)(m_frameLeftover / frameMs);
+    if (framesToRun <= 0)
+        return;
+    if (framesToRun > 4)  // Limit work per tick; the unrun time stays in the accumulator to catch up
+        framesToRun = 4;
+
+    int framesRun = 0;
+    for (int i = 0; i < framesToRun; i++)
+    {
+        if (!Emulator_SystemFrame())
+        {
+            Emulator_Stop();  // Breakpoint hit
+            break;
+        }
+        framesRun++;
+    }
+    m_frameLeftover -= framesRun * frameMs;  // Subtract only what ran, so a brief overload catches up
+    if (m_frameLeftover > frameMs * 8)       // Bound the backlog if truly CPU-bound
+        m_frameLeftover = frameMs * 8;
 
     m_screen->repaint();
 }

@@ -79,8 +79,9 @@ int main(int argc, char *argv[])
     }
 
     QTimer timerFrame;
+    timerFrame.setTimerType(Qt::PreciseTimer);
     QObject::connect(&timerFrame, SIGNAL(timeout()), &w, SLOT(emulatorFrame()), Qt::AutoConnection);
-    timerFrame.start(16);
+    timerFrame.start(1000 / FRAMERATE / 2);  // Tick faster than the frame rate; emulatorFrame() paces to FRAMERATE
 
     int result = application.exec();
 
