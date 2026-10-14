@@ -169,6 +169,7 @@ CProcessor::CProcessor(CMotherboard* pBoard)
 {
     ASSERT(pBoard != nullptr);
     m_pBoard = pBoard;
+    m_pInstructionCallback = nullptr;
     ::memset(m_R, 0, sizeof(m_R));
     m_psw = 0340;
     m_okStopped = true;
@@ -311,6 +312,9 @@ void CProcessor::Execute()
                 // The BK-0010 monitor ROM handles the STOP key through the same vector as
                 // a bus timeout ("прерывание по клавише СТОП или зависанию (вектор 4)");
                 // real BK hardware does not implement a separate console-mode entry for it.
+                // The microcode's write to 177716 sets its "write flag" (bit 2), which is how
+                // handlers tell a STOP key press from a genuine bus hang (BIT #4,@#177716).
+                SetWord(0177716, 0210);
                 intrVector = 0000004;  intrMode = false;
                 m_IRQ1rq = false;
             }
@@ -476,8 +480,8 @@ void CProcessor::FetchInstruction()
 
 void CProcessor::TranslateInstruction()
 {
-    //if (m_okTrace)
-    //    TraceInstruction(this, m_instructionpc);
+    if (m_pInstructionCallback != nullptr)
+        m_pInstructionCallback(this, m_instructionpc, m_instruction);
 
     // Prepare values to help decode the command
     m_regdest  = GetDigit(m_instruction, 0);

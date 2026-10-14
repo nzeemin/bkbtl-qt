@@ -182,6 +182,8 @@ bool Emulator_LoadRomFile(const char * strFileName, quint8* buffer, quint32 file
     return true;
 }
 
+void CALLBACK Emulator_Instruction_Callback(const CProcessor* pProc, uint16_t address, uint16_t opcode);
+
 bool Emulator_Init()
 {
     ASSERT(g_pBoard == nullptr);
@@ -202,7 +204,10 @@ bool Emulator_Init()
     g_pEmulatorRam = (quint8*) ::malloc(65536);  ::memset(g_pEmulatorRam, 0, 65536);
     g_pEmulatorChangedRam = (quint8*) ::malloc(65536);  ::memset(g_pEmulatorChangedRam, 0, 65536);
 
+    g_pBoard->SetInstructionCallback(Emulator_Instruction_Callback);
+
     g_pBoard->Reset();
+    Emulator_ClearHistory();
 
     g_sound = new QSoundOut();
     if (m_okEmulatorSound)
@@ -231,6 +236,7 @@ void Emulator_Done()
 
     CProcessor::Done();
 
+    g_pBoard->SetInstructionCallback(nullptr);
     g_pBoard->SetSoundGenCallback(nullptr);
     if (g_sound)
     {
@@ -376,6 +382,7 @@ bool Emulator_InitConfiguration(BKConfiguration configuration)
     g_nEmulatorConfiguration = configuration;
 
     g_pBoard->Reset();
+    Emulator_ClearHistory();
 
 #if 0  //DEBUG: CPU and memory tests
     //Emulator_LoadRomFile("791401", buffer, 8192);
@@ -432,6 +439,7 @@ void Emulator_Reset()
     ASSERT(g_pBoard != nullptr);
 
     g_pBoard->Reset();
+    Emulator_ClearHistory();
 
     m_nUptimeFrameCount = 0;
     m_dwEmulatorUptime = 0;
@@ -528,6 +536,46 @@ void Emulator_RemoveAllBreakpoints()
     for (int i = 0; i < MAX_BREAKPOINTCOUNT; i++)
         m_EmulatorCPUBps[i] = 0177777;
     m_wEmulatorCPUBpsCount = 0;
+}
+
+// Instruction history: ring buffer filled by Emulator_Instruction_Callback
+static InstructionRecord m_InstrHistory[INSTR_HISTORY_SIZE];
+static int m_InstrHistoryHead = 0;    // Index of the next record to write
+static int m_InstrHistoryLength = 0;  // Number of valid records
+
+int Emulator_GetHistoryLength()
+{
+    return m_InstrHistoryLength;
+}
+
+// Index 0 is the most recent instruction
+const InstructionRecord& Emulator_GetHistoryRecord(int index)
+{
+    ASSERT(index >= 0 && index < m_InstrHistoryLength);
+    return m_InstrHistory[(m_InstrHistoryHead - 1 - index) & (INSTR_HISTORY_SIZE - 1)];
+}
+
+void Emulator_ClearHistory()
+{
+    m_InstrHistoryHead = 0;
+    m_InstrHistoryLength = 0;
+}
+
+// Called by the CPU before each instruction is executed
+void CALLBACK Emulator_Instruction_Callback(const CProcessor* pProc, uint16_t address, uint16_t opcode)
+{
+    // Instruction is at most 3 words long
+    int addrtype = ADDRTYPE_RAM;
+    InstructionRecord& record = m_InstrHistory[m_InstrHistoryHead];
+    record.pc = address;
+    record.words[0] = opcode;
+    record.words[1] = g_pBoard->GetWordView((quint16)(address + 1 * 2), true, &addrtype);
+    record.words[2] = g_pBoard->GetWordView((quint16)(address + 2 * 2), true, &addrtype);
+    record.psw = pProc->GetPSW();
+
+    m_InstrHistoryHead = (m_InstrHistoryHead + 1) & (INSTR_HISTORY_SIZE - 1);
+    if (m_InstrHistoryLength < INSTR_HISTORY_SIZE)
+        m_InstrHistoryLength++;
 }
 
 bool Emulator_SystemFrame()
@@ -1299,6 +1347,7 @@ bool Emulator_LoadImage(const QString &sFilePath)
 
     // Restore emulator state from the image
     g_pBoard->LoadFromImage(pImage);
+    Emulator_ClearHistory();
 
     m_dwEmulatorUptime = *(quint32*)(pImage + 16);
     g_wEmulatorCpuPC = g_pBoard->GetCPU()->GetPC();

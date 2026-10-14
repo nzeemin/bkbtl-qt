@@ -8,6 +8,7 @@ class QKeyboardView;
 class QConsoleView;
 class QDebugView;
 class QDisasmView;
+class QInstrHistoryView;
 class QMemoryView;
 class QTeletypeView;
 class QTapeView;
@@ -67,6 +68,7 @@ public slots:
     void emulatorFloppy(int slot);
     void debugConsoleView();
     void debugDisasmView();
+    void debugInstrHistoryView();
     void debugMemoryView();
     void debugTeletypeView();
     void debugStepInto();
@@ -96,6 +98,8 @@ private:
     QDockWidget* m_dockDebug;
     QDisasmView *m_disasm;
     QDockWidget* m_dockDisasm;
+    QInstrHistoryView *m_instrHistory;
+    QDockWidget* m_dockInstrHistory;
     QMemoryView * m_memory;
     QDockWidget* m_dockMemory;
     QTeletypeView * m_teletype;

@@ -17,6 +17,7 @@ SOURCES += main.cpp \
     qkeyboardview.cpp \
     qdebugview.cpp \
     qdisasmview.cpp \
+    qinstrhistoryview.cpp \
     qconsoleview.cpp \
     qmemoryview.cpp \
     qteletypeview.cpp \
@@ -39,6 +40,7 @@ HEADERS += mainwindow.h \
     qkeyboardview.h \
     qdebugview.h \
     qdisasmview.h \
+    qinstrhistoryview.h \
     qconsoleview.h \
     qmemoryview.h \
     qteletypeview.h \

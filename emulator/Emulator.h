@@ -47,6 +47,20 @@ float Emulator_GetUptime();  // BK uptime, in seconds
 void Emulator_GetScreenSize(int scrmode, int* pwid, int* phei);
 void Emulator_PrepareScreenRGB32(void* pBits, int screenMode);
 
+// Instruction history, always recorded
+const int INSTR_HISTORY_SIZE = 256;  // Must be a power of two
+
+struct InstructionRecord
+{
+    quint16 pc;
+    quint16 words[3];  // Opcode and two next words; the instruction is at most 3 words long
+    quint16 psw;       // Processor status word before the instruction
+};
+
+int Emulator_GetHistoryLength();
+const InstructionRecord& Emulator_GetHistoryRecord(int index);  // index 0 = most recent
+void Emulator_ClearHistory();
+
 void Emulator_KeyEvent(quint8 keyPressed, bool pressed, bool ctrl);
 quint16 Emulator_GetKeyEventFromQueue();
 void Emulator_ProcessKeyEvent();
