@@ -50,16 +50,20 @@ void Emulator_PrepareScreenRGB32(void* pBits, int screenMode);
 // Instruction history, always recorded
 const int INSTR_HISTORY_SIZE = 256;  // Must be a power of two
 
+// A record is either an executed instruction or an interrupt taken by the processor
 struct InstructionRecord
 {
-    quint16 pc;
-    quint16 words[3];  // Opcode and two next words; the instruction is at most 3 words long
-    quint16 psw;       // Processor status word before the instruction
+    quint16 pc;        // Instruction: its address; interrupt: PC where the interrupt appeared
+    quint16 words[3];  // Instruction: opcode and two next words, the instruction is at most 3 words long;
+    // interrupt: vector, new PC, new PSW
+    quint16 psw;       // Instruction: PSW before it; interrupt: new PSW
+    bool    interrupt; // true = interrupt record
 };
 
 int Emulator_GetHistoryLength();
 const InstructionRecord& Emulator_GetHistoryRecord(int index);  // index 0 = most recent
 void Emulator_ClearHistory();
+LPCTSTR Emulator_GetInterruptName(quint16 vector);  // Short name of the interrupt vector
 
 void Emulator_KeyEvent(quint8 keyPressed, bool pressed, bool ctrl);
 quint16 Emulator_GetKeyEventFromQueue();

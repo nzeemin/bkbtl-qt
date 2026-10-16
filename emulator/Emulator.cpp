@@ -183,6 +183,7 @@ bool Emulator_LoadRomFile(const char * strFileName, quint8* buffer, quint32 file
 }
 
 void CALLBACK Emulator_Instruction_Callback(const CProcessor* pProc, uint16_t address, uint16_t opcode);
+void CALLBACK Emulator_Interrupt_Callback(const CProcessor* pProc, uint16_t oldPc, uint16_t vector);
 
 bool Emulator_Init()
 {
@@ -205,6 +206,7 @@ bool Emulator_Init()
     g_pEmulatorChangedRam = (quint8*) ::malloc(65536);  ::memset(g_pEmulatorChangedRam, 0, 65536);
 
     g_pBoard->SetInstructionCallback(Emulator_Instruction_Callback);
+    g_pBoard->SetInterruptCallback(Emulator_Interrupt_Callback);
 
     g_pBoard->Reset();
     Emulator_ClearHistory();
@@ -237,6 +239,7 @@ void Emulator_Done()
     CProcessor::Done();
 
     g_pBoard->SetInstructionCallback(nullptr);
+    g_pBoard->SetInterruptCallback(nullptr);
     g_pBoard->SetSoundGenCallback(nullptr);
     if (g_sound)
     {
@@ -561,21 +564,60 @@ void Emulator_ClearHistory()
     m_InstrHistoryLength = 0;
 }
 
+// Take the next slot of the history ring; the caller fills the record
+static InstructionRecord& Emulator_AddHistoryRecord()
+{
+    InstructionRecord& record = m_InstrHistory[m_InstrHistoryHead];
+    m_InstrHistoryHead = (m_InstrHistoryHead + 1) & (INSTR_HISTORY_SIZE - 1);
+    if (m_InstrHistoryLength < INSTR_HISTORY_SIZE)
+        m_InstrHistoryLength++;
+    return record;
+}
+
+// Short name of the interrupt vector
+LPCTSTR Emulator_GetInterruptName(quint16 vector)
+{
+    switch (vector)
+    {
+    case 0004: return "STOP/BUS";  // STOP key and bus timeout share the vector
+    case 0010: return "RSVD";
+    case 0014: return "BPT/TBIT";
+    case 0020: return "IOT";
+    case 0024: return "ACLO";
+    case 0030: return "EMT";
+    case 0034: return "TRAP";
+    case 0060: return "KEYB";
+    case 0064: return "TTY";
+    case 0100: return "EVNT";
+    case 0274: return "KEYB2";
+    default:   return "VIRQ";
+    }
+}
+
 // Called by the CPU before each instruction is executed
 void CALLBACK Emulator_Instruction_Callback(const CProcessor* pProc, uint16_t address, uint16_t opcode)
 {
     // Instruction is at most 3 words long
     int addrtype = ADDRTYPE_RAM;
-    InstructionRecord& record = m_InstrHistory[m_InstrHistoryHead];
+    InstructionRecord& record = Emulator_AddHistoryRecord();
     record.pc = address;
     record.words[0] = opcode;
     record.words[1] = g_pBoard->GetWordView((quint16)(address + 1 * 2), true, &addrtype);
     record.words[2] = g_pBoard->GetWordView((quint16)(address + 2 * 2), true, &addrtype);
     record.psw = pProc->GetPSW();
+    record.interrupt = false;
+}
 
-    m_InstrHistoryHead = (m_InstrHistoryHead + 1) & (INSTR_HISTORY_SIZE - 1);
-    if (m_InstrHistoryLength < INSTR_HISTORY_SIZE)
-        m_InstrHistoryLength++;
+// Called by the CPU when an interrupt has been taken, the new PC/PSW are already loaded
+void CALLBACK Emulator_Interrupt_Callback(const CProcessor* pProc, uint16_t oldPc, uint16_t vector)
+{
+    InstructionRecord& record = Emulator_AddHistoryRecord();
+    record.pc = oldPc;
+    record.words[0] = vector;
+    record.words[1] = pProc->GetPC();
+    record.words[2] = pProc->GetPSW();
+    record.psw = pProc->GetPSW();
+    record.interrupt = true;
 }
 
 bool Emulator_SystemFrame()
