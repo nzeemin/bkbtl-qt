@@ -57,6 +57,16 @@ bool Settings_GetSound()
     return value.toBool();
 }
 
+void Settings_SetVM1G(bool flag)
+{
+    Global_getSettings()->setValue("VM1G", flag);
+}
+bool Settings_GetVM1G()
+{
+    QVariant value = Global_getSettings()->value("VM1G", false);
+    return value.toBool();
+}
+
 void Settings_SetDebugBreakpoint(int bpno, quint16 address)
 {
     char bufValueName[] = "DebugBreakpt0";

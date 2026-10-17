@@ -36,7 +36,9 @@ const char CommandLineHelp[] =
     OPTIONSTR "nosound " OPTIONSTR "soundoff    Turn sound off\n"
     OPTIONSTR "debug " OPTIONSTR "debugon " OPTIONSTR "debugger    Show the debugger on window open\n"
     OPTIONSTR "nodebug " OPTIONSTR "debugoff    Do not show the debugger on window open\n"
-    OPTIONSTR "diskN:filePath    Attach floppy image filePath to drive N (N = A..D)\n";
+    OPTIONSTR "vm1g    Emulate K1801VM1G processor (MUL instruction, timer interrupt)\n"
+    OPTIONSTR "novm1g " OPTIONSTR "vm1goff    Emulate K1801VM1A/B/V processor\n"
+    OPTIONSTR "diskN:filePath   Attach floppy image filePath to drive N (N = A..D)\n";
 
 
 int main(int argc, char *argv[])
@@ -181,6 +183,14 @@ void ParseCommandLine(int argc, char *argv[])
             else if (option == "soundoff" || option == "nosound")
             {
                 Settings_SetSound(false);
+            }
+            else if (option == "vm1g")
+            {
+                Settings_SetVM1G(true);
+            }
+            else if (option == "novm1g" || option == "vm1goff")
+            {
+                Settings_SetVM1G(false);
             }
             else if (option == "debug" || option == "debugon" || option == "debugger")
             {

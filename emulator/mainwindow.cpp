@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(ui->actionConfBK10Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0010Fdd()));
     QObject::connect(ui->actionConfBK11, SIGNAL(triggered()), this, SLOT(configurationBK0011()));
     QObject::connect(ui->actionConfBK11Fdd, SIGNAL(triggered()), this, SLOT(configurationBK0011Fdd()));
+    QObject::connect(ui->actionConfVM1G, SIGNAL(triggered()), this, SLOT(configurationVM1G()));
     QObject::connect(ui->actionDebugConsoleView, SIGNAL(triggered()), this, SLOT(debugConsoleView()));
     QObject::connect(ui->actionDebugDisasmView, SIGNAL(triggered()), this, SLOT(debugDisasmView()));
     QObject::connect(ui->actionDebugInstrHistoryView, SIGNAL(triggered()), this, SLOT(debugInstrHistoryView()));
@@ -309,6 +310,7 @@ void MainWindow::updateMenu()
     ui->actionConfBK10Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0010_FDD);
     ui->actionConfBK11->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011);
     ui->actionConfBK11Fdd->setChecked(g_nEmulatorConfiguration == BK_CONF_BK0011_FDD);
+    ui->actionConfVM1G->setChecked(Settings_GetVM1G());
 
     ui->actionDrivesFloppy0->setIcon(QIcon(
             g_pBoard->IsFloppyImageAttached(0) ? ":/images/iconFloppy.svg" : ":/images/iconFloppySlot.svg" ));
@@ -503,6 +505,7 @@ void MainWindow::loadStateImage(const QString& strFileName)
     const char * sFileName = qPrintable(strFileName);
     Emulator_LoadImage(sFileName);
 
+    updateMenu();
     updateAllViews();
 }
 
@@ -656,6 +659,24 @@ void MainWindow::configurationBK0010Focal() { setConfiguration(BK_CONF_BK0010_FO
 void MainWindow::configurationBK0010Fdd()   { setConfiguration(BK_CONF_BK0010_FDD); }
 void MainWindow::configurationBK0011()      { setConfiguration(BK_CONF_BK0011); }
 void MainWindow::configurationBK0011Fdd()   { setConfiguration(BK_CONF_BK0011_FDD); }
+void MainWindow::configurationVM1G()
+{
+    // Ask user -- we have to reset machine to change the processor
+    if (!AlertOkCancel(tr("Reset required after processor change.\nAre you agree?")))
+    {
+        updateMenu();  // Revert the check mark toggled by the action
+        return;
+    }
+
+    Settings_SetVM1G(!Settings_GetVM1G());
+
+    // Reinitialize the current configuration to apply the processor variant
+    Emulator_InitConfiguration(g_nEmulatorConfiguration);
+
+    updateMenu();
+    Global_UpdateAllViews();
+}
+
 void MainWindow::setConfiguration(int configuration)
 {
     // Check if configuration changed

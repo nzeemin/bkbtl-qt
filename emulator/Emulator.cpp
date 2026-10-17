@@ -259,7 +259,11 @@ void Emulator_Done()
 
 bool Emulator_InitConfiguration(BKConfiguration configuration)
 {
-    g_pBoard->SetConfiguration(configuration);
+    // The processor variant is a separate setting, it is not part of g_nEmulatorConfiguration
+    quint16 boardConf = (quint16)configuration;
+    if (Settings_GetVM1G())
+        boardConf |= BK_COPT_VM1G;
+    g_pBoard->SetConfiguration(boardConf);
 
     quint8 buffer[8192];
 
@@ -589,6 +593,7 @@ LPCTSTR Emulator_GetInterruptName(quint16 vector)
     case 0060: return "KEYB";
     case 0064: return "TTY";
     case 0100: return "EVNT";
+    case 0270: return "TIMER";  // K1801VM1G timer expiry
     case 0274: return "KEYB2";
     default:   return "VIRQ";
     }
@@ -1389,6 +1394,7 @@ bool Emulator_LoadImage(const QString &sFilePath)
 
     // Restore emulator state from the image
     g_pBoard->LoadFromImage(pImage);
+    Settings_SetVM1G((g_pBoard->GetConfiguration() & BK_COPT_VM1G) != 0);  // Keep the setting and menu in sync with the state
     Emulator_ClearHistory();
 
     m_dwEmulatorUptime = *(quint32*)(pImage + 16);

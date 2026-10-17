@@ -66,6 +66,7 @@ public slots:
     void configurationBK0010Fdd();
     void configurationBK0011();
     void configurationBK0011Fdd();
+    void configurationVM1G();
     void emulatorFloppy(int slot);
     void debugConsoleView();
     void debugDisasmView();

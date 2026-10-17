@@ -78,6 +78,8 @@
     <addaction name="actionConfBK10Fdd"/>
     <addaction name="actionConfBK11"/>
     <addaction name="actionConfBK11Fdd"/>
+    <addaction name="separator"/>
+    <addaction name="actionConfVM1G"/>
    </widget>
    <widget class="QMenu" name="menuDebug">
     <property name="title">
@@ -308,6 +310,14 @@
    </property>
    <property name="text">
     <string>BK 0011M FDD</string>
+   </property>
+  </action>
+  <action name="actionConfVM1G">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>K1801VM1G CPU</string>
    </property>
   </action>
   <action name="actionEmulatorScreen0">
