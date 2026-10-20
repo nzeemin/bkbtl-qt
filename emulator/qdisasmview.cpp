@@ -11,6 +11,10 @@
 
 const int MAX_DISASMLINECOUNT = 50;
 const int HINT_CHARPOS = 52;
+const int DISASMVIEW_WINDOW_WORDS = 30;  // The window of the memory read for the rows, in words
+const int DISASMVIEW_ROWS_BEFORE_PC = 5;  // The window starts this many words before PC, so the PC row is at this index
+
+static_assert(DISASMVIEW_ROWS_BEFORE_PC + 2 < DISASMVIEW_WINDOW_WORDS, "The PC row and its words must be in the window");
 
 
 //////////////////////////////////////////////////////////////////////
@@ -276,27 +280,59 @@ void QDisasmView::updateData()
     m_wDisasmBaseAddr = pProc->GetPC();
 
     m_DisasmLineItems.clear();
-    m_strDisasmHint[0] = 0;
-    m_strDisasmHint2[0] = 0;
+    m_Hint.count = 0;
+    m_okDisasmJumpPredict = false;
 
     quint16 proccurrent = pProc->GetPC();
     quint16 current = m_wDisasmBaseAddr;
     quint16 previous = g_wEmulatorPrevCpuPC;
 
-    // Read from the processor memory to the buffer
-    const int nWindowSize = 30;
+    // Read from the processor memory to the buffer; the two words after the window are for the instructions
+    // in the last rows, which can have extra words. The addresses wrap around 16 bits, so the positions in
+    // the window are word indexes, counted from the window start; no comparison of the addresses.
+    const int nWindowSize = DISASMVIEW_WINDOW_WORDS;
     quint16 memory[nWindowSize + 2];
     int addrtype[nWindowSize + 2];
-    for (int idx = 0; idx < nWindowSize; idx++)
+    quint16 windowStart = (quint16)(current - DISASMVIEW_ROWS_BEFORE_PC * 2);
+    for (int idx = 0; idx < nWindowSize + 2; idx++)
     {
         memory[idx] = g_pBoard->GetWordView(
-                current + idx * 2 - 10, true, addrtype + idx);
+                (quint16)(windowStart + idx * 2), true, addrtype + idx);
     }
 
-    quint16 address = current - 10;
-    quint16 disasmfrom = current;
-    if ((previous >= address) && previous < current)
-        disasmfrom = previous;
+    quint16 address = windowStart;
+
+    // The index of the word where decoding starts: the PC row, or the previous PC when the decoding
+    // from there lands exactly on the PC row. Otherwise the walk can run through the PC row as an operand word
+    // of the previous instruction, and the PC row would get no mnemonic and no hint.
+    int disasmfrom = DISASMVIEW_ROWS_BEFORE_PC;
+    quint16 previousOffset = (quint16)(previous - windowStart);  // in bytes
+    if (previousOffset < DISASMVIEW_ROWS_BEFORE_PC * 2)
+    {
+        int walk = previousOffset / 2;
+        while (walk < DISASMVIEW_ROWS_BEFORE_PC)
+        {
+            quint16 walkAddress = (quint16)(windowStart + walk * 2);
+            // A row that the subtitles mark as data is one word, as in the main loop below
+            bool okWalkData = false;
+            if (!m_SubtitleItems.isEmpty())
+            {
+                const DisasmSubtitleItem* pWalkSub = findSubtitle(walkAddress, SUBTYPE_COMMENT | SUBTYPE_DATA);
+                okWalkData = (pWalkSub != nullptr && (pWalkSub->type & SUBTYPE_DATA) != 0);
+            }
+            int walkLength = 1;
+            if (!okWalkData)
+            {
+                char strInstr[16];
+                char strArg[40];
+                walkLength = DisassembleInstruction(memory + walk, walkAddress, strInstr, strArg);
+                if (walkLength < 1) walkLength = 1;
+            }
+            walk += walkLength;
+        }
+        if (walk == DISASMVIEW_ROWS_BEFORE_PC)
+            disasmfrom = previousOffset / 2;
+    }
 
     // Prepare the list of lines in m_DisasmLineItems
     int lineindex = 0;
@@ -340,15 +376,15 @@ void QDisasmView::updateData()
                 lineitem.type |= LINETYPE_SUBTITLE;
                 lineitem.pSubItem = pSubItem;
                 // Строку с субтитром мы можем использовать как опорную для дизассемблера
-                if (disasmfrom > address)
-                    disasmfrom = address;
+                if (disasmfrom > index)
+                    disasmfrom = index;
             }
         }
 
         if ((lineitem.type & LINETYPE_DATA) == 0)
             lineitem.type |= LINETYPE_INSTR;  // if it's not a data then an instruction
 
-        if (address >= disasmfrom && length == 0)
+        if (index >= disasmfrom && length == 0)
         {
             if (okData)  // We have non-instruction on the address -- no need to disassemble
             {
@@ -361,18 +397,15 @@ void QDisasmView::updateData()
 
                 if (m_SubtitleItems.isEmpty())  //NOTE: Subtitles can move lines down
                 {
-                    if (Disasm_CheckForJump(memory + index, &lineitem.jumpdelta))
+                    if (Disasm_CheckForJump(memory + index, address, &lineitem.jumpdelta))
                     {
                         lineitem.type |= LINETYPE_JUMP;
                     }
 
                     if (address == proccurrent)  // For current instruction, prepare the instruction hints
                     {
-                        m_okDisasmJumpPredict = Disasm_GetJumpConditionHint(memory + index, pProc, g_pBoard, m_strDisasmHint);
-                        if (*m_strDisasmHint == 0)  // we don't have the jump hint
-                        {
-                            Disasm_GetInstructionHint(memory + index, pProc, g_pBoard, m_strDisasmHint, m_strDisasmHint2);
-                        }
+                        Disasm_GetHint(memory + index, pProc, g_pBoard, &m_Hint);
+                        m_okDisasmJumpPredict = m_Hint.jumpPredict;
                     }
                 }
             }
@@ -472,6 +505,9 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 c
     QColor colorWindow = palette().color(QPalette::Window);
 
     quint16 proccurrent = pProc->GetPC();
+    // The window is always built around PC (updateData), so the PC row is the row DISASMVIEW_ROWS_BEFORE_PC:
+    // the current-line bar and the PC marker rely on this
+    ASSERT(current == proccurrent);
 
     // Draw breakpoint zone
     painter.fillRect(0, 0, m_cxDisasmBreakpointZone, this->height(), colorWindow);
@@ -479,7 +515,7 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 c
     // Draw current line background
     if (m_SubtitleItems.isEmpty())  //NOTE: Subtitles can move lines down
     {
-        int yCurrent = (proccurrent - (current - 5)) * cyLine + fontmetrics.descent();
+        int yCurrent = DISASMVIEW_ROWS_BEFORE_PC * cyLine + fontmetrics.descent();
         painter.fillRect(0, yCurrent, xHint, cyLine, colorWindow);
     }
 
@@ -578,19 +614,24 @@ int QDisasmView::drawDisassemble(QPainter &painter, CProcessor *pProc, quint16 c
 
             if (address == proccurrent)
             {
-                int cyHint = cyLine * (*m_strDisasmHint2 == 0 ? 1 : 2);
+                int hintLines = m_Hint.count > 0 ? m_Hint.count : 1;
+                int cyHint = cyLine * hintLines;
+                int cxHint = 0;  // Width of the longest hint line
+                for (int i = 0; i < m_Hint.count; i++)
+                    cxHint = qMax(cxHint, fontmetrics.horizontalAdvance(QString::fromLatin1(m_Hint.lines[i])));
+                cxHint = qMax(cxHint, 24 * cxChar);
                 QLinearGradient gradient(xHint - cxChar, 0, xHint + 25 * cxChar, 0);
                 gradient.setColorAt(0, colorWindow);
                 gradient.setColorAt(1, colorBackground);
                 painter.fillRect(xHint - cxChar, y - cyLine + fontmetrics.descent(), 25 * cxChar, cyHint, gradient);
+                painter.fillRect(xHint + 24 * cxChar, y - cyLine + fontmetrics.descent(), cxHint - 24 * cxChar, cyHint, colorBackground);
 
-                if (*m_strDisasmHint != 0)  // For current instruction, draw "Instruction Hints"
+                if (m_Hint.count > 0)  // For current instruction, draw "Instruction Hints"
                 {
-                    QColor hintcolor = Common_GetColorShifted(palette(), isjump ? COLOR_JUMPHINT : COLOR_HINT);
+                    QColor hintcolor = Common_GetColorShifted(palette(), m_Hint.isJump ? COLOR_JUMPHINT : COLOR_HINT);
                     painter.setPen(hintcolor);
-                    painter.drawText(xHint, y, m_strDisasmHint);
-                    if (*m_strDisasmHint2 != 0)
-                        painter.drawText(xHint, y + cyLine, m_strDisasmHint2);
+                    for (int i = 0; i < m_Hint.count; i++)
+                        painter.drawText(xHint, y + i * cyLine, m_Hint.lines[i]);
                     painter.setPen(colorText);
                 }
             }

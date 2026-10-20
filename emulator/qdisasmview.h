@@ -4,6 +4,8 @@
 #include <QVector>
 #include <QTextStream>
 #include <QWidget>
+#include "Common.h"
+#include "emubase/Emubase.h"
 
 class QPainter;
 class CProcessor;
@@ -75,8 +77,7 @@ private:
     quint16 m_wDisasmNextBaseAddr;
     QVector<DisasmSubtitleItem> m_SubtitleItems;
     bool m_okDisasmJumpPredict;
-    char m_strDisasmHint[42];
-    char m_strDisasmHint2[42];
+    DisasmHint m_Hint;  // Hints of the current instruction, up to DISASM_HINT_LINES lines
     QVector<DisasmLineItem> m_DisasmLineItems;
     int m_cxDisasmBreakpointZone;
     int m_cyDisasmLine;

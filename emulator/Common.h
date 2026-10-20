@@ -21,7 +21,6 @@ typedef char TCHAR;
 #define _tfopen     fopen
 #define _tfsopen    _fsopen
 #define _tcscpy     strcpy
-#define _tcscpy_s   strcpy_s
 #define _tstat      _stat
 #define _tcsrchr    strrchr
 #define _tcsicmp    _stricmp
@@ -29,6 +28,24 @@ typedef char TCHAR;
 #define _tcslen     strlen
 #define _sntprintf  _snprintf
 #define _T(x)       x
+
+#define _TRUNCATE   ((size_t)-1)
+// Safe string copy functions of MSVC, used by emubase/Disasm.cpp
+inline void _tcscpy_s(char* dst, size_t size, const char* src)
+{
+    size_t len = strlen(src);
+    if (len >= size) len = size - 1;
+    memcpy(dst, src, len);
+    dst[len] = 0;
+}
+inline void _tcsncpy_s(char* dst, size_t size, const char* src, size_t count)
+{
+    size_t len = strlen(src);
+    if (len > count) len = count;
+    if (len >= size) len = size - 1;
+    memcpy(dst, src, len);
+    dst[len] = 0;
+}
 #endif
 
 #ifdef __GNUC__
