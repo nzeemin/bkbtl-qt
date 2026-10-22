@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "qconsoleview.h"
 #include <QFile>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
 #include <QTextEdit>
@@ -9,6 +10,8 @@
 #include "main.h"
 #include "Emulator.h"
 #include "emubase/Emubase.h"
+
+const int CONSOLE_HISTORY_SIZE = 32;  // Commands kept in memory
 
 QString QConsoleView::MESSAGE_UNKNOWN_COMMAND;
 QString QConsoleView::MESSAGE_WRONG_VALUE;
@@ -42,7 +45,10 @@ QConsoleView::QConsoleView()
     m_prompt->setFont(font);
     m_edit->setFont(font);
 
+    m_historyPos = -1;
+    m_edit->installEventFilter(this);  // For Up/Down keys: command history
     QObject::connect(m_edit, SIGNAL(returnPressed()), this, SLOT(execConsoleCommand()));
+    QObject::connect(m_edit, SIGNAL(textEdited(QString)), this, SLOT(commandEdited()));
 
     this->print(tr("Use 'h' command to show help.\r\n\r\n"));
 }
@@ -545,15 +551,74 @@ static ConsoleCommands[] =
 };
 const size_t ConsoleCommandsCount = sizeof(ConsoleCommands) / sizeof(ConsoleCommands[0]);
 
+bool QConsoleView::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == m_edit && event->type() == QEvent::KeyPress)
+    {
+        int key = static_cast<QKeyEvent*>(event)->key();
+        if (key == Qt::Key_Up)
+        {
+            historyUp();
+            return true;
+        }
+        if (key == Qt::Key_Down)
+        {
+            historyDown();
+            return true;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void QConsoleView::commandEdited()
+{
+    m_historyPos = -1;
+}
+
+void QConsoleView::historyAdd(const QString &command)
+{
+    m_historyPos = -1;
+    if (command.isEmpty()) return;
+    if (!m_history.isEmpty() && m_history.last() == command) return;
+
+    m_history.append(command);
+    if (m_history.size() > CONSOLE_HISTORY_SIZE)
+        m_history.removeFirst();
+}
+
+void QConsoleView::historyShow()
+{
+    // setText() does not emit textEdited(), so the position stays
+    m_edit->setText(m_historyPos >= 0 ? m_history.at(m_history.size() - 1 - m_historyPos) : QString());
+    m_edit->end(false);  // Caret to the end
+}
+
+void QConsoleView::historyUp()
+{
+    if (m_history.isEmpty()) return;
+    if (m_historyPos < m_history.size() - 1)
+        m_historyPos++;
+    historyShow();
+}
+
+void QConsoleView::historyDown()
+{
+    if (m_historyPos == -1) return;
+    m_historyPos--;
+    historyShow();
+}
+
 void QConsoleView::execConsoleCommand()
 {
     QString command = m_edit->text();
     m_edit->clear();
+    historyAdd(command);  // Added before the execution, so a rejected command can be edited and retried
     this->execConsoleCommand(command);
 }
 
 void QConsoleView::execConsoleCommand(const QString &command)
 {
+    m_historyPos = -1;  // Also covers the commands put by toolbar and menu
     if (command.isNull() || command.isEmpty()) return;  // Nothing to do
     if (g_okEmulatorRunning) return;
 

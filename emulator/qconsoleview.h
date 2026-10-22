@@ -2,6 +2,7 @@
 #define QCONSOLEVIEW_H
 
 #include <QWidget>
+#include <QStringList>
 #include "Common.h"
 
 class QTextEdit;
@@ -35,7 +36,12 @@ public slots:
     void execConsoleCommand();
     void execConsoleCommand(const QString &command);
 
+private slots:
+    void commandEdited();  // The user edits the line: the next Up starts from the newest command
+
 protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
     static QString MESSAGE_UNKNOWN_COMMAND;
     static QString MESSAGE_WRONG_VALUE;
     static QString MESSAGE_INVALID_REGNUM;
@@ -44,6 +50,14 @@ private:
     QTextEdit *m_log;
     QLabel *m_prompt;
     QLineEdit *m_edit;
+
+    QStringList m_history;  // Oldest first, the newest command is the last element
+    int m_historyPos;       // -1 = editing a new line; 0 = newest stored command, 1 = the one before, ...
+
+    void historyAdd(const QString &command);
+    void historyShow();
+    void historyUp();
+    void historyDown();
 
     void printConsolePrompt();
     int printDisassemble(quint16 address, bool okOneInstr, bool okShort);
