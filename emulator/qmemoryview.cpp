@@ -190,18 +190,23 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         m_PostionIncrement += cxChar;
 
     char buffer[7];
-    const char* ADDRESS_LINE_OCT_WORDS = "   addr  0      2      4      6      10     12     14     16";
-    const char* ADDRESS_LINE_OCT_BYTES = "   addr  0   1   2   3   4   5   6   7   10  11  12  13  14  15  16  17";
-    const char* ADDRESS_LINE_HEX_WORDS = "   addr  0    2    4    6    8    a    c    e";
-    const char* ADDRESS_LINE_HEX_BYTES = "   addr  0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f";
-    if (m_NumeralMode == MEMMODENUM_OCT && !m_ByteMode)
-        painter.drawText(38, cyLine, ADDRESS_LINE_OCT_WORDS);
-    else if (m_NumeralMode == MEMMODENUM_OCT && m_ByteMode)
-        painter.drawText(38, cyLine, ADDRESS_LINE_OCT_BYTES);
-    else if (m_ByteMode)
-        painter.drawText(38, cyLine, ADDRESS_LINE_HEX_BYTES);
+    // Header line: each column label is drawn at the same x as the values below it, not as one
+    // string, so the columns stay aligned with any font metrics
+    painter.setPen(colorText);
+    int xFirst = 38 + 9 * cxChar;  // x of the first value
+    painter.drawText(38 + 3 * cxChar, cyLine, "addr");
+    int numBase = (m_NumeralMode == MEMMODENUM_OCT) ? 8 : 16;
+    if (!m_ByteMode)
+    {
+        for (int j = 0; j < 8; j++)  // One label per word, the offset of the word
+            painter.drawText(xFirst + j * m_PostionIncrement, cyLine, QString::number(j * 2, numBase));
+    }
     else
-        painter.drawText(38, cyLine, ADDRESS_LINE_HEX_WORDS);
+    {
+        int cxSecondByte = ((m_NumeralMode == MEMMODENUM_OCT) ? 4 : 3) * cxChar;  // The high byte is drawn here from the low one
+        for (int k = 0; k < 16; k++)  // One label per byte, the offset of the byte
+            painter.drawText(xFirst + (k / 2) * m_PostionIncrement + (k & 1) * cxSecondByte, cyLine, QString::number(k, numBase));
+    }
 
     // Calculate m_nPageSize
     m_nPageSize = this->height() / cyLine - 1;
@@ -215,7 +220,7 @@ void QMemoryView::paintEvent(QPaintEvent * /*event*/)
         else
             DrawHexValue(painter, 38 + 3 * cxChar, y, address);
 
-        int x = 38 + 9 * cxChar;
+        int x = xFirst;
         ushort wchars[16];
         for (int j = 0; j < 8; j++)    // Draw words as octal value
         {

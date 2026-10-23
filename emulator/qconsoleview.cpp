@@ -579,8 +579,8 @@ void QConsoleView::historyAdd(const QString &command)
 {
     m_historyPos = -1;
     if (command.isEmpty()) return;
-    if (!m_history.isEmpty() && m_history.last() == command) return;
 
+    m_history.removeAll(command);  // No duplicates: an existing copy moves to the newest position
     m_history.append(command);
     if (m_history.size() > CONSOLE_HISTORY_SIZE)
         m_history.removeFirst();
