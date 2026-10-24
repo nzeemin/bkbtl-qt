@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include <QtGui>
 #include <QPalette>
+#include <cmath>
 #include "qkeyboardview.h"
 #include "Emulator.h"
 
@@ -96,54 +97,187 @@ const unsigned short m_arrKeyboardKeys[] =
 };
 const int m_nKeyboardKeysCount = sizeof(m_arrKeyboardKeys) / sizeof(unsigned short) / KEYBOARD_KEYS_ARRAY_WIDTH;
 
+// Keyboard is drawn in these logical units and scaled to the widget size
+const int KEYBOARD_WIDTH = 551;
+const int KEYBOARD_HEIGHT = 216;
+
+enum KeyStyle { KeyDark, KeyLight, KeyRed };
+
+// Legend for every key above, in the same order. Text starting with '@' is a glyph name
+struct KeyLegend
+{
+    const char* top;
+    const char* bottom;
+    KeyStyle style;
+};
+const KeyLegend m_arrKeyLegends[] =
+{
+    { "ПОВТ", "", KeyDark }, { "КТ", "", KeyDark }, { "@indent", "", KeyDark }, { "@home", "", KeyDark },
+    { "@end", "", KeyDark }, { "ИНД", "СУ", KeyDark }, { "БЛОК", "РЕД", KeyDark }, { "ШАГ", "", KeyDark },
+    { "СБР", "", KeyDark }, { "СТОП", "", KeyRed },
+
+    { "@shiftdown", "", KeyLight }, { ";", "+", KeyLight }, { "1", "!", KeyLight }, { "2", "\"", KeyLight },
+    { "3", "#", KeyLight }, { "4", "¤", KeyLight }, { "5", "%", KeyLight }, { "6", "&", KeyLight },
+    { "7", "'", KeyLight }, { "8", "(", KeyLight }, { "9", ")", KeyLight }, { "0", "{", KeyLight },
+    { "-", "=", KeyLight }, { "/", "?", KeyLight }, { "@backspace", "", KeyLight },
+
+    { "ТАБ", "", KeyDark }, { "Й", "J", KeyLight }, { "Ц", "C", KeyLight }, { "У", "U", KeyLight },
+    { "К", "K", KeyLight }, { "Е", "E", KeyLight }, { "Н", "N", KeyLight }, { "Г", "G", KeyLight },
+    { "Ш", "[", KeyLight }, { "Щ", "]", KeyLight }, { "З", "Z", KeyLight }, { "Х", "H", KeyLight },
+    { ":", "*", KeyLight }, { "Ъ", "}", KeyLight }, { "ВС", "", KeyDark },
+
+    { "СУ", "", KeyDark }, { "Ф", "F", KeyLight }, { "Ы", "Y", KeyLight }, { "В", "W", KeyLight },
+    { "А", "A", KeyLight }, { "П", "P", KeyLight }, { "Р", "R", KeyLight }, { "О", "O", KeyLight },
+    { "Л", "L", KeyLight }, { "Д", "D", KeyLight }, { "Ж", "V", KeyLight }, { "Э", "\\", KeyLight },
+    { ".", ">", KeyLight }, { "@enter", "", KeyLight },
+
+    { "СТР", "", KeyDark }, { "ЗАГЛ", "", KeyDark }, { "Я", "Q", KeyLight }, { "Ч", "¬", KeyLight },
+    { "С", "S", KeyLight }, { "М", "M", KeyLight }, { "И", "I", KeyLight }, { "Т", "T", KeyLight },
+    { "Ь", "X", KeyLight }, { "Б", "B", KeyLight }, { "Ю", "@", KeyLight }, { ",", "<", KeyLight },
+
+    { "РУС", "", KeyDark }, { "АР2", "", KeyDark }, { "", "", KeyLight }, { "ЛАТ", "", KeyDark },
+    { "@left", "", KeyDark }, { "@up", "", KeyDark }, { "@down", "", KeyDark }, { "@right", "", KeyDark },
+};
+static_assert(sizeof(m_arrKeyLegends) / sizeof(KeyLegend) == sizeof(m_arrKeyboardKeys) / sizeof(unsigned short) / KEYBOARD_KEYS_ARRAY_WIDTH,
+              "Every key needs a legend");
+
+static void drawGlyph(QPainter& painter, const QString& name, const QRectF& rc)
+{
+    const QPointF c = rc.center();
+    const qreal hw = rc.width() * 0.28, hh = rc.height() * 0.22;  // glyph half-extents
+    const qreal head = qMin(hw, hh) * 0.9;
+
+    // Arrow from 'from' to 'to' with the head at 'to'
+    auto arrow = [&](QPointF from, QPointF to)
+    {
+        QPointF d = to - from;
+        qreal len = std::hypot(d.x(), d.y());
+        QPointF u = d / len, n(-u.y(), u.x());
+        painter.drawLine(from, to);
+        painter.drawLine(to, to - u * head + n * head * 0.7);
+        painter.drawLine(to, to - u * head - n * head * 0.7);
+    };
+
+    painter.save();
+    QPen pen = painter.pen();
+    pen.setWidthF(1.6);
+    pen.setCapStyle(Qt::RoundCap);
+    pen.setJoinStyle(Qt::RoundJoin);
+    painter.setPen(pen);
+    painter.setBrush(Qt::NoBrush);
+
+    if (name == "@right" || name == "@end") arrow(c - QPointF(hw, 0), c + QPointF(hw, 0));
+    if (name == "@left" || name == "@home" || name == "@backspace") arrow(c + QPointF(hw, 0), c - QPointF(hw, 0));
+    if (name == "@up") arrow(c + QPointF(0, hh), c - QPointF(0, hh));
+    if (name == "@down") arrow(c - QPointF(0, hh), c + QPointF(0, hh));
+    if (name == "@end") painter.drawLine(c + QPointF(hw, -hh), c + QPointF(hw, hh));
+    if (name == "@home") painter.drawLine(c + QPointF(-hw, -hh), c + QPointF(-hw, hh));
+    if (name == "@indent")
+    {
+        QPolygonF poly;
+        poly << c + QPointF(-hw, -hh * 0.5) << c + QPointF(0, -hh * 0.5) << c + QPointF(0, -hh)
+             << c + QPointF(hw, 0) << c + QPointF(0, hh) << c + QPointF(0, hh * 0.5) << c + QPointF(-hw, hh * 0.5);
+        painter.drawPolygon(poly);
+    }
+    if (name == "@shiftdown")
+    {
+        QPolygonF poly;
+        poly << c + QPointF(-hh * 0.5, -hh) << c + QPointF(hh * 0.5, -hh) << c + QPointF(hh * 0.5, 0)
+             << c + QPointF(hh, 0) << c + QPointF(0, hh) << c + QPointF(-hh, 0) << c + QPointF(-hh * 0.5, 0);
+        painter.drawPolygon(poly);
+    }
+    if (name == "@enter")
+    {
+        painter.drawLine(c + QPointF(hw, -hh), c + QPointF(hw, hh * 0.4));
+        arrow(c + QPointF(hw, hh * 0.4), c + QPointF(-hw, hh * 0.4));
+    }
+
+    painter.restore();
+}
+
 QKeyboardView::QKeyboardView(QWidget *parent) :
     QWidget(parent)
 {
     m_nKeyPressedScan = m_nKeyPressedCode = 0;
 
-    setMinimumSize(551 + 8, 216 + 8);
-    setMaximumSize(1536 + 8, 216 + 24);
+    m_nImageTop = m_nImageLeft = 0;
+    m_scale = 1.0;
+
+    setMinimumSize(KEYBOARD_WIDTH + 8, KEYBOARD_HEIGHT + 8);
+}
+
+QSize QKeyboardView::imageSize() const
+{
+    return QSize(KEYBOARD_WIDTH, KEYBOARD_HEIGHT);
+}
+
+// Scale the keyboard to the largest size that keeps its aspect ratio, and center it
+void QKeyboardView::updateTransform()
+{
+    QSize scaled = imageSize().scaled(this->size(), Qt::KeepAspectRatio);
+    m_scale = double(scaled.width()) / KEYBOARD_WIDTH;
+    m_nImageLeft = (this->width() - scaled.width()) / 2;
+    m_nImageTop = (this->height() - scaled.height()) / 2;
 }
 
 void QKeyboardView::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
+    painter.fillRect(this->rect(), QColor(115, 115, 115));
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::TextAntialiasing);
 
-    QImage imageKeyboard(":/images/keyboard.png");
+    updateTransform();
+    painter.translate(m_nImageLeft, m_nImageTop);
+    painter.scale(m_scale, m_scale);
+    painter.fillRect(0, 0, KEYBOARD_WIDTH, KEYBOARD_HEIGHT, QColor(200, 200, 200));
 
-    // Center image
-    int cxBitmap = (int) imageKeyboard.width();
-    int cyBitmap = (int) imageKeyboard.height();
-    m_nImageLeft = (this->width() - cxBitmap) / 2;
-    m_nImageTop = (this->height() - cyBitmap) / 2;
+    QFont font = painter.font();
+    font.setPixelSize(11);
+    painter.setFont(font);
 
-    painter.drawImage(QPoint(m_nImageLeft, m_nImageTop), imageKeyboard);
-
-    if (m_nImageLeft > 0)
+    for (int i = 0; i < m_nKeyboardKeysCount; i++)
     {
-        painter.fillRect(0, 0, m_nImageLeft, this->height(), QColor(115, 115, 115));
-        painter.fillRect(m_nImageLeft + cxBitmap, 0, m_nImageLeft + 1, this->height(), QColor(115, 115, 115));
-    }
-    if (m_nImageTop > 0)
-    {
-        painter.fillRect(0, 0, this->width(), m_nImageTop, QColor(115, 115, 115));
-        painter.fillRect(0, m_nImageTop + cyBitmap, this->width(), m_nImageTop + 1, QColor(115, 115, 115));
-    }
+        const KeyLegend& legend = m_arrKeyLegends[i];
+        QRectF rcKey(m_arrKeyboardKeys[i * 5], m_arrKeyboardKeys[i * 5 + 1],
+                     m_arrKeyboardKeys[i * 5 + 2], m_arrKeyboardKeys[i * 5 + 3]);
+        rcKey.adjust(0.5, 0.5, -0.5, -0.5);
+        bool pressed = m_nKeyPressedScan != 0 && m_nKeyPressedScan == m_arrKeyboardKeys[i * 5 + 4];
 
-    if (m_nKeyPressedScan != 0)
-    {
-        QImage imageKeyboard2(":/images/keyboard.png");
-        imageKeyboard2.invertPixels();
+        QColor colorTop, colorBottom, colorText;
+        switch (legend.style)
+        {
+        case KeyLight: colorTop = QColor(255, 255, 255); colorBottom = QColor(225, 225, 225); colorText = QColor(30, 30, 30); break;
+        case KeyRed:   colorTop = QColor(235, 70, 55);   colorBottom = QColor(190, 25, 15);   colorText = QColor(255, 255, 255); break;
+        default:       colorTop = QColor(110, 110, 110); colorBottom = QColor(60, 60, 60);    colorText = QColor(240, 240, 240); break;
+        }
+        if (pressed)  // Pressed key is shown inverted
+        {
+            colorTop = QColor(255 - colorTop.red(), 255 - colorTop.green(), 255 - colorTop.blue());
+            colorBottom = QColor(255 - colorBottom.red(), 255 - colorBottom.green(), 255 - colorBottom.blue());
+            colorText = QColor(255 - colorText.red(), 255 - colorText.green(), 255 - colorText.blue());
+        }
 
-        for (int i = 0; i < m_nKeyboardKeysCount; i++)
-            if (m_nKeyPressedScan == m_arrKeyboardKeys[i * 5 + 4])
-            {
-                int x = m_arrKeyboardKeys[i * 5];
-                int y = m_arrKeyboardKeys[i * 5 + 1];
-                int w = m_arrKeyboardKeys[i * 5 + 2];
-                int h = m_arrKeyboardKeys[i * 5 + 3];
-                painter.drawImage(m_nImageLeft + x, m_nImageTop + y, imageKeyboard2, x, y, w, h);
-            }
+        QLinearGradient gradient(rcKey.topLeft(), rcKey.bottomLeft());
+        gradient.setColorAt(0, colorTop);
+        gradient.setColorAt(1, colorBottom);
+        painter.setPen(QPen(QColor(40, 40, 40), 0.8));
+        painter.setBrush(gradient);
+        painter.drawRoundedRect(rcKey, 4, 4);
+
+        painter.setPen(colorText);
+        QString top = QString::fromUtf8(legend.top);
+        QString bottom = QString::fromUtf8(legend.bottom);
+        if (top.startsWith('@'))
+            drawGlyph(painter, top, rcKey);
+        else if (bottom.isEmpty())
+            painter.drawText(rcKey, Qt::AlignCenter, top);
+        else
+        {
+            QRectF half(rcKey.left(), rcKey.top(), rcKey.width(), rcKey.height() / 2);
+            painter.drawText(half.translated(0, 2), Qt::AlignCenter, top);
+            painter.drawText(half.translated(0, rcKey.height() / 2 - 2), Qt::AlignCenter, bottom);
+        }
     }
 
     //showKeyboardMapping(painter);
@@ -155,8 +289,8 @@ void QKeyboardView::showKeyboardMapping(QPainter& painter)
     for (int i = 0; i < m_nKeyboardKeysCount; i++)
     {
         QRect rcKey;
-        rcKey.setLeft(m_nImageLeft + m_arrKeyboardKeys[i * 5]);
-        rcKey.setTop(m_nImageTop + m_arrKeyboardKeys[i * 5 + 1]);
+        rcKey.setLeft(m_arrKeyboardKeys[i * 5]);
+        rcKey.setTop(m_arrKeyboardKeys[i * 5 + 1]);
         rcKey.setRight(rcKey.left() + m_arrKeyboardKeys[i * 5 + 2]);
         rcKey.setBottom(rcKey.top() + m_arrKeyboardKeys[i * 5 + 3]);
 
@@ -210,15 +344,16 @@ void QKeyboardView::mouseReleaseEvent(QMouseEvent *event)
 
 unsigned char QKeyboardView::getKeyByPoint(int x, int y)
 {
+    // Widget point to logical keyboard coordinates
+    updateTransform();
+    QPointF pt((x - m_nImageLeft) / m_scale, (y - m_nImageTop) / m_scale);
+
     for (int i = 0; i < m_nKeyboardKeysCount; i++)
     {
-        QRect rcKey;
-        rcKey.setLeft(m_nImageLeft + m_arrKeyboardKeys[i * 5]);
-        rcKey.setTop(m_nImageTop + m_arrKeyboardKeys[i * 5 + 1]);
-        rcKey.setRight(rcKey.left() + m_arrKeyboardKeys[i * 5 + 2]);
-        rcKey.setBottom(rcKey.top() + m_arrKeyboardKeys[i * 5 + 3]);
+        QRectF rcKey(m_arrKeyboardKeys[i * 5], m_arrKeyboardKeys[i * 5 + 1],
+                     m_arrKeyboardKeys[i * 5 + 2], m_arrKeyboardKeys[i * 5 + 3]);
 
-        if (x >= rcKey.left() && x < rcKey.right() && y >= rcKey.top() && y < rcKey.bottom())
+        if (rcKey.contains(pt))
         {
             unsigned char bkscan = (unsigned char) m_arrKeyboardKeys[i * 5 + 4];
             if (bkscan == 0) return 0;
