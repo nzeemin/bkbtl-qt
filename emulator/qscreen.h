@@ -16,6 +16,7 @@ public:
     QImage getScreenshot();
     int mode() const { return m_mode; }
     void setMode(int mode);
+    QSize imageSize() const { return m_image->size(); }
 
 protected:
     void createDisplay();

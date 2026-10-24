@@ -124,10 +124,11 @@ MainWindow::MainWindow(QWidget *parent) :
     vboxlayout->addWidget(ui->mainToolBar, 0, Qt::AlignTop);
     vboxlayout->addWidget(m_screen);
     vboxlayout->addWidget(m_keyboard);
+    vboxlayout->addStretch(0);  // Free space above and below keeps the views centered, see updateViewsLayout()
+    vboxlayout->insertStretch(1, 0);
     ui->centralWidget->setLayout(vboxlayout);
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-    int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
-    ui->centralWidget->setMaximumWidth(maxwid);
+    ui->centralWidget->installEventFilter(this);
+    m_centralLayout = vboxlayout;
 
     m_dockDebug = new QDockWidget(tr("Debug"));
     m_dockDebug->setObjectName("dockDebug");
@@ -258,11 +259,6 @@ void MainWindow::restoreSettings(QSettings * settings)
     int scrViewMode = Global_getSettings()->value("MainWindow/ScreenMode").toInt();
     m_screen->setMode(scrViewMode);
 
-    // Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-    int maxwid = m_screen->maximumWidth() > m_keyboard->maximumWidth() ? m_screen->maximumWidth() : m_keyboard->maximumWidth();
-    ui->centralWidget->setMaximumWidth(maxwid);
-
     QByteArray geometry = Global_getSettings()->value("MainWindow/Geometry").toByteArray();
     if (!geometry.isEmpty())
         restoreGeometry(geometry);
@@ -271,6 +267,7 @@ void MainWindow::restoreSettings(QSettings * settings)
     restoreState(Global_getSettings()->value("MainWindow/WindowState").toByteArray());
 
     m_keyboard->setVisible(settings->value("MainWindow/KeyboardView", true).toBool());
+    updateViewsLayout();
     m_dockConsole->setVisible(settings->value("MainWindow/ConsoleView", false).toBool());
     m_dockDebug->setVisible(settings->value("MainWindow/DebugView", false).toBool());
     m_dockDisasm->setVisible(settings->value("MainWindow/DisasmView", false).toBool());
@@ -548,9 +545,43 @@ void MainWindow::helpAbout()
     dialog.exec();
 }
 
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->centralWidget && event->type() == QEvent::Resize)
+        updateViewsLayout();
+    return QMainWindow::eventFilter(watched, event);
+}
+
+// The screen and the keyboard are scaled by one common factor, so they keep their proportions
+// when the window is resized or maximized. The factor is the largest one that fits both views;
+// the space left over is split between the stretches above and below them.
+void MainWindow::updateViewsLayout()
+{
+    const QSize screenSize = m_screen->imageSize();
+    const QSize keyboardSize = m_keyboard->isHidden() ? QSize(0, 0) : m_keyboard->imageSize();
+    const int availWidth = ui->centralWidget->width();
+    const int availHeight = ui->centralWidget->height() - ui->mainToolBar->height();
+    const int totalWidth = qMax(screenSize.width(), keyboardSize.width());
+    const int totalHeight = screenSize.height() + keyboardSize.height();
+    if (availWidth <= 0 || availHeight <= 0)
+        return;
+
+    const double scale = qMin(double(availWidth) / totalWidth, double(availHeight) / totalHeight);
+    const int screenHeight = qRound(screenSize.height() * scale);
+    const int keyboardHeight = qRound(keyboardSize.height() * scale);
+    const int spare = qMax(0, availHeight - screenHeight - keyboardHeight);
+
+    // Layout items: toolbar, spacer, screen, keyboard, spacer
+    m_centralLayout->setStretch(1, spare / 2);
+    m_centralLayout->setStretch(2, screenHeight);
+    m_centralLayout->setStretch(3, keyboardHeight);
+    m_centralLayout->setStretch(4, spare - spare / 2);
+}
+
 void MainWindow::viewKeyboard()
 {
     m_keyboard->setVisible(!m_keyboard->isVisible());
+    updateViewsLayout();
     updateMenu();
 }
 
@@ -649,9 +680,7 @@ void MainWindow::emulatorScreenMode(int mode)
     m_screen->setMode(mode);
     updateMenu();
 
-    //Update centralWidget size
-    ui->centralWidget->setMaximumHeight(m_screen->maximumHeight() + m_keyboard->maximumHeight());
-    ui->centralWidget->setMaximumWidth(m_screen->maximumWidth());
+    updateViewsLayout();
 }
 
 void MainWindow::configurationBK0010Basic() { setConfiguration(BK_CONF_BK0010_BASIC); }

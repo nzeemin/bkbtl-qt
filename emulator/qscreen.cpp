@@ -50,32 +50,23 @@ void QEmulatorScreen::createDisplay()
     m_image = new QImage(cxScreenWidth, cyScreenHeight, QImage::Format_RGB32);
 
     setMinimumSize(cxScreenWidth + 8, cyScreenHeight + 8);
-    setMaximumSize(std::max(cxScreenWidth + 100, 1024), cyScreenHeight + 24);
 }
 
 void QEmulatorScreen::paintEvent(QPaintEvent * /*event*/)
 {
     Emulator_PrepareScreenRGB32(m_image->bits(), m_mode);
 
-    // Center image
-    int cxBitmap = m_image->width();
-    int cyBitmap = m_image->height();
-    m_nImageLeft = (this->width() - cxBitmap) / 2;
-    m_nImageTop = (this->height() - cyBitmap) / 2;
+    // Scale the image to the largest size that keeps its aspect ratio, and center it
+    QSize imageSize = m_image->size();
+    QSize scaledSize = imageSize.scaled(this->size(), Qt::KeepAspectRatio);
+    m_nImageLeft = (this->width() - scaledSize.width()) / 2;
+    m_nImageTop = (this->height() - scaledSize.height()) / 2;
 
     QPainter painter(this);
-    painter.drawImage(m_nImageLeft, m_nImageTop, *m_image);
-
-    if (m_nImageLeft > 0)
-    {
-        painter.fillRect(0, 0, m_nImageLeft, this->height(), QColor(115, 115, 115));
-        painter.fillRect(m_nImageLeft + cxBitmap, 0, m_nImageLeft + 1, this->height(), QColor(115, 115, 115));
-    }
-    if (m_nImageTop > 0)
-    {
-        painter.fillRect(0, 0, this->width(), m_nImageTop, QColor(115, 115, 115));
-        painter.fillRect(0, m_nImageTop + cyBitmap, this->width(), m_nImageTop + 1, QColor(115, 115, 115));
-    }
+    painter.fillRect(this->rect(), QColor(115, 115, 115));
+    // Integer zoom keeps the pixels sharp, a fractional one needs smoothing
+    painter.setRenderHint(QPainter::SmoothPixmapTransform, scaledSize.width() % imageSize.width() != 0);
+    painter.drawImage(QRect(QPoint(m_nImageLeft, m_nImageTop), scaledSize), *m_image);
 }
 
 void QEmulatorScreen::keyPressEvent(QKeyEvent *event)

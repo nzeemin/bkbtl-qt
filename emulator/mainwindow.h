@@ -15,6 +15,7 @@ class QTeletypeView;
 class QTapeView;
 class QLabel;
 class QSettings;
+class QVBoxLayout;
 
 namespace Ui
 {
@@ -87,11 +88,13 @@ protected:
     void showEvent(QShowEvent *);
     void changeEvent(QEvent *);
     void closeEvent(QCloseEvent *);
+    bool eventFilter(QObject *watched, QEvent *event);
 
 private:
     Ui::MainWindow *ui;
     bool autoStartProcessed;
 
+    QVBoxLayout* m_centralLayout;
     QEmulatorScreen *m_screen;
     QKeyboardView *m_keyboard;
     QConsoleView *m_console;
@@ -117,6 +120,7 @@ private:
     double m_frameLeftover;        // Accumulated milliseconds not yet turned into frames
 
     void setConfiguration(int configuration);
+    void updateViewsLayout();
 };
 
 #endif // MAINWINDOW_H
